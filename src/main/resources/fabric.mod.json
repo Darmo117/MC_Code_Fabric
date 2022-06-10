@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "mccode",
+  "version": "${version}",
+
+  "name": "MC Code",
+  "description": "Resource pack for MC Code mod.",
+  "authors": [
+    "Darmo"
+  ],
+  "contact": {
+    "homepage": "http://www.darmo-creations.net",
+    "sources": "https://github.com/Darmo117/MC_Code_Fabric"
+  },
+
+  "license": "GPL3",
+  "icon": "assets/mccode/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.darmo_creations.mccode.MCCode"
+    ]
+  },
+
+  "depends": {
+    "fabricloader": ">=0.14.6",
+    "fabric": "*",
+    "minecraft": "~1.18.2",
+    "java": ">=17"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
