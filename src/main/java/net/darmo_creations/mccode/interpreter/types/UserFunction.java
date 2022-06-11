@@ -7,12 +7,11 @@ import net.darmo_creations.mccode.interpreter.exceptions.SyntaxErrorException;
 import net.darmo_creations.mccode.interpreter.statements.ReturnStatement;
 import net.darmo_creations.mccode.interpreter.statements.Statement;
 import net.darmo_creations.mccode.interpreter.statements.StatementAction;
-import net.darmo_creations.mccode.interpreter.statements.StatementNBTHelper;
+import net.darmo_creations.mccode.interpreter.statements.StatementTagHelper;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
+import net.darmo_creations.mccode.interpreter.tags.StringListTag;
+import net.darmo_creations.mccode.interpreter.tags.TagType;
 import net.darmo_creations.mccode.interpreter.type_wrappers.AnyType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +21,7 @@ import java.util.stream.Collectors;
 /**
  * This class represents a user-defined function.
  * <p>
- * User functions can be serialized an deserialized to and from NBT tags.
+ * User functions can be serialized an deserialized to and from tags.
  */
 public class UserFunction extends Function {
   public static final int MAX_CALL_DEPTH = 100;
@@ -52,13 +51,13 @@ public class UserFunction extends Function {
   }
 
   /**
-   * Create a user function from a NBT tag.
+   * Create a user function from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public UserFunction(final NbtCompound tag) {
+  public UserFunction(final CompoundTag tag) {
     super(tag.getString(NAME_KEY), extractParameters(tag), ProgramManager.getTypeInstance(AnyType.class), false);
-    this.statements = StatementNBTHelper.deserializeStatementsList(tag, STATEMENTS_KEY);
+    this.statements = StatementTagHelper.deserializeStatementsList(tag, STATEMENTS_KEY);
     this.ip = tag.getInt(IP_KEY);
   }
 
@@ -99,15 +98,15 @@ public class UserFunction extends Function {
    *
    * @return The tag.
    */
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = new NbtCompound();
+  public CompoundTag writeToNBT() {
+    CompoundTag tag = new CompoundTag();
     tag.putString(NAME_KEY, this.getName());
-    NbtList parametersList = new NbtList();
+    StringListTag parametersList = new StringListTag();
     this.parameters.stream()
         .map(Parameter::getName)
-        .forEach(paramName -> parametersList.add(NbtString.of(paramName)));
-    tag.put(PARAMETERS_KEY, parametersList);
-    tag.put(STATEMENTS_KEY, StatementNBTHelper.serializeStatementsList(this.statements));
+        .forEach(parametersList::add);
+    tag.putTag(PARAMETERS_KEY, parametersList);
+    tag.putTag(STATEMENTS_KEY, StatementTagHelper.serializeStatementsList(this.statements));
     tag.putInt(IP_KEY, this.ip);
     return tag;
   }
@@ -127,11 +126,11 @@ public class UserFunction extends Function {
    * @param tag The tag to extract parameters from.
    * @return The parameters list.
    */
-  public static List<Parameter> extractParameters(final NbtCompound tag) {
-    NbtList parametersTag = tag.getList(PARAMETERS_KEY, NbtElement.STRING_TYPE);
+  public static List<Parameter> extractParameters(final CompoundTag tag) {
+    StringListTag parametersTag = tag.getList(PARAMETERS_KEY, TagType.STRING_TAG_TYPE);
     List<Parameter> parameters = new ArrayList<>();
-    for (NbtElement t : parametersTag) {
-      parameters.add(new Parameter(t.asString(), ProgramManager.getTypeInstance(AnyType.class)));
+    for (String name : parametersTag) {
+      parameters.add(new Parameter(name, ProgramManager.getTypeInstance(AnyType.class)));
     }
     return parameters;
   }

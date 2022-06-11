@@ -2,8 +2,8 @@ package net.darmo_creations.mccode.interpreter.nodes;
 
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.type_wrappers.TypeBase;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.Objects;
 
@@ -34,13 +34,13 @@ public class PropertyCallNode extends Node {
   }
 
   /**
-   * Create a node that represents a call to an object’s property from an NBT tag.
+   * Create a node that represents a call to an object’s property from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public PropertyCallNode(final NbtCompound tag) {
+  public PropertyCallNode(final CompoundTag tag) {
     super(tag);
-    this.object = NodeNBTHelper.getNodeForTag(tag.getCompound(INSTANCE_KEY));
+    this.object = NodeTagHelper.getNodeForTag(tag.getCompound(INSTANCE_KEY));
     this.propertyName = tag.getString(PROPERTY_NAME_KEY);
   }
 
@@ -57,9 +57,9 @@ public class PropertyCallNode extends Node {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
-    tag.put(INSTANCE_KEY, this.object.writeToNBT());
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
+    tag.putTag(INSTANCE_KEY, this.object.writeToTag());
     tag.putString(PROPERTY_NAME_KEY, this.propertyName);
     return tag;
   }

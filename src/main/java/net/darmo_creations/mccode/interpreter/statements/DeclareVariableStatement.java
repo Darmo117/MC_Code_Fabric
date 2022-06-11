@@ -4,8 +4,8 @@ import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Variable;
 import net.darmo_creations.mccode.interpreter.exceptions.MCCodeException;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
-import net.darmo_creations.mccode.interpreter.nodes.NodeNBTHelper;
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.nodes.NodeTagHelper;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 import java.util.Objects;
 
@@ -55,17 +55,17 @@ public class DeclareVariableStatement extends Statement {
   }
 
   /**
-   * Create a statement that declares a new variable from an NBT tag.
+   * Create a statement that declares a new variable from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public DeclareVariableStatement(final NbtCompound tag) {
+  public DeclareVariableStatement(final CompoundTag tag) {
     super(tag);
     this.publiclyVisible = tag.getBoolean(PUBLIC_KEY);
     this.editableByCommands = tag.getBoolean(EDITABLE_KEY);
     this.constant = tag.getBoolean(CONSTANT_KEY);
     this.variableName = tag.getString(VAR_NAME_KEY);
-    this.value = NodeNBTHelper.getNodeForTag(tag.getCompound(VALUE_KEY));
+    this.value = NodeTagHelper.getNodeForTag(tag.getCompound(VALUE_KEY));
     if (this.constant && this.editableByCommands) {
       throw new MCCodeException("constant cannot be editable through commands");
     }
@@ -88,13 +88,13 @@ public class DeclareVariableStatement extends Statement {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
     tag.putBoolean(PUBLIC_KEY, this.publiclyVisible);
     tag.putBoolean(EDITABLE_KEY, this.editableByCommands);
     tag.putBoolean(CONSTANT_KEY, this.constant);
     tag.putString(VAR_NAME_KEY, this.variableName);
-    tag.put(VALUE_KEY, this.value.writeToNBT());
+    tag.putTag(VALUE_KEY, this.value.writeToTag());
     return tag;
   }
 

@@ -4,13 +4,13 @@ import net.darmo_creations.mccode.interpreter.ProgramElement;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.exceptions.MCCodeRuntimeException;
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 /**
  * A node is a component of an expression tree.
  * It returns a value when evaluated in a given scope.
  * <p>
- * Nodes can be serialized to NBT tags.
+ * Nodes can be serialized to tags.
  */
 public abstract class Node extends ProgramElement {
   /**
@@ -24,11 +24,11 @@ public abstract class Node extends ProgramElement {
   }
 
   /**
-   * Create a node from an NBT tag.
+   * Create a node from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public Node(final NbtCompound tag) {
+  public Node(final CompoundTag tag) {
     super(tag);
   }
 

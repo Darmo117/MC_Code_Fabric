@@ -2,8 +2,8 @@ package net.darmo_creations.mccode.interpreter.statements;
 
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
-import net.darmo_creations.mccode.interpreter.nodes.NodeNBTHelper;
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.nodes.NodeTagHelper;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 import java.util.Objects;
 
@@ -30,13 +30,13 @@ public class ExpressionStatement extends Statement {
   }
 
   /**
-   * Create a statement that contains a single expression.
+   * Create a statement that contains a single expression from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public ExpressionStatement(final NbtCompound tag) {
+  public ExpressionStatement(final CompoundTag tag) {
     super(tag);
-    this.expression = NodeNBTHelper.getNodeForTag(tag.getCompound(EXPRESSION_KEY));
+    this.expression = NodeTagHelper.getNodeForTag(tag.getCompound(EXPRESSION_KEY));
   }
 
   @Override
@@ -51,9 +51,9 @@ public class ExpressionStatement extends Statement {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
-    tag.put(EXPRESSION_KEY, this.expression.writeToNBT());
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
+    tag.putTag(EXPRESSION_KEY, this.expression.writeToTag());
     return tag;
   }
 

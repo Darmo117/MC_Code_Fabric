@@ -3,13 +3,12 @@ package net.darmo_creations.mccode.interpreter.statements;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Utils;
 import net.darmo_creations.mccode.interpreter.Variable;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTagListTag;
+import net.darmo_creations.mccode.interpreter.tags.StringListTag;
+import net.darmo_creations.mccode.interpreter.tags.TagType;
 import net.darmo_creations.mccode.interpreter.types.UserFunction;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -49,24 +48,17 @@ public class DefineFunctionStatement extends Statement {
   }
 
   /**
-   * Create a statement that defines a function from an NBT tag.
+   * Create a statement that defines a function from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public DefineFunctionStatement(final NbtCompound tag) {
+  public DefineFunctionStatement(final CompoundTag tag) {
     super(tag);
     this.name = tag.getString(NAME_KEY);
     this.publiclyVisible = tag.getBoolean(PUBLIC_KEY);
-    NbtList paramsTag = tag.getList(PARAMS_LIST_KEY, NbtElement.STRING_TYPE);
-    this.parametersNames = new ArrayList<>();
-    for (NbtElement t : paramsTag) {
-      this.parametersNames.add(t.asString());
-    }
-    NbtList statementsTag = tag.getList(STATEMENTS_LIST_KEY, NbtElement.COMPOUND_TYPE);
-    this.statements = new ArrayList<>();
-    for (NbtElement t : statementsTag) {
-      this.statements.add(StatementNBTHelper.getStatementForTag((NbtCompound) t));
-    }
+    this.parametersNames = tag.getList(PARAMS_LIST_KEY, TagType.STRING_TAG_TYPE).stream().toList();
+    this.statements = tag.getList(STATEMENTS_LIST_KEY, TagType.COMPOUND_TAG_TYPE).stream()
+        .map(StatementTagHelper::getStatementForTag).toList();
   }
 
   @Override
@@ -82,16 +74,16 @@ public class DefineFunctionStatement extends Statement {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
     tag.putString(NAME_KEY, this.name);
     tag.putBoolean(PUBLIC_KEY, this.publiclyVisible);
-    NbtList paramsList = new NbtList();
-    this.parametersNames.forEach(s -> paramsList.add(NbtString.of(s)));
-    tag.put(PARAMS_LIST_KEY, paramsList);
-    NbtList statementsList = new NbtList();
-    this.statements.forEach(s -> statementsList.add(s.writeToNBT()));
-    tag.put(STATEMENTS_LIST_KEY, statementsList);
+    StringListTag paramsList = new StringListTag();
+    this.parametersNames.forEach(paramsList::add);
+    tag.putTag(PARAMS_LIST_KEY, paramsList);
+    CompoundTagListTag statementsList = new CompoundTagListTag();
+    this.statements.forEach(s -> statementsList.add(s.writeToTag()));
+    tag.putTag(STATEMENTS_LIST_KEY, statementsList);
     return tag;
   }
 

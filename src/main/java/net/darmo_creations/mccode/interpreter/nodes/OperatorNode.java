@@ -2,7 +2,7 @@ package net.darmo_creations.mccode.interpreter.nodes;
 
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.exceptions.SyntaxErrorException;
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 import java.util.List;
 import java.util.Objects;
@@ -37,11 +37,11 @@ public abstract class OperatorNode extends OperationNode {
   }
 
   /**
-   * Create an operator node from an NBT tag.
+   * Create an operator node from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public OperatorNode(final NbtCompound tag) {
+  public OperatorNode(final CompoundTag tag) {
     super(tag);
     this.symbol = tag.getString(SYMBOL_KEY);
   }
@@ -70,8 +70,8 @@ public abstract class OperatorNode extends OperationNode {
   protected abstract Object evaluateImpl(Scope scope, final List<Object> values);
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
     tag.putString(SYMBOL_KEY, this.symbol);
     return tag;
   }

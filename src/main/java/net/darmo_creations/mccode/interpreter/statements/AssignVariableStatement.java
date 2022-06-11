@@ -3,9 +3,9 @@ package net.darmo_creations.mccode.interpreter.statements;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
-import net.darmo_creations.mccode.interpreter.nodes.NodeNBTHelper;
+import net.darmo_creations.mccode.interpreter.nodes.NodeTagHelper;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.type_wrappers.TypeBase;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.Objects;
 
@@ -40,15 +40,15 @@ public class AssignVariableStatement extends Statement {
   }
 
   /**
-   * Create a variable assignment statement from an NBT tag.
+   * Create a variable assignment statement from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public AssignVariableStatement(final NbtCompound tag) {
+  public AssignVariableStatement(final CompoundTag tag) {
     super(tag);
     this.variableName = tag.getString(VAR_NAME_KEY);
     this.operator = AssigmentOperator.fromString(tag.getString(OPERATOR_KEY));
-    this.value = NodeNBTHelper.getNodeForTag(tag.getCompound(VALUE_KEY));
+    this.value = NodeTagHelper.getNodeForTag(tag.getCompound(VALUE_KEY));
   }
 
   @Override
@@ -70,11 +70,11 @@ public class AssignVariableStatement extends Statement {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
     tag.putString(VAR_NAME_KEY, this.variableName);
     tag.putString(OPERATOR_KEY, this.operator.getSymbol());
-    tag.put(VALUE_KEY, this.value.writeToNBT());
+    tag.putTag(VALUE_KEY, this.value.writeToTag());
     return tag;
   }
 

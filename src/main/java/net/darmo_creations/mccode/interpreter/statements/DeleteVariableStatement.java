@@ -1,7 +1,7 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
 import net.darmo_creations.mccode.interpreter.Scope;
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 import java.util.Objects;
 
@@ -28,11 +28,11 @@ public class DeleteVariableStatement extends Statement {
   }
 
   /**
-   * Create a statement that deletes a variable or function from an NBT tag.
+   * Create a statement that deletes a variable or function from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public DeleteVariableStatement(final NbtCompound tag) {
+  public DeleteVariableStatement(final CompoundTag tag) {
     super(tag);
     this.variableName = tag.getString(VAR_NAME_KEY);
   }
@@ -49,8 +49,8 @@ public class DeleteVariableStatement extends Statement {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
     tag.putString(VAR_NAME_KEY, this.variableName);
     return tag;
   }

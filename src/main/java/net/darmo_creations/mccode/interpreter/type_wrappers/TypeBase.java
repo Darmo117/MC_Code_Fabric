@@ -8,7 +8,7 @@ import net.darmo_creations.mccode.interpreter.annotations.Method;
 import net.darmo_creations.mccode.interpreter.annotations.Property;
 import net.darmo_creations.mccode.interpreter.annotations.PropertySetter;
 import net.darmo_creations.mccode.interpreter.exceptions.*;
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 import java.util.*;
 
@@ -702,38 +702,38 @@ public abstract class TypeBase<T> {
   }
 
   /**
-   * Serialize an instance of this type to an NBT tag.
+   * Serialize an instance of this type to a tag.
    *
    * @param self Instance of this type to apply the serialize.
    * @return A tag.
    */
-  public NbtCompound writeToNBT(final Object self) {
+  public CompoundTag writeToTag(final Object self) {
     this.ensureType(self, String.format("attempt to serialize object of type \"%s\" from type \"%s\"",
         ProgramManager.getTypeForValue(self), this));
     //noinspection unchecked
-    return this._writeToNBT((T) self);
+    return this._writeToTag((T) self);
   }
 
   /**
-   * Serialize an instance of this type to an NBT tag.
+   * Serialize an instance of this type to a tag.
    *
    * @param self Instance of this type to apply the serialize.
    * @return A tag.
    */
-  protected NbtCompound _writeToNBT(final T self) {
-    NbtCompound tag = new NbtCompound();
+  protected CompoundTag _writeToTag(final T self) {
+    CompoundTag tag = new CompoundTag();
     tag.putString(NAME_KEY, this.getName());
     return tag;
   }
 
   /**
-   * Create a new instance of this type by deserializing the given NBT tag.
+   * Create a new instance of this type by deserializing the given tag.
    *
    * @param scope Scope the operation is performed from.
    * @param tag   Tag to deserialize.
    * @return A new instance of this type.
    */
-  public abstract T readFromNBT(final Scope scope, final NbtCompound tag);
+  public abstract T readFromTag(final Scope scope, final CompoundTag tag);
 
   @Override
   public String toString() {

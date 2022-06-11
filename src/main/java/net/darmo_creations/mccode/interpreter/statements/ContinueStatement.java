@@ -1,7 +1,7 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
 import net.darmo_creations.mccode.interpreter.Scope;
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 import java.util.Objects;
 
@@ -22,11 +22,11 @@ public class ContinueStatement extends Statement {
   }
 
   /**
-   * Create a continue statement from an NBT tag.
+   * Create a continue statement from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public ContinueStatement(final NbtCompound tag) {
+  public ContinueStatement(final CompoundTag tag) {
     super(tag);
   }
 

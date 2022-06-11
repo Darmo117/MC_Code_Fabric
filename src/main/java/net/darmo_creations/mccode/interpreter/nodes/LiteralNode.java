@@ -1,7 +1,7 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
 import net.darmo_creations.mccode.interpreter.Scope;
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -35,7 +35,7 @@ public abstract class LiteralNode<T> extends Node {
    * @param tag          The tag to deserialize.
    * @param deserializer The type-specific function to deserialize the tag.
    */
-  public LiteralNode(final NbtCompound tag, final Function<String, T> deserializer) {
+  public LiteralNode(final CompoundTag tag, final Function<String, T> deserializer) {
     super(tag);
     this.value = deserializer.apply(VALUE_KEY);
   }
@@ -46,8 +46,8 @@ public abstract class LiteralNode<T> extends Node {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
     BiConsumer<String, T> serializer = this.getValueSerializer(tag);
     if (serializer != null) {
       serializer.accept(VALUE_KEY, this.value);
@@ -56,12 +56,12 @@ public abstract class LiteralNode<T> extends Node {
   }
 
   /**
-   * Return a method for the given NBT tag that accepts a string key and this literal’s value.
+   * Return a method for the given tag that accepts a string key and this literal’s value.
    *
    * @param tag The tag to serialize the value into.
    * @return The serializing function.
    */
-  protected abstract BiConsumer<String, T> getValueSerializer(final NbtCompound tag);
+  protected abstract BiConsumer<String, T> getValueSerializer(final CompoundTag tag);
 
   @Override
   public String toString() {

@@ -2,8 +2,8 @@ package net.darmo_creations.mccode.interpreter.nodes;
 
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.types.MCList;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,13 +34,13 @@ public class ListLiteralNode extends Node {
   }
 
   /**
-   * Create an list literal node from an NBT tag.
+   * Create an list literal node from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public ListLiteralNode(final NbtCompound tag) {
+  public ListLiteralNode(final CompoundTag tag) {
     super(tag);
-    this.values = NodeNBTHelper.deserializeNodesList(tag, VALUES_KEY);
+    this.values = NodeTagHelper.deserializeNodesList(tag, VALUES_KEY);
   }
 
   @Override
@@ -52,9 +52,9 @@ public class ListLiteralNode extends Node {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
-    tag.put(VALUES_KEY, NodeNBTHelper.serializeNodesList(this.values));
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
+    tag.putTag(VALUES_KEY, NodeTagHelper.serializeNodesList(this.values));
     return tag;
   }
 

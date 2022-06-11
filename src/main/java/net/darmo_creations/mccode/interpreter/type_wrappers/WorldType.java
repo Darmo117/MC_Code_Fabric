@@ -11,6 +11,7 @@ import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Utils;
 import net.darmo_creations.mccode.interpreter.annotations.*;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.types.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -3594,7 +3595,7 @@ public class WorldType extends TypeBase<WorldProxy> {
   }
 
   @Override
-  public WorldProxy readFromNBT(final Scope scope, final NbtCompound tag) {
+  public WorldProxy readFromTag(final Scope scope, final CompoundTag tag) {
     return (WorldProxy) scope.getVariable(Program.WORLD_VAR_NAME, false);
   }
 

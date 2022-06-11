@@ -3,10 +3,10 @@ package net.darmo_creations.mccode.interpreter.statements;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
-import net.darmo_creations.mccode.interpreter.nodes.NodeNBTHelper;
+import net.darmo_creations.mccode.interpreter.nodes.NodeTagHelper;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.type_wrappers.BinaryOperator;
 import net.darmo_creations.mccode.interpreter.type_wrappers.TypeBase;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.Objects;
 
@@ -37,14 +37,14 @@ public class DeleteItemStatement extends Statement {
   }
 
   /**
-   * Create a statement that applies the "delete item" operator from an NBT tag.
+   * Create a statement that applies the "delete item" operator from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public DeleteItemStatement(final NbtCompound tag) {
+  public DeleteItemStatement(final CompoundTag tag) {
     super(tag);
-    this.target = NodeNBTHelper.getNodeForTag(tag.getCompound(TARGET_KEY));
-    this.key = NodeNBTHelper.getNodeForTag(tag.getCompound(KEY_KEY));
+    this.target = NodeTagHelper.getNodeForTag(tag.getCompound(TARGET_KEY));
+    this.key = NodeTagHelper.getNodeForTag(tag.getCompound(KEY_KEY));
   }
 
   @Override
@@ -61,10 +61,10 @@ public class DeleteItemStatement extends Statement {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
-    tag.put(TARGET_KEY, this.target.writeToNBT());
-    tag.put(KEY_KEY, this.key.writeToNBT());
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
+    tag.putTag(TARGET_KEY, this.target.writeToTag());
+    tag.putTag(KEY_KEY, this.key.writeToTag());
     return tag;
   }
 

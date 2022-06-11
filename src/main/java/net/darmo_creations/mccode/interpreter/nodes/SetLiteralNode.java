@@ -2,10 +2,10 @@ package net.darmo_creations.mccode.interpreter.nodes;
 
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTagListTag;
+import net.darmo_creations.mccode.interpreter.tags.TagType;
 import net.darmo_creations.mccode.interpreter.types.MCSet;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,16 +36,16 @@ public class SetLiteralNode extends Node {
   }
 
   /**
-   * Create a set literal node from an NBT tag.
+   * Create a set literal node from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public SetLiteralNode(final NbtCompound tag) {
+  public SetLiteralNode(final CompoundTag tag) {
     super(tag);
-    NbtList list = tag.getList(VALUES_KEY, NbtElement.COMPOUND_TYPE);
+    CompoundTagListTag list = tag.getList(VALUES_KEY, TagType.COMPOUND_TAG_TYPE);
     this.values = new ArrayList<>();
-    for (NbtElement t : list) {
-      this.values.add(NodeNBTHelper.getNodeForTag((NbtCompound) t));
+    for (CompoundTag t : list) {
+      this.values.add(NodeTagHelper.getNodeForTag(t));
     }
   }
 
@@ -58,9 +58,9 @@ public class SetLiteralNode extends Node {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
-    tag.put(VALUES_KEY, NodeNBTHelper.serializeNodesList(this.values));
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
+    tag.putTag(VALUES_KEY, NodeTagHelper.serializeNodesList(this.values));
     return tag;
   }
 

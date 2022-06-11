@@ -2,9 +2,9 @@ package net.darmo_creations.mccode.interpreter.nodes;
 
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.type_wrappers.TypeBase;
 import net.darmo_creations.mccode.interpreter.type_wrappers.UnaryOperator;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,11 +32,11 @@ public class UnaryOperatorNode extends OperatorNode {
   }
 
   /**
-   * Create a unary operator node from an NBT tag.
+   * Create a unary operator node from an tag.
    *
    * @param tag The tag to deserialize.
    */
-  public UnaryOperatorNode(final NbtCompound tag) {
+  public UnaryOperatorNode(final CompoundTag tag) {
     super(tag);
     this.operator = UnaryOperator.fromString(this.getSymbol());
   }

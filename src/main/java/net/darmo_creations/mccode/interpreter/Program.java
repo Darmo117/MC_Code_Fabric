@@ -5,13 +5,12 @@ import net.darmo_creations.mccode.interpreter.exceptions.MCCodeRuntimeException;
 import net.darmo_creations.mccode.interpreter.exceptions.SyntaxErrorException;
 import net.darmo_creations.mccode.interpreter.statements.Statement;
 import net.darmo_creations.mccode.interpreter.statements.StatementAction;
-import net.darmo_creations.mccode.interpreter.statements.StatementNBTHelper;
+import net.darmo_creations.mccode.interpreter.statements.StatementTagHelper;
 import net.darmo_creations.mccode.interpreter.statements.WaitStatement;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
+import net.darmo_creations.mccode.interpreter.tags.StringListTag;
+import net.darmo_creations.mccode.interpreter.tags.TagType;
 import net.darmo_creations.mccode.interpreter.types.WorldProxy;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -109,17 +108,17 @@ public class Program {
   }
 
   /**
-   * Create a program from the given NBT tag.
+   * Create a program from the given tag.
    *
    * @param tag            Tag to deserialize.
    * @param programManager Program’s manager.
    */
-  public Program(final NbtCompound tag, ProgramManager programManager) {
+  public Program(final CompoundTag tag, ProgramManager programManager) {
     this.programManager = Objects.requireNonNull(programManager);
     this.name = tag.getString(NAME_KEY);
-    this.statements = StatementNBTHelper.deserializeStatementsList(tag, STATEMENTS_KEY);
+    this.statements = StatementTagHelper.deserializeStatementsList(tag, STATEMENTS_KEY);
     this.scope = new Scope(this);
-    this.scope.readFromNBT(tag.getCompound(SCOPE_KEY));
+    this.scope.readFromTag(tag.getCompound(SCOPE_KEY));
     this.isModule = tag.getBoolean(IS_MODULE_KEY);
     if (!this.isModule) {
       this.scheduleDelay = tag.getLong(SCHEDULE_DELAY_KEY);
@@ -131,10 +130,7 @@ public class Program {
       this.timeToWait = 0;
     }
     this.ip = tag.getInt(IP_KEY);
-    this.args = new ArrayList<>();
-    for (NbtElement t : tag.getList(ARGS_KEY, NbtElement.STRING_TYPE)) {
-      this.args.add(t.asString());
-    }
+    this.args = tag.getList(ARGS_KEY, TagType.STRING_TAG_TYPE).stream().toList();
     this.setup();
   }
 
@@ -216,7 +212,7 @@ public class Program {
   /**
    * Set the seed for the random number generator of this program.
    * <p>
-   * <strong>Notice</strong>: The seed is not saved when this program is serialized as NBT
+   * <strong>Notice</strong>: The seed is not saved when this program is serialized as a tag
    * and is thus lost when deserializing. Consequently, programs should not rely on fixed
    * seeds outside of debugging.
    *
@@ -280,13 +276,13 @@ public class Program {
   }
 
   /**
-   * Export the state of this program to NBT.
+   * Export the state of this program to a tag.
    */
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = new NbtCompound();
+  public CompoundTag writeToTag() {
+    CompoundTag tag = new CompoundTag();
     tag.putString(NAME_KEY, this.name);
-    tag.put(STATEMENTS_KEY, StatementNBTHelper.serializeStatementsList(this.statements));
-    tag.put(SCOPE_KEY, this.scope.writeToNBT());
+    tag.putTag(STATEMENTS_KEY, StatementTagHelper.serializeStatementsList(this.statements));
+    tag.putTag(SCOPE_KEY, this.scope.writeToTag());
     if (!this.isModule) {
       if (this.scheduleDelay != null) {
         tag.putLong(SCHEDULE_DELAY_KEY, this.scheduleDelay);
@@ -298,9 +294,9 @@ public class Program {
     }
     tag.putInt(IP_KEY, this.ip);
     tag.putBoolean(IS_MODULE_KEY, this.isModule);
-    NbtList argsList = new NbtList();
-    this.args.stream().map(NbtString::of).forEach(argsList::add);
-    tag.put(ARGS_KEY, argsList);
+    StringListTag argsList = new StringListTag();
+    this.args.forEach(argsList::add);
+    tag.putTag(ARGS_KEY, argsList);
     return tag;
   }
 

@@ -3,9 +3,9 @@ package net.darmo_creations.mccode.interpreter.statements;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
-import net.darmo_creations.mccode.interpreter.nodes.NodeNBTHelper;
+import net.darmo_creations.mccode.interpreter.nodes.NodeTagHelper;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.type_wrappers.TypeBase;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.Objects;
 
@@ -45,16 +45,16 @@ public class SetPropertyStatement extends Statement {
   }
 
   /**
-   * Create a property assigment statement.
+   * Create a property assigment statement from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public SetPropertyStatement(final NbtCompound tag) {
+  public SetPropertyStatement(final CompoundTag tag) {
     super(tag);
-    this.target = NodeNBTHelper.getNodeForTag(tag.getCompound(TARGET_KEY));
+    this.target = NodeTagHelper.getNodeForTag(tag.getCompound(TARGET_KEY));
     this.propertyName = tag.getString(PROPERTY_NAME_KEY);
     this.operator = AssigmentOperator.fromString(tag.getString(OPERATOR_KEY));
-    this.value = NodeNBTHelper.getNodeForTag(tag.getCompound(VALUE_KEY));
+    this.value = NodeTagHelper.getNodeForTag(tag.getCompound(VALUE_KEY));
   }
 
   @Override
@@ -78,12 +78,12 @@ public class SetPropertyStatement extends Statement {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
-    tag.put(TARGET_KEY, this.target.writeToNBT());
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
+    tag.putTag(TARGET_KEY, this.target.writeToTag());
     tag.putString(PROPERTY_NAME_KEY, this.propertyName);
     tag.putString(OPERATOR_KEY, this.operator.getSymbol());
-    tag.put(VALUE_KEY, this.value.writeToNBT());
+    tag.putTag(VALUE_KEY, this.value.writeToTag());
     return tag;
   }
 

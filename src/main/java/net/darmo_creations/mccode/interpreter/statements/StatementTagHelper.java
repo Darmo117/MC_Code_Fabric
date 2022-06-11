@@ -1,8 +1,8 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTagListTag;
+import net.darmo_creations.mccode.interpreter.tags.TagType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,10 +11,10 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * Utility class for deserializing {@link Statement}s from NBT tags.
+ * Utility class for deserializing {@link Statement}s from tags.
  */
-public final class StatementNBTHelper {
-  private static final Map<Integer, Function<NbtCompound, Statement>> STMT_PROVIDERS = new HashMap<>();
+public final class StatementTagHelper {
+  private static final Map<Integer, Function<CompoundTag, Statement>> STMT_PROVIDERS = new HashMap<>();
 
   static {
     STMT_PROVIDERS.put(ImportStatement.ID, ImportStatement::new);
@@ -49,7 +49,7 @@ public final class StatementNBTHelper {
    * @return The statement.
    * @throws IllegalArgumentException If no {@link Statement} correspond to the {@link Statement#ID_KEY} property.
    */
-  public static Statement getStatementForTag(final NbtCompound tag) {
+  public static Statement getStatementForTag(final CompoundTag tag) {
     int tagID = tag.getInt(Statement.ID_KEY);
     if (!STMT_PROVIDERS.containsKey(tagID)) {
       throw new IllegalArgumentException("Undefined statement ID: " + tagID);
@@ -64,10 +64,10 @@ public final class StatementNBTHelper {
    * @param key The key where the list is located.
    * @return The statements list.
    */
-  public static List<Statement> deserializeStatementsList(final NbtCompound tag, final String key) {
+  public static List<Statement> deserializeStatementsList(final CompoundTag tag, final String key) {
     List<Statement> statements = new ArrayList<>();
-    for (NbtElement t : tag.getList(key, NbtElement.COMPOUND_TYPE)) {
-      statements.add(getStatementForTag((NbtCompound) t));
+    for (CompoundTag t : tag.getList(key, TagType.COMPOUND_TAG_TYPE)) {
+      statements.add(getStatementForTag(t));
     }
     return statements;
   }
@@ -78,12 +78,12 @@ public final class StatementNBTHelper {
    * @param statements The statements to serialize.
    * @return The tag list.
    */
-  public static NbtList serializeStatementsList(final List<? extends Statement> statements) {
-    NbtList statementsList = new NbtList();
-    statements.forEach(s -> statementsList.add(s.writeToNBT()));
+  public static CompoundTagListTag serializeStatementsList(final List<? extends Statement> statements) {
+    CompoundTagListTag statementsList = new CompoundTagListTag();
+    statements.forEach(s -> statementsList.add(s.writeToTag()));
     return statementsList;
   }
 
-  private StatementNBTHelper() {
+  private StatementTagHelper() {
   }
 }

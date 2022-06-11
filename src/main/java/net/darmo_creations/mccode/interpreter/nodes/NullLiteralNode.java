@@ -1,6 +1,6 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 import java.util.function.BiConsumer;
 
@@ -21,16 +21,16 @@ public class NullLiteralNode extends LiteralNode<Void> {
   }
 
   /**
-   * Create the null literal node from an NBT tag.
+   * Create the null literal node from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public NullLiteralNode(final NbtCompound tag) {
+  public NullLiteralNode(final CompoundTag tag) {
     super(tag, key -> null);
   }
 
   @Override
-  protected BiConsumer<String, Void> getValueSerializer(final NbtCompound tag) {
+  protected BiConsumer<String, Void> getValueSerializer(final CompoundTag tag) {
     return null; // No value to serialize
   }
 

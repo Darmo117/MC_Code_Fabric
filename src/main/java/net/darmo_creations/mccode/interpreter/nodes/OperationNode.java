@@ -1,6 +1,6 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,13 +26,13 @@ public abstract class OperationNode extends Node {
   }
 
   /**
-   * Create an operation node from an NBT tag.
+   * Create an operation node from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public OperationNode(final NbtCompound tag) {
+  public OperationNode(final CompoundTag tag) {
     super(tag);
-    this.arguments = NodeNBTHelper.deserializeNodesList(tag, ARGUMENTS_KEY);
+    this.arguments = NodeTagHelper.deserializeNodesList(tag, ARGUMENTS_KEY);
   }
 
   /**
@@ -43,9 +43,9 @@ public abstract class OperationNode extends Node {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
-    tag.put(ARGUMENTS_KEY, NodeNBTHelper.serializeNodesList(this.arguments));
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
+    tag.putTag(ARGUMENTS_KEY, NodeTagHelper.serializeNodesList(this.arguments));
     return tag;
   }
 }

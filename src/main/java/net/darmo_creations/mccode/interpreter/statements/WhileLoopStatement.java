@@ -4,9 +4,9 @@ import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Utils;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
-import net.darmo_creations.mccode.interpreter.nodes.NodeNBTHelper;
+import net.darmo_creations.mccode.interpreter.nodes.NodeTagHelper;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.type_wrappers.BooleanType;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.List;
 import java.util.Objects;
@@ -50,14 +50,14 @@ public class WhileLoopStatement extends Statement {
   }
 
   /**
-   * Create a statement that represents a while-loop.
+   * Create a statement that represents a while-loop from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public WhileLoopStatement(final NbtCompound tag) {
+  public WhileLoopStatement(final CompoundTag tag) {
     super(tag);
-    this.condition = NodeNBTHelper.getNodeForTag(tag.getCompound(CONDITION_KEY));
-    this.statements = StatementNBTHelper.deserializeStatementsList(tag, STATEMENTS_KEY);
+    this.condition = NodeTagHelper.getNodeForTag(tag.getCompound(CONDITION_KEY));
+    this.statements = StatementTagHelper.deserializeStatementsList(tag, STATEMENTS_KEY);
     this.ip = tag.getInt(IP_KEY);
     this.paused = tag.getBoolean(PAUSED_KEY);
   }
@@ -105,10 +105,10 @@ public class WhileLoopStatement extends Statement {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
-    tag.put(CONDITION_KEY, this.condition.writeToNBT());
-    tag.put(STATEMENTS_KEY, StatementNBTHelper.serializeStatementsList(this.statements));
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
+    tag.putTag(CONDITION_KEY, this.condition.writeToTag());
+    tag.putTag(STATEMENTS_KEY, StatementTagHelper.serializeStatementsList(this.statements));
     tag.putInt(IP_KEY, this.ip);
     tag.putBoolean(PAUSED_KEY, this.paused);
     return tag;

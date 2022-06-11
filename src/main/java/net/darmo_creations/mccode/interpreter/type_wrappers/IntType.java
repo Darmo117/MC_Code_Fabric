@@ -6,9 +6,9 @@ import net.darmo_creations.mccode.interpreter.Utils;
 import net.darmo_creations.mccode.interpreter.annotations.Type;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.exceptions.MCCodeRuntimeException;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.types.MCList;
 import net.darmo_creations.mccode.interpreter.types.Position;
-import net.minecraft.nbt.NbtCompound;
 
 /**
  * Wrapper type for {@link Integer}.
@@ -171,14 +171,14 @@ public class IntType extends TypeBase<Long> {
   }
 
   @Override
-  protected NbtCompound _writeToNBT(final Long self) {
-    NbtCompound tag = super._writeToNBT(self);
+  protected CompoundTag _writeToTag(final Long self) {
+    CompoundTag tag = super._writeToTag(self);
     tag.putLong(VALUE_KEY, self);
     return tag;
   }
 
   @Override
-  public Long readFromNBT(final Scope scope, final NbtCompound tag) {
+  public Long readFromTag(final Scope scope, final CompoundTag tag) {
     return tag.getLong(VALUE_KEY);
   }
 }

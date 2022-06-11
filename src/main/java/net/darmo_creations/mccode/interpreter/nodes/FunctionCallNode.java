@@ -5,8 +5,8 @@ import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Variable;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.types.Function;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.List;
 import java.util.Objects;
@@ -36,13 +36,13 @@ public class FunctionCallNode extends OperationNode {
   }
 
   /**
-   * Create a function call node from an NBT tag.
+   * Create a function call node from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public FunctionCallNode(final NbtCompound tag) {
+  public FunctionCallNode(final CompoundTag tag) {
     super(tag);
-    this.functionObject = NodeNBTHelper.getNodeForTag(tag.getCompound(FUNCTION_OBJ_KEY));
+    this.functionObject = NodeTagHelper.getNodeForTag(tag.getCompound(FUNCTION_OBJ_KEY));
   }
 
   @Override
@@ -79,9 +79,9 @@ public class FunctionCallNode extends OperationNode {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
-    tag.put(FUNCTION_OBJ_KEY, this.functionObject.writeToNBT());
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
+    tag.putTag(FUNCTION_OBJ_KEY, this.functionObject.writeToTag());
     return tag;
   }
 

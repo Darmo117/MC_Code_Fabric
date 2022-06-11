@@ -1,7 +1,7 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
 import net.darmo_creations.mccode.interpreter.Scope;
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 import java.util.Objects;
 
@@ -31,11 +31,11 @@ public class VariableNode extends Node {
   }
 
   /**
-   * Create a number node from an NBT tag.
+   * Create a number node from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public VariableNode(final NbtCompound tag) {
+  public VariableNode(final CompoundTag tag) {
     super(tag);
     this.name = tag.getString(NAME_KEY);
   }
@@ -46,8 +46,8 @@ public class VariableNode extends Node {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
     tag.putString(NAME_KEY, this.name);
     return tag;
   }

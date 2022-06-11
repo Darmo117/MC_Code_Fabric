@@ -3,10 +3,10 @@ package net.darmo_creations.mccode.interpreter;
 import net.darmo_creations.mccode.interpreter.builtin_functions.PrintFunction;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.exceptions.MCCodeException;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTagListTag;
+import net.darmo_creations.mccode.interpreter.tags.TagType;
 import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
 
 import java.util.*;
 
@@ -14,7 +14,7 @@ import java.util.*;
  * A scope is an object that represents the context of a program during execution.
  * It holds all declared variables and functions.
  */
-public class Scope implements NBTDeserializable {
+public class Scope implements TagDeserializable {
   /**
    * Name of the main scope.
    */
@@ -246,27 +246,27 @@ public class Scope implements NBTDeserializable {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
+  public CompoundTag writeToTag() {
     if (this.parentScope != null) {
       throw new MCCodeException("cannot save non-global scope");
     }
-    NbtCompound tag = new NbtCompound();
-    NbtList variablesList = new NbtList();
+    CompoundTag tag = new CompoundTag();
+    CompoundTagListTag variablesList = new CompoundTagListTag();
     this.variables.values().stream()
         .filter(Variable::isDeletable) // Don’t serialize builtin functions and variables
-        .forEach(v -> variablesList.add(v.writeToNBT()));
-    tag.put(VARIABLES_KEY, variablesList);
+        .forEach(v -> variablesList.add(v.writeToTag()));
+    tag.putTag(VARIABLES_KEY, variablesList);
     return tag;
   }
 
   @Override
-  public void readFromNBT(final NbtCompound tag) {
+  public void readFromTag(final CompoundTag tag) {
     if (this.parentScope != null) {
       throw new MCCodeException("cannot load non-global scope");
     }
-    NbtList list = tag.getList(VARIABLES_KEY, NbtElement.COMPOUND_TYPE);
-    for (NbtElement t : list) {
-      Variable variable = new Variable((NbtCompound) t, this);
+    CompoundTagListTag list = tag.getList(VARIABLES_KEY, TagType.COMPOUND_TAG_TYPE);
+    for (CompoundTag t : list) {
+      Variable variable = new Variable(t, this);
       this.variables.put(variable.getName(), variable);
     }
   }

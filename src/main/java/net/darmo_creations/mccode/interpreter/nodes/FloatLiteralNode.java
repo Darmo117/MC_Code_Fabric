@@ -1,6 +1,6 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 import java.util.function.BiConsumer;
 
@@ -22,16 +22,16 @@ public class FloatLiteralNode extends LiteralNode<Double> {
   }
 
   /**
-   * Create a float literal node from an NBT tag.
+   * Create a float literal node from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public FloatLiteralNode(final NbtCompound tag) {
+  public FloatLiteralNode(final CompoundTag tag) {
     super(tag, tag::getDouble);
   }
 
   @Override
-  protected BiConsumer<String, Double> getValueSerializer(final NbtCompound tag) {
+  protected BiConsumer<String, Double> getValueSerializer(final CompoundTag tag) {
     return tag::putDouble;
   }
 

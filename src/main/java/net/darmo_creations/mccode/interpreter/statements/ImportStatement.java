@@ -5,10 +5,9 @@ import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Variable;
 import net.darmo_creations.mccode.interpreter.exceptions.MCCodeRuntimeException;
 import net.darmo_creations.mccode.interpreter.exceptions.SyntaxErrorException;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
+import net.darmo_creations.mccode.interpreter.tags.StringListTag;
+import net.darmo_creations.mccode.interpreter.tags.TagType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,17 +40,13 @@ public class ImportStatement extends Statement {
   }
 
   /**
-   * Create a statement that imports another module from an NBT tag.
+   * Create a statement that imports another module from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public ImportStatement(final NbtCompound tag) {
+  public ImportStatement(final CompoundTag tag) {
     super(tag);
-    NbtList list = tag.getList(NAME_KEY, NbtElement.STRING_TYPE);
-    this.moduleNamePath = new ArrayList<>();
-    for (NbtElement t : list) {
-      this.moduleNamePath.add(t.asString());
-    }
+    this.moduleNamePath = tag.getList(NAME_KEY, TagType.STRING_TAG_TYPE).stream().toList();
     this.alias = tag.contains(ALIAS_KEY) ? tag.getString(ALIAS_KEY) : null;
   }
 
@@ -81,11 +76,11 @@ public class ImportStatement extends Statement {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
-    NbtList list = new NbtList();
-    this.moduleNamePath.forEach(name -> list.add(NbtString.of(name)));
-    tag.put(NAME_KEY, list);
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
+    StringListTag list = new StringListTag();
+    this.moduleNamePath.forEach(list::add);
+    tag.putTag(NAME_KEY, list);
     if (this.alias != null) {
       tag.putString(ALIAS_KEY, this.alias);
     }

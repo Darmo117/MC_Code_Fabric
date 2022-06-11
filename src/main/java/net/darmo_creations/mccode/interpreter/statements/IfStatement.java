@@ -5,11 +5,9 @@ import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Utils;
 import net.darmo_creations.mccode.interpreter.exceptions.MCCodeException;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
-import net.darmo_creations.mccode.interpreter.nodes.NodeNBTHelper;
+import net.darmo_creations.mccode.interpreter.nodes.NodeTagHelper;
+import net.darmo_creations.mccode.interpreter.tags.*;
 import net.darmo_creations.mccode.interpreter.type_wrappers.TypeBase;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,19 +59,19 @@ public class IfStatement extends Statement {
   }
 
   /**
-   * Create a statement that represents an if-elseif-else statement from an NBT tag.
+   * Create a statement that represents an if-elseif-else statement from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public IfStatement(final NbtCompound tag) {
+  public IfStatement(final CompoundTag tag) {
     super(tag);
-    this.conditions = NodeNBTHelper.deserializeNodesList(tag, CONDITIONS_KEY);
+    this.conditions = NodeTagHelper.deserializeNodesList(tag, CONDITIONS_KEY);
     this.branchesStatements = new ArrayList<>();
-    NbtList list = tag.getList(BRANCHES_KEY, NbtElement.LIST_TYPE);
-    for (NbtElement subList : list) {
+    ListTagListTag list = tag.getList(BRANCHES_KEY, TagType.LIST_TAG_TYPE);
+    for (ListTag<?> subList : list) {
       List<Statement> statements = new ArrayList<>();
-      for (NbtElement t : (NbtList) subList) {
-        statements.add(StatementNBTHelper.getStatementForTag((NbtCompound) t));
+      for (CompoundTag t : (CompoundTagListTag) subList) {
+        statements.add(StatementTagHelper.getStatementForTag(t));
       }
       this.branchesStatements.add(statements);
     }
@@ -134,12 +132,12 @@ public class IfStatement extends Statement {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
-    tag.put(CONDITIONS_KEY, NodeNBTHelper.serializeNodesList(this.conditions));
-    NbtList branchesList = new NbtList();
-    this.branchesStatements.forEach(l -> branchesList.add(StatementNBTHelper.serializeStatementsList(l)));
-    tag.put(BRANCHES_KEY, branchesList);
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
+    tag.putTag(CONDITIONS_KEY, NodeTagHelper.serializeNodesList(this.conditions));
+    ListTagListTag branchesList = new ListTagListTag();
+    this.branchesStatements.forEach(l -> branchesList.add(StatementTagHelper.serializeStatementsList(l)));
+    tag.putTag(BRANCHES_KEY, branchesList);
     tag.putInt(BRANCH_INDEX_KEY, this.branchIndex);
     tag.putInt(IP_KEY, this.ip);
     return tag;

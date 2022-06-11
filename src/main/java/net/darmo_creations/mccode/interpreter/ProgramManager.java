@@ -4,11 +4,12 @@ import net.darmo_creations.mccode.interpreter.annotations.*;
 import net.darmo_creations.mccode.interpreter.builtin_functions.*;
 import net.darmo_creations.mccode.interpreter.exceptions.*;
 import net.darmo_creations.mccode.interpreter.parser.ProgramParser;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTagListTag;
+import net.darmo_creations.mccode.interpreter.tags.TagType;
 import net.darmo_creations.mccode.interpreter.type_wrappers.*;
 import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.WorldSavePath;
 import net.minecraft.world.PersistentState;
@@ -321,13 +322,12 @@ public class ProgramManager extends PersistentState {
     return this.programsDir;
   }
 
-  // TODO use own tag system then convert to NBT to avoid rewriting every class after updates
   @Override
   public NbtCompound writeNbt(NbtCompound nbt) {
-    NbtList programs = new NbtList();
+    CompoundTagListTag programs = new CompoundTagListTag();
     for (Program p : this.programs.values()) {
-      NbtCompound programTag = new NbtCompound();
-      programTag.put(PROGRAM_KEY, p.writeToNBT());
+      CompoundTag programTag = new CompoundTag();
+      programTag.putTag(PROGRAM_KEY, p.writeToTag());
       String programName = p.getName();
       if (this.programsSchedules.containsKey(programName)) {
         programTag.putLong(SCHEDULE_KEY, this.programsSchedules.get(programName));
@@ -336,24 +336,23 @@ public class ProgramManager extends PersistentState {
       programTag.putBoolean(RUNNING_KEY, this.runningPrograms.get(programName));
       programs.add(programTag);
     }
-    nbt.put(PROGRAMS_KEY, programs);
+    nbt.put(PROGRAMS_KEY, programs.toNBT());
     return nbt;
   }
 
   private void readFromNBT(final NbtCompound tag) {
-    NbtList list = tag.getList(PROGRAMS_KEY, NbtElement.COMPOUND_TYPE);
+    CompoundTagListTag list = new CompoundTag(tag).getList(PROGRAMS_KEY, TagType.COMPOUND_TAG_TYPE);
     this.programs.clear();
     this.programsSchedules.clear();
     this.programsRepeats.clear();
     this.runningPrograms.clear();
-    for (NbtElement t : list) {
-      NbtCompound programTag = (NbtCompound) t;
+    for (CompoundTag programTag : list) {
       try {
         Program program = new Program(programTag.getCompound(PROGRAM_KEY), this);
         this.programs.put(program.getName(), program);
-        if (programTag.contains(SCHEDULE_KEY)) {
+        if (programTag.contains(SCHEDULE_KEY, TagType.COMPOUND_TAG_TYPE)) {
           this.programsSchedules.put(program.getName(), programTag.getLong(SCHEDULE_KEY));
-          if (programTag.contains(REPEAT_AMOUNT_KEY)) {
+          if (programTag.contains(REPEAT_AMOUNT_KEY, TagType.COMPOUND_TAG_TYPE)) {
             this.programsRepeats.put(program.getName(), programTag.getLong(REPEAT_AMOUNT_KEY));
           }
         }

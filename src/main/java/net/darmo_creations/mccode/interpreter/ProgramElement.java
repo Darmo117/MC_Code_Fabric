@@ -4,18 +4,18 @@ import net.darmo_creations.mccode.interpreter.exceptions.MCCodeRuntimeException;
 import net.darmo_creations.mccode.interpreter.exceptions.MathException;
 import net.darmo_creations.mccode.interpreter.exceptions.SyntaxErrorException;
 import net.darmo_creations.mccode.interpreter.exceptions.WrappedException;
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 import java.util.function.Supplier;
 
 /**
  * A program element is a component of a program’s syntax tree.
  * <p>
- * Program elements can be serialized to NBT tags.
+ * Program elements can be serialized to tags.
  */
-public abstract class ProgramElement implements NBTSerializable {
+public abstract class ProgramElement implements TagSerializable {
   /**
-   * NBT tag key of ID property.
+   * Tag key of ID property.
    */
   public static final String ID_KEY = "ElementID";
   public static final String LINE_KEY = "Line";
@@ -36,11 +36,11 @@ public abstract class ProgramElement implements NBTSerializable {
   }
 
   /**
-   * Create a program element from an NBT tag.
+   * Create a program element from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public ProgramElement(final NbtCompound tag) {
+  public ProgramElement(final CompoundTag tag) {
     this.line = tag.getInt(LINE_KEY);
     this.column = tag.getInt(COLUMN_KEY);
   }
@@ -66,8 +66,8 @@ public abstract class ProgramElement implements NBTSerializable {
   public abstract int getID();
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = new NbtCompound();
+  public CompoundTag writeToTag() {
+    CompoundTag tag = new CompoundTag();
     tag.putInt(ID_KEY, this.getID());
     tag.putInt(LINE_KEY, this.getLine());
     tag.putInt(COLUMN_KEY, this.getColumn());

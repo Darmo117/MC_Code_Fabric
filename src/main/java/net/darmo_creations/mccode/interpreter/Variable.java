@@ -2,8 +2,8 @@ package net.darmo_creations.mccode.interpreter;
 
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.exceptions.MCCodeException;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.type_wrappers.TypeBase;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.Objects;
 
@@ -12,7 +12,7 @@ import java.util.Objects;
  * A constant variable cannot have its value changed. If the deletable flag is set to false,
  * any attempt to delete through {@link Scope#declareVariable(Variable)} will throw an error.
  */
-public class Variable implements NBTSerializable {
+public class Variable implements TagSerializable {
   public static final String NAME_KEY = "Name";
   public static final String PUBLIC_KEY = "Public";
   public static final String EDITABLE_KEY = "Editable";
@@ -54,18 +54,18 @@ public class Variable implements NBTSerializable {
   }
 
   /**
-   * Create a variable from an NBT tag.
+   * Create a variable from a tag.
    *
    * @param tag   The tag to deserialize.
    * @param scope The scope this variable is deserialized in.
    */
-  public Variable(final NbtCompound tag, final Scope scope) {
+  public Variable(final CompoundTag tag, final Scope scope) {
     this.name = tag.getString(NAME_KEY);
     this.publiclyVisible = tag.getBoolean(PUBLIC_KEY);
     this.editableFromOutside = tag.getBoolean(EDITABLE_KEY);
     this.constant = tag.getBoolean(CONSTANT_KEY);
     this.deletable = tag.getBoolean(DELETABLE_KEY);
-    this.value = ProgramManager.getTypeForName(tag.getString(TYPE_KEY)).readFromNBT(scope, tag.getCompound(VALUE_KEY));
+    this.value = ProgramManager.getTypeForName(tag.getString(TYPE_KEY)).readFromTag(scope, tag.getCompound(VALUE_KEY));
   }
 
   /**
@@ -137,13 +137,13 @@ public class Variable implements NBTSerializable {
   }
 
   /**
-   * Serialize this variable to an NBT tag.
+   * Serialize this variable to an tag.
    *
    * @return The tag.
    */
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = new NbtCompound();
+  public CompoundTag writeToTag() {
+    CompoundTag tag = new CompoundTag();
     tag.putString(NAME_KEY, this.name);
     tag.putBoolean(PUBLIC_KEY, this.publiclyVisible);
     tag.putBoolean(EDITABLE_KEY, this.editableFromOutside);
@@ -151,7 +151,7 @@ public class Variable implements NBTSerializable {
     tag.putBoolean(DELETABLE_KEY, this.deletable);
     TypeBase<?> type = ProgramManager.getTypeForValue(this.value);
     tag.putString(TYPE_KEY, type.getName());
-    tag.put(VALUE_KEY, type.writeToNBT(this.value));
+    tag.putTag(VALUE_KEY, type.writeToTag(this.value));
     return tag;
   }
 

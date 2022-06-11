@@ -2,10 +2,10 @@ package net.darmo_creations.mccode.interpreter.nodes;
 
 import net.darmo_creations.mccode.interpreter.*;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.type_wrappers.ModuleType;
 import net.darmo_creations.mccode.interpreter.type_wrappers.TypeBase;
 import net.darmo_creations.mccode.interpreter.types.Function;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.List;
 import java.util.Objects;
@@ -38,13 +38,13 @@ public class MethodCallNode extends OperationNode {
   }
 
   /**
-   * Create a method call node from an NBT tag.
+   * Create a method call node from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public MethodCallNode(final NbtCompound tag) {
+  public MethodCallNode(final CompoundTag tag) {
     super(tag);
-    this.instance = NodeNBTHelper.getNodeForTag(tag.getCompound(INSTANCE_KEY));
+    this.instance = NodeTagHelper.getNodeForTag(tag.getCompound(INSTANCE_KEY));
     this.methodName = tag.getString(METHOD_NAME_KEY);
   }
 
@@ -107,9 +107,9 @@ public class MethodCallNode extends OperationNode {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
-    tag.put(INSTANCE_KEY, this.instance.writeToNBT());
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
+    tag.putTag(INSTANCE_KEY, this.instance.writeToTag());
     tag.putString(METHOD_NAME_KEY, this.methodName);
     return tag;
   }

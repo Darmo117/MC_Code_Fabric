@@ -3,9 +3,9 @@ package net.darmo_creations.mccode.interpreter.statements;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
-import net.darmo_creations.mccode.interpreter.nodes.NodeNBTHelper;
+import net.darmo_creations.mccode.interpreter.nodes.NodeTagHelper;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.type_wrappers.IntType;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.Objects;
 
@@ -32,13 +32,13 @@ public class WaitStatement extends Statement {
   }
 
   /**
-   * Create a "wait" statement from an NBT tag.
+   * Create a "wait" statement from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public WaitStatement(final NbtCompound tag) {
+  public WaitStatement(final CompoundTag tag) {
     super(tag);
-    this.value = NodeNBTHelper.getNodeForTag(tag.getCompound(TICKS_KEY));
+    this.value = NodeTagHelper.getNodeForTag(tag.getCompound(TICKS_KEY));
   }
 
   @Override
@@ -54,9 +54,9 @@ public class WaitStatement extends Statement {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
-    tag.put(TICKS_KEY, this.value.writeToNBT());
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
+    tag.putTag(TICKS_KEY, this.value.writeToTag());
     return tag;
   }
 

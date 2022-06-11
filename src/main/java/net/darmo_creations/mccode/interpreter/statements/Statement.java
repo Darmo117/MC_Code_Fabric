@@ -4,7 +4,7 @@ import net.darmo_creations.mccode.interpreter.ProgramElement;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.exceptions.MCCodeRuntimeException;
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 /**
  * Base class for statements.
@@ -24,11 +24,11 @@ public abstract class Statement extends ProgramElement {
   }
 
   /**
-   * Create a statement from an NBT tag.
+   * Create a statement from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public Statement(final NbtCompound tag) {
+  public Statement(final CompoundTag tag) {
     super(tag);
   }
 

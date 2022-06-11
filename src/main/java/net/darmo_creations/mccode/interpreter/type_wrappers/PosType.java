@@ -5,8 +5,8 @@ import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.annotations.*;
 import net.darmo_creations.mccode.interpreter.exceptions.CastException;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.types.Position;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.BlockRotation;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -309,8 +309,8 @@ public class PosType extends TypeBase<Position> {
   }
 
   @Override
-  protected NbtCompound _writeToNBT(final Position self) {
-    NbtCompound tag = super._writeToNBT(self);
+  protected CompoundTag _writeToTag(final Position self) {
+    CompoundTag tag = super._writeToTag(self);
     tag.putDouble(X_KEY, self.getX());
     tag.putDouble(Y_KEY, self.getY());
     tag.putDouble(Z_KEY, self.getZ());
@@ -321,7 +321,7 @@ public class PosType extends TypeBase<Position> {
   }
 
   @Override
-  public Position readFromNBT(final Scope scope, final NbtCompound tag) {
+  public Position readFromTag(final Scope scope, final CompoundTag tag) {
     return new Position(tag.getDouble(X_KEY), tag.getDouble(Y_KEY), tag.getDouble(Z_KEY),
         Position.Relativity.fromString(tag.getString(X_REL_KEY)),
         Position.Relativity.fromString(tag.getString(Y_REL_KEY)),

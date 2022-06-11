@@ -6,8 +6,8 @@ import net.darmo_creations.mccode.interpreter.Utils;
 import net.darmo_creations.mccode.interpreter.annotations.Type;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.exceptions.MCCodeRuntimeException;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.types.Position;
-import net.minecraft.nbt.NbtCompound;
 
 /**
  * Wrapper type for {@link Double}.
@@ -162,14 +162,14 @@ public class FloatType extends TypeBase<Double> {
   }
 
   @Override
-  protected NbtCompound _writeToNBT(final Double self) {
-    NbtCompound tag = super._writeToNBT(self);
+  protected CompoundTag _writeToTag(final Double self) {
+    CompoundTag tag = super._writeToTag(self);
     tag.putDouble(VALUE_KEY, self);
     return tag;
   }
 
   @Override
-  public Double readFromNBT(final Scope scope, final NbtCompound tag) {
+  public Double readFromTag(final Scope scope, final CompoundTag tag) {
     return tag.getDouble(VALUE_KEY);
   }
 }

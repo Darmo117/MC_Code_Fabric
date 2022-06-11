@@ -7,10 +7,10 @@ import net.darmo_creations.mccode.interpreter.annotations.Property;
 import net.darmo_creations.mccode.interpreter.annotations.Type;
 import net.darmo_creations.mccode.interpreter.exceptions.CastException;
 import net.darmo_creations.mccode.interpreter.exceptions.NoSuchKeyException;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.types.MCList;
 import net.darmo_creations.mccode.interpreter.types.MCMap;
 import net.darmo_creations.mccode.interpreter.types.MCSet;
-import net.minecraft.nbt.NbtCompound;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.Iterator;
@@ -198,21 +198,21 @@ public class MapType extends TypeBase<MCMap> {
   }
 
   @Override
-  protected NbtCompound _writeToNBT(final MCMap self) {
-    NbtCompound tag = super._writeToNBT(self);
-    NbtCompound entries = new NbtCompound();
-    self.forEach((key, value) -> entries.put(key, ProgramManager.getTypeForValue(value).writeToNBT(value)));
-    tag.put(ENTRIES_KEY, entries);
+  protected CompoundTag _writeToTag(final MCMap self) {
+    CompoundTag tag = super._writeToTag(self);
+    CompoundTag entries = new CompoundTag();
+    self.forEach((key, value) -> entries.putTag(key, ProgramManager.getTypeForValue(value).writeToTag(value)));
+    tag.putTag(ENTRIES_KEY, entries);
     return tag;
   }
 
   @Override
-  public MCMap readFromNBT(final Scope scope, final NbtCompound tag) {
+  public MCMap readFromTag(final Scope scope, final CompoundTag tag) {
     MCMap map = new MCMap();
-    NbtCompound entries = tag.getCompound(ENTRIES_KEY);
+    CompoundTag entries = tag.getCompound(ENTRIES_KEY);
     entries.getKeys().stream()
         .map(k -> new ImmutablePair<>(k, entries.getCompound(k)))
-        .forEach(e -> map.put(e.getKey(), ProgramManager.getTypeForName(e.getValue().getString(TypeBase.NAME_KEY)).readFromNBT(scope, e.getValue())));
+        .forEach(e -> map.put(e.getKey(), ProgramManager.getTypeForName(e.getValue().getString(TypeBase.NAME_KEY)).readFromTag(scope, e.getValue())));
     return map;
   }
 }

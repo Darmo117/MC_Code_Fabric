@@ -4,8 +4,8 @@ import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Utils;
 import net.darmo_creations.mccode.interpreter.Variable;
 import net.darmo_creations.mccode.interpreter.exceptions.MCCodeRuntimeException;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.types.MCMap;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.List;
 import java.util.Objects;
@@ -53,14 +53,14 @@ public class TryExceptStatement extends Statement {
   }
 
   /**
-   * Create a statement that represents try-except statement from an NBT tag.
+   * Create a statement that represents try-except statement from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public TryExceptStatement(final NbtCompound tag) {
+  public TryExceptStatement(final CompoundTag tag) {
     super(tag);
-    this.tryStatements = StatementNBTHelper.deserializeStatementsList(tag, TRY_STATEMENTS_KEY);
-    this.exceptStatements = StatementNBTHelper.deserializeStatementsList(tag, EXCEPT_STATEMENTS_KEY);
+    this.tryStatements = StatementTagHelper.deserializeStatementsList(tag, TRY_STATEMENTS_KEY);
+    this.exceptStatements = StatementTagHelper.deserializeStatementsList(tag, EXCEPT_STATEMENTS_KEY);
     this.errorVariableName = tag.getString(ERROR_VAR_NAME_KEY);
     this.inExcept = tag.getBoolean(IN_EXCEPT_KEY);
     this.ip = tag.getInt(IP_KEY);
@@ -129,10 +129,10 @@ public class TryExceptStatement extends Statement {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
-    tag.put(TRY_STATEMENTS_KEY, StatementNBTHelper.serializeStatementsList(this.tryStatements));
-    tag.put(EXCEPT_STATEMENTS_KEY, StatementNBTHelper.serializeStatementsList(this.exceptStatements));
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
+    tag.putTag(TRY_STATEMENTS_KEY, StatementTagHelper.serializeStatementsList(this.tryStatements));
+    tag.putTag(EXCEPT_STATEMENTS_KEY, StatementTagHelper.serializeStatementsList(this.exceptStatements));
     tag.putString(ERROR_VAR_NAME_KEY, this.errorVariableName);
     tag.putBoolean(IN_EXCEPT_KEY, this.inExcept);
     tag.putInt(IP_KEY, this.ip);

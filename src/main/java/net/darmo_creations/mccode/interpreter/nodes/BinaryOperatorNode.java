@@ -2,9 +2,9 @@ package net.darmo_creations.mccode.interpreter.nodes;
 
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.type_wrappers.BinaryOperator;
 import net.darmo_creations.mccode.interpreter.type_wrappers.TypeBase;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,11 +33,11 @@ public class BinaryOperatorNode extends OperatorNode {
   }
 
   /**
-   * Create a binary operator node from an NBT tag.
+   * Create a binary operator node from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public BinaryOperatorNode(final NbtCompound tag) {
+  public BinaryOperatorNode(final CompoundTag tag) {
     super(tag);
     this.operator = BinaryOperator.fromString(this.getSymbol());
   }

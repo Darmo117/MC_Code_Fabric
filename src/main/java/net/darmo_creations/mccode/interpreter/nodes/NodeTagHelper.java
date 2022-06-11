@@ -1,17 +1,17 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTagListTag;
+import net.darmo_creations.mccode.interpreter.tags.TagType;
 
 import java.util.*;
 import java.util.function.Function;
 
 /**
- * Utility class for deserializing {@link Node}s from NBT tags.
+ * Utility class for deserializing {@link Node}s from tags.
  */
-public final class NodeNBTHelper {
-  private static final Map<Integer, Function<NbtCompound, Node>> NODE_PROVIDERS = new HashMap<>();
+public final class NodeTagHelper {
+  private static final Map<Integer, Function<CompoundTag, Node>> NODE_PROVIDERS = new HashMap<>();
 
   static {
     NODE_PROVIDERS.put(NullLiteralNode.ID, NullLiteralNode::new);
@@ -39,7 +39,7 @@ public final class NodeNBTHelper {
    * @return The node.
    * @throws IllegalArgumentException If no {@link Node} correspond to the {@link Node#ID_KEY} property.
    */
-  public static Node getNodeForTag(final NbtCompound tag) {
+  public static Node getNodeForTag(final CompoundTag tag) {
     int tagID = tag.getInt(Node.ID_KEY);
     if (!NODE_PROVIDERS.containsKey(tagID)) {
       throw new IllegalArgumentException("Undefined node ID: " + tagID);
@@ -54,10 +54,10 @@ public final class NodeNBTHelper {
    * @param key The key where the list is located.
    * @return The nodes list.
    */
-  public static List<Node> deserializeNodesList(final NbtCompound tag, final String key) {
+  public static List<Node> deserializeNodesList(final CompoundTag tag, final String key) {
     List<Node> nodes = new ArrayList<>();
-    for (NbtElement t : tag.getList(key, NbtElement.COMPOUND_TYPE)) {
-      nodes.add(getNodeForTag((NbtCompound) t));
+    for (CompoundTag t : tag.getList(key, TagType.COMPOUND_TAG_TYPE)) {
+      nodes.add(getNodeForTag(t));
     }
     return nodes;
   }
@@ -68,12 +68,12 @@ public final class NodeNBTHelper {
    * @param nodes The nodes to serialize.
    * @return The tag list.
    */
-  public static NbtList serializeNodesList(final Collection<Node> nodes) {
-    NbtList nodesList = new NbtList();
-    nodes.forEach(s -> nodesList.add(s.writeToNBT()));
+  public static CompoundTagListTag serializeNodesList(final Collection<Node> nodes) {
+    CompoundTagListTag nodesList = new CompoundTagListTag();
+    nodes.forEach(s -> nodesList.add(s.writeToTag()));
     return nodesList;
   }
 
-  private NodeNBTHelper() {
+  private NodeTagHelper() {
   }
 }

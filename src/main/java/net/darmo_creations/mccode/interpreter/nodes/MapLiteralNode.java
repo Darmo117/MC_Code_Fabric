@@ -3,8 +3,8 @@ package net.darmo_creations.mccode.interpreter.nodes;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Utils;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.types.MCMap;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,16 +34,16 @@ public class MapLiteralNode extends Node {
   }
 
   /**
-   * Create a map literal node from an NBT tag.
+   * Create a map literal node from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public MapLiteralNode(final NbtCompound tag) {
+  public MapLiteralNode(final CompoundTag tag) {
     super(tag);
-    NbtCompound map = tag.getCompound(VALUES_KEY);
+    CompoundTag map = tag.getCompound(VALUES_KEY);
     this.values = new HashMap<>();
     for (String k : map.getKeys()) {
-      this.values.put(k, NodeNBTHelper.getNodeForTag(map.getCompound(k)));
+      this.values.put(k, NodeTagHelper.getNodeForTag(map.getCompound(k)));
     }
   }
 
@@ -56,11 +56,11 @@ public class MapLiteralNode extends Node {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
-    NbtCompound map = new NbtCompound();
-    this.values.forEach((k, v) -> map.put(k, v.writeToNBT()));
-    tag.put(VALUES_KEY, map);
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
+    CompoundTag map = new CompoundTag();
+    this.values.forEach((k, v) -> map.putTag(k, v.writeToTag()));
+    tag.putTag(VALUES_KEY, map);
     return tag;
   }
 

@@ -3,7 +3,7 @@ package net.darmo_creations.mccode.interpreter.type_wrappers;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.annotations.Type;
 import net.darmo_creations.mccode.interpreter.exceptions.MCCodeException;
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 /**
  * Wrapper type for {@link Object} class.
@@ -27,12 +27,12 @@ public class AnyType extends TypeBase<Object> {
   }
 
   @Override
-  public NbtCompound _writeToNBT(final Object self) {
+  public CompoundTag _writeToTag(final Object self) {
     throw new MCCodeException("cannot serialize objects of type any");
   }
 
   @Override
-  public Object readFromNBT(final Scope scope, final NbtCompound tag) {
+  public Object readFromTag(final Scope scope, final CompoundTag tag) {
     throw new MCCodeException("cannot deserialize objects of type any");
   }
 }

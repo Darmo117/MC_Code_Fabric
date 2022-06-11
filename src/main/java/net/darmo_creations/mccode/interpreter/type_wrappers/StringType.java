@@ -7,8 +7,8 @@ import net.darmo_creations.mccode.interpreter.annotations.ParameterMeta;
 import net.darmo_creations.mccode.interpreter.annotations.ReturnMeta;
 import net.darmo_creations.mccode.interpreter.annotations.Type;
 import net.darmo_creations.mccode.interpreter.exceptions.IndexOutOfBoundsException;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.types.MCList;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -279,14 +279,14 @@ public class StringType extends TypeBase<String> {
   }
 
   @Override
-  protected NbtCompound _writeToNBT(final String self) {
-    NbtCompound tag = super._writeToNBT(self);
+  protected CompoundTag _writeToTag(final String self) {
+    CompoundTag tag = super._writeToTag(self);
     tag.putString(VALUE_KEY, self);
     return tag;
   }
 
   @Override
-  public String readFromNBT(final Scope scope, final NbtCompound tag) {
+  public String readFromTag(final Scope scope, final CompoundTag tag) {
     return tag.getString(VALUE_KEY);
   }
 }

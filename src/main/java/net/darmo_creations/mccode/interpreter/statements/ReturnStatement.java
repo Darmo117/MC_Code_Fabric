@@ -3,8 +3,8 @@ package net.darmo_creations.mccode.interpreter.statements;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Variable;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
-import net.darmo_creations.mccode.interpreter.nodes.NodeNBTHelper;
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.nodes.NodeTagHelper;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 import java.util.Objects;
 
@@ -32,13 +32,13 @@ public class ReturnStatement extends Statement {
   }
 
   /**
-   * Create a return statement from an NBT statement.
+   * Create a return statement from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public ReturnStatement(final NbtCompound tag) {
+  public ReturnStatement(final CompoundTag tag) {
     super(tag);
-    this.node = NodeNBTHelper.getNodeForTag(tag.getCompound(EXPR_KEY));
+    this.node = NodeTagHelper.getNodeForTag(tag.getCompound(EXPR_KEY));
   }
 
   @Override
@@ -49,9 +49,9 @@ public class ReturnStatement extends Statement {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
-    tag.put(EXPR_KEY, this.node.writeToNBT());
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
+    tag.putTag(EXPR_KEY, this.node.writeToTag());
     return tag;
   }
 

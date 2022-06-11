@@ -3,11 +3,11 @@ package net.darmo_creations.mccode.interpreter.statements;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
-import net.darmo_creations.mccode.interpreter.nodes.NodeNBTHelper;
+import net.darmo_creations.mccode.interpreter.nodes.NodeTagHelper;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.type_wrappers.BinaryOperator;
 import net.darmo_creations.mccode.interpreter.type_wrappers.TernaryOperator;
 import net.darmo_creations.mccode.interpreter.type_wrappers.TypeBase;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.Objects;
 
@@ -47,16 +47,16 @@ public class SetItemStatement extends Statement {
   }
 
   /**
-   * Create an item assigment statement.
+   * Create an item assigment statement from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public SetItemStatement(final NbtCompound tag) {
+  public SetItemStatement(final CompoundTag tag) {
     super(tag);
-    this.target = NodeNBTHelper.getNodeForTag(tag.getCompound(TARGET_KEY));
-    this.key = NodeNBTHelper.getNodeForTag(tag.getCompound(KEY_KEY));
+    this.target = NodeTagHelper.getNodeForTag(tag.getCompound(TARGET_KEY));
+    this.key = NodeTagHelper.getNodeForTag(tag.getCompound(KEY_KEY));
     this.operator = AssigmentOperator.fromString(tag.getString(OPERATOR_KEY));
-    this.value = NodeNBTHelper.getNodeForTag(tag.getCompound(VALUE_KEY));
+    this.value = NodeTagHelper.getNodeForTag(tag.getCompound(VALUE_KEY));
   }
 
   @Override
@@ -81,12 +81,12 @@ public class SetItemStatement extends Statement {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
-    tag.put(TARGET_KEY, this.target.writeToNBT());
-    tag.put(KEY_KEY, this.key.writeToNBT());
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
+    tag.putTag(TARGET_KEY, this.target.writeToTag());
+    tag.putTag(KEY_KEY, this.key.writeToTag());
     tag.putString(OPERATOR_KEY, this.operator.getSymbol());
-    tag.put(VALUE_KEY, this.value.writeToNBT());
+    tag.putTag(VALUE_KEY, this.value.writeToTag());
     return tag;
   }
 

@@ -4,8 +4,8 @@ import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.annotations.Property;
 import net.darmo_creations.mccode.interpreter.annotations.Type;
 import net.darmo_creations.mccode.interpreter.exceptions.MCCodeRuntimeException;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.minecraft.block.Block;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
@@ -60,14 +60,14 @@ public class BlockType extends TypeBase<Block> {
   }
 
   @Override
-  public NbtCompound _writeToNBT(final Block self) {
-    NbtCompound tag = super._writeToNBT(self);
+  public CompoundTag _writeToTag(final Block self) {
+    CompoundTag tag = super._writeToTag(self);
     tag.putString(ID_KEY, this.getID(self));
     return tag;
   }
 
   @Override
-  public Block readFromNBT(final Scope scope, final NbtCompound tag) {
+  public Block readFromTag(final Scope scope, final CompoundTag tag) {
     return Registry.BLOCK.get(new Identifier(tag.getString(ID_KEY)));
   }
 }

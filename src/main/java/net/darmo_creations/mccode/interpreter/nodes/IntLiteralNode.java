@@ -1,6 +1,6 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 import java.util.function.BiConsumer;
 
@@ -22,16 +22,16 @@ public class IntLiteralNode extends LiteralNode<Long> {
   }
 
   /**
-   * Create an int literal node from an NBT tag.
+   * Create an int literal node from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public IntLiteralNode(final NbtCompound tag) {
+  public IntLiteralNode(final CompoundTag tag) {
     super(tag, tag::getLong);
   }
 
   @Override
-  protected BiConsumer<String, Long> getValueSerializer(final NbtCompound tag) {
+  protected BiConsumer<String, Long> getValueSerializer(final CompoundTag tag) {
     return tag::putLong;
   }
 

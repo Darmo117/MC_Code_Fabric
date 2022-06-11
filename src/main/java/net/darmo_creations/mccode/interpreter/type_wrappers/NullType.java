@@ -3,7 +3,7 @@ package net.darmo_creations.mccode.interpreter.type_wrappers;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.annotations.Type;
 import net.darmo_creations.mccode.interpreter.exceptions.CastException;
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 /**
  * Wrapper type for {@link Void} class (null value).
@@ -48,7 +48,7 @@ public class NullType extends TypeBase<Void> {
   }
 
   @Override
-  public Void readFromNBT(final Scope scope, final NbtCompound tag) {
+  public Void readFromTag(final Scope scope, final CompoundTag tag) {
     return null;
   }
 }

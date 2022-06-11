@@ -1,6 +1,6 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 import java.util.function.BiConsumer;
 
@@ -22,16 +22,16 @@ public class BooleanLiteralNode extends LiteralNode<Boolean> {
   }
 
   /**
-   * Create a boolean literal node from an NBT tag.
+   * Create a boolean literal node from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public BooleanLiteralNode(final NbtCompound tag) {
+  public BooleanLiteralNode(final CompoundTag tag) {
     super(tag, tag::getBoolean);
   }
 
   @Override
-  protected BiConsumer<String, Boolean> getValueSerializer(final NbtCompound tag) {
+  protected BiConsumer<String, Boolean> getValueSerializer(final CompoundTag tag) {
     return tag::putBoolean;
   }
 

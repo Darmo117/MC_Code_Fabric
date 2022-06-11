@@ -3,10 +3,10 @@ package net.darmo_creations.mccode.interpreter.type_wrappers;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.annotations.Type;
 import net.darmo_creations.mccode.interpreter.exceptions.MCCodeException;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
 import net.darmo_creations.mccode.interpreter.types.Function;
 import net.darmo_creations.mccode.interpreter.types.UserFunction;
-import net.minecraft.nbt.NbtCompound;
 
 /**
  * Wrapper for {@link Function} class.
@@ -39,21 +39,21 @@ public class FunctionType extends TypeBase<Function> {
   }
 
   @Override
-  protected NbtCompound _writeToNBT(final Function self) {
-    NbtCompound tag = super._writeToNBT(self);
+  protected CompoundTag _writeToTag(final Function self) {
+    CompoundTag tag = super._writeToTag(self);
     if (self instanceof BuiltinFunction) {
       tag.putString(FUNCTION_TYPE_KEY, FUNCTION_TYPE_BUILTIN);
       tag.putString(FUNCTION_KEY, self.getName());
     } else if (self instanceof UserFunction) {
       tag.putString(FUNCTION_TYPE_KEY, FUNCTION_TYPE_USER);
-      NbtCompound functionTag = ((UserFunction) self).writeToNBT();
-      tag.put(FUNCTION_KEY, functionTag);
+      CompoundTag functionTag = ((UserFunction) self).writeToNBT();
+      tag.putTag(FUNCTION_KEY, functionTag);
     }
     return tag;
   }
 
   @Override
-  public Function readFromNBT(final Scope scope, final NbtCompound tag) {
+  public Function readFromTag(final Scope scope, final CompoundTag tag) {
     String functionType = tag.getString(FUNCTION_TYPE_KEY);
     return switch (functionType) {
       // Type-safe as builtin functions cannot be deleted nor overridden

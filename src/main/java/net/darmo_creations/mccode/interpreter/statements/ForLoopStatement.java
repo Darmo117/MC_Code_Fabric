@@ -5,10 +5,10 @@ import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Utils;
 import net.darmo_creations.mccode.interpreter.Variable;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
-import net.darmo_creations.mccode.interpreter.nodes.NodeNBTHelper;
+import net.darmo_creations.mccode.interpreter.nodes.NodeTagHelper;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.type_wrappers.TypeBase;
 import net.darmo_creations.mccode.interpreter.type_wrappers.UnaryOperator;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.Iterator;
 import java.util.List;
@@ -68,15 +68,15 @@ public class ForLoopStatement extends Statement {
   }
 
   /**
-   * Create a statement that represents a for-loop from an NBT tag.
+   * Create a statement that represents a for-loop from a tag.
    *
    * @param tag The tag to deserialize.
    */
-  public ForLoopStatement(final NbtCompound tag) {
+  public ForLoopStatement(final CompoundTag tag) {
     super(tag);
     this.variableName = tag.getString(VARIABLE_NAME_KEY);
-    this.values = NodeNBTHelper.getNodeForTag(tag.getCompound(VALUES_KEY));
-    this.statements = StatementNBTHelper.deserializeStatementsList(tag, STATEMENTS_KEY);
+    this.values = NodeTagHelper.getNodeForTag(tag.getCompound(VALUES_KEY));
+    this.statements = StatementTagHelper.deserializeStatementsList(tag, STATEMENTS_KEY);
     this.ip = tag.getInt(IP_KEY);
     this.iteratorIndex = tag.getInt(ITERATOR_INDEX_KEY);
     this.paused = tag.getBoolean(PAUSED_KEY);
@@ -151,11 +151,11 @@ public class ForLoopStatement extends Statement {
   }
 
   @Override
-  public NbtCompound writeToNBT() {
-    NbtCompound tag = super.writeToNBT();
+  public CompoundTag writeToTag() {
+    CompoundTag tag = super.writeToTag();
     tag.putString(VARIABLE_NAME_KEY, this.variableName);
-    tag.put(VALUES_KEY, this.values.writeToNBT());
-    tag.put(STATEMENTS_KEY, StatementNBTHelper.serializeStatementsList(this.statements));
+    tag.putTag(VALUES_KEY, this.values.writeToTag());
+    tag.putTag(STATEMENTS_KEY, StatementTagHelper.serializeStatementsList(this.statements));
     tag.putInt(IP_KEY, this.ip);
     tag.putInt(ITERATOR_INDEX_KEY, this.iteratorIndex);
     tag.putBoolean(PAUSED_KEY, this.paused);

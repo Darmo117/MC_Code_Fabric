@@ -3,7 +3,7 @@ package net.darmo_creations.mccode.interpreter.type_wrappers;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.annotations.Type;
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 /**
  * Wrapper type for {@link Boolean} class.
@@ -88,14 +88,14 @@ public class BooleanType extends TypeBase<Boolean> {
   }
 
   @Override
-  protected NbtCompound _writeToNBT(final Boolean self) {
-    NbtCompound tag = super._writeToNBT(self);
+  protected CompoundTag _writeToTag(final Boolean self) {
+    CompoundTag tag = super._writeToTag(self);
     tag.putBoolean(VALUE_KEY, self);
     return tag;
   }
 
   @Override
-  public Boolean readFromNBT(final Scope scope, final NbtCompound tag) {
+  public Boolean readFromTag(final Scope scope, final CompoundTag tag) {
     return tag.getBoolean(VALUE_KEY);
   }
 }

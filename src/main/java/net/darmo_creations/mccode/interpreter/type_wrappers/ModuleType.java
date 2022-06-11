@@ -6,7 +6,7 @@ import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Variable;
 import net.darmo_creations.mccode.interpreter.annotations.Type;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
-import net.minecraft.nbt.NbtCompound;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,14 +62,14 @@ public class ModuleType extends TypeBase<Program> {
   }
 
   @Override
-  protected NbtCompound _writeToNBT(final Program self) {
-    NbtCompound tag = super._writeToNBT(self);
-    tag.put(MODULE_KEY, self.writeToNBT());
+  protected CompoundTag _writeToTag(final Program self) {
+    CompoundTag tag = super._writeToTag(self);
+    tag.putTag(MODULE_KEY, self.writeToTag());
     return tag;
   }
 
   @Override
-  public Program readFromNBT(final Scope scope, final NbtCompound tag) {
+  public Program readFromTag(final Scope scope, final CompoundTag tag) {
     return new Program(tag.getCompound(MODULE_KEY), scope.getProgram().getProgramManager());
   }
 }

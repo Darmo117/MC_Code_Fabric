@@ -2,8 +2,8 @@ package net.darmo_creations.mccode.interpreter.type_wrappers;
 
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.annotations.Type;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.types.Range;
-import net.minecraft.nbt.NbtCompound;
 
 import java.util.Iterator;
 
@@ -54,8 +54,8 @@ public class RangeType extends TypeBase<Range> {
   }
 
   @Override
-  protected NbtCompound _writeToNBT(final Range self) {
-    NbtCompound tag = super._writeToNBT(self);
+  protected CompoundTag _writeToTag(final Range self) {
+    CompoundTag tag = super._writeToTag(self);
     tag.putLong(START_KEY, self.getStart());
     tag.putLong(END_KEY, self.getEnd());
     tag.putLong(STEP_KEY, self.getStep());
@@ -63,7 +63,7 @@ public class RangeType extends TypeBase<Range> {
   }
 
   @Override
-  public Range readFromNBT(final Scope scope, final NbtCompound tag) {
+  public Range readFromTag(final Scope scope, final CompoundTag tag) {
     return new Range(tag.getLong(START_KEY), tag.getLong(END_KEY), tag.getLong(STEP_KEY));
   }
 }

@@ -7,10 +7,10 @@ import net.darmo_creations.mccode.interpreter.annotations.ParameterMeta;
 import net.darmo_creations.mccode.interpreter.annotations.ReturnMeta;
 import net.darmo_creations.mccode.interpreter.annotations.Type;
 import net.darmo_creations.mccode.interpreter.exceptions.IndexOutOfBoundsException;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
+import net.darmo_creations.mccode.interpreter.tags.CompoundTagListTag;
+import net.darmo_creations.mccode.interpreter.tags.TagType;
 import net.darmo_creations.mccode.interpreter.types.MCList;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -303,19 +303,19 @@ public class ListType extends TypeBase<MCList> {
   }
 
   @Override
-  protected NbtCompound _writeToNBT(final MCList self) {
-    NbtCompound tag = super._writeToNBT(self);
-    NbtList list = new NbtList();
-    self.forEach(v -> list.add(ProgramManager.getTypeForValue(v).writeToNBT(v)));
-    tag.put(VALUES_KEY, list);
+  protected CompoundTag _writeToTag(final MCList self) {
+    CompoundTag tag = super._writeToTag(self);
+    CompoundTagListTag list = new CompoundTagListTag();
+    self.forEach(v -> list.add(ProgramManager.getTypeForValue(v).writeToTag(v)));
+    tag.putTag(VALUES_KEY, list);
     return tag;
   }
 
   @Override
-  public MCList readFromNBT(final Scope scope, final NbtCompound tag) {
+  public MCList readFromTag(final Scope scope, final CompoundTag tag) {
     MCList list = new MCList();
-    NbtList tagsList = tag.getList(VALUES_KEY, NbtElement.COMPOUND_TYPE);
-    tagsList.forEach(t -> list.add(ProgramManager.getTypeForName(((NbtCompound) t).getString(TypeBase.NAME_KEY)).readFromNBT(scope, (NbtCompound) t)));
+    CompoundTagListTag tagsList = tag.getList(VALUES_KEY, TagType.COMPOUND_TAG_TYPE);
+    tagsList.forEach(t -> list.add(ProgramManager.getTypeForName(t.getString(TypeBase.NAME_KEY)).readFromTag(scope, t)));
     return list;
   }
 }
