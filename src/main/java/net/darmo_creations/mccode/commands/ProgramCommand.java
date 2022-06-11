@@ -303,7 +303,7 @@ public class ProgramCommand {
     if (doc.isPresent()) {
       Pair<String, Object[]> d = doc.get();
       context.getSource().sendFeedback(
-          new TranslatableText("commands.program.feedback.doc_" + docType.name(), d.getRight())
+          new TranslatableText("commands.program.feedback.doc_" + docType, d.getRight())
               .setStyle(Style.EMPTY.withColor(Formatting.GREEN)),
           true);
       context.getSource().sendFeedback(parseDoc(d.getLeft()), true);

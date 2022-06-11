@@ -11,8 +11,7 @@ import net.minecraft.text.TranslatableText;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -41,20 +40,31 @@ public class EnumArgumentType<T extends Enum<T>> implements ArgumentType<T> {
   @Override
   public T parse(StringReader reader) throws CommandSyntaxException {
     String arg = reader.readUnquotedString();
-    T[] values;
-    try {
-      //noinspection unchecked
-      values = (T[]) this.enumClass.getMethod("values").invoke(null);
-    } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+    Optional<T[]> values = this.getEnumConstants();
+    if (values.isEmpty()) {
       throw new CommandSyntaxException(null, new TranslatableText("commands.program.error.invalid_argument", arg));
     }
-    return Arrays.stream(values).filter(t -> t.toString().equals(arg)).findAny().orElseThrow(
+    return Arrays.stream(values.get()).filter(t -> t.toString().equals(arg)).findAny().orElseThrow(
         () -> new CommandSyntaxException(null, new TranslatableText("commands.program.error.invalid_argument", arg)));
   }
 
   @Override
   public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-    List<String> values = new LinkedList<>();
-    return CommandSource.suggestMatching(values, builder);
+    Optional<T[]> values = this.getEnumConstants();
+    if (values.isPresent()) {
+      return CommandSource.suggestMatching(Arrays.stream(values.get()).map(Object::toString).toList(), builder);
+    }
+    return Suggestions.empty();
+  }
+
+  private Optional<T[]> getEnumConstants() {
+    T[] values;
+    try {
+      //noinspection unchecked
+      values = (T[]) this.enumClass.getMethod("values").invoke(null);
+    } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+      return Optional.empty();
+    }
+    return Optional.of(values);
   }
 }
