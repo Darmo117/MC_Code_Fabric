@@ -297,193 +297,193 @@ public interface MCCodeListener extends ParseTreeListener {
 	void exitExcept(MCCodeParser.ExceptContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code Variable}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void enterVariable(MCCodeParser.VariableContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code Variable}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void exitVariable(MCCodeParser.VariableContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code FloatLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void enterFloatLiteral(MCCodeParser.FloatLiteralContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code FloatLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void exitFloatLiteral(MCCodeParser.FloatLiteralContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code MethodCall}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void enterMethodCall(MCCodeParser.MethodCallContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code MethodCall}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void exitMethodCall(MCCodeParser.MethodCallContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code GetItem}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void enterGetItem(MCCodeParser.GetItemContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code GetItem}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void exitGetItem(MCCodeParser.GetItemContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ListLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void enterListLiteral(MCCodeParser.ListLiteralContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code ListLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void exitListLiteral(MCCodeParser.ListLiteralContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code MapLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void enterMapLiteral(MCCodeParser.MapLiteralContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code MapLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void exitMapLiteral(MCCodeParser.MapLiteralContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code BoolLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void enterBoolLiteral(MCCodeParser.BoolLiteralContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code BoolLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void exitBoolLiteral(MCCodeParser.BoolLiteralContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code StringLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void enterStringLiteral(MCCodeParser.StringLiteralContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code StringLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void exitStringLiteral(MCCodeParser.StringLiteralContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code IntLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void enterIntLiteral(MCCodeParser.IntLiteralContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code IntLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void exitIntLiteral(MCCodeParser.IntLiteralContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code GetProperty}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void enterGetProperty(MCCodeParser.GetPropertyContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code GetProperty}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void exitGetProperty(MCCodeParser.GetPropertyContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code FunctionCall}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void enterFunctionCall(MCCodeParser.FunctionCallContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code FunctionCall}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void exitFunctionCall(MCCodeParser.FunctionCallContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code UnaryOperator}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void enterUnaryOperator(MCCodeParser.UnaryOperatorContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code UnaryOperator}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void exitUnaryOperator(MCCodeParser.UnaryOperatorContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code BinaryOperator}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void enterBinaryOperator(MCCodeParser.BinaryOperatorContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code BinaryOperator}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void exitBinaryOperator(MCCodeParser.BinaryOperatorContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code NullLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void enterNullLiteral(MCCodeParser.NullLiteralContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code NullLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void exitNullLiteral(MCCodeParser.NullLiteralContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code SetLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void enterSetLiteral(MCCodeParser.SetLiteralContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code SetLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void exitSetLiteral(MCCodeParser.SetLiteralContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code Parentheses}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void enterParentheses(MCCodeParser.ParenthesesContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code Parentheses}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 */
 	void exitParentheses(MCCodeParser.ParenthesesContext ctx);

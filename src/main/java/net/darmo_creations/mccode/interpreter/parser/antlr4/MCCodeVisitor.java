@@ -181,112 +181,112 @@ public interface MCCodeVisitor<T> extends ParseTreeVisitor<T> {
 	T visitExcept(MCCodeParser.ExceptContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code Variable}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitVariable(MCCodeParser.VariableContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code FloatLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitFloatLiteral(MCCodeParser.FloatLiteralContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code MethodCall}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitMethodCall(MCCodeParser.MethodCallContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code GetItem}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitGetItem(MCCodeParser.GetItemContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code ListLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitListLiteral(MCCodeParser.ListLiteralContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code MapLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitMapLiteral(MCCodeParser.MapLiteralContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code BoolLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitBoolLiteral(MCCodeParser.BoolLiteralContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code StringLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitStringLiteral(MCCodeParser.StringLiteralContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code IntLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitIntLiteral(MCCodeParser.IntLiteralContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code GetProperty}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitGetProperty(MCCodeParser.GetPropertyContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code FunctionCall}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitFunctionCall(MCCodeParser.FunctionCallContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code UnaryOperator}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitUnaryOperator(MCCodeParser.UnaryOperatorContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code BinaryOperator}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitBinaryOperator(MCCodeParser.BinaryOperatorContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code NullLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNullLiteral(MCCodeParser.NullLiteralContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code SetLiteral}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitSetLiteral(MCCodeParser.SetLiteralContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code Parentheses}
-	 * labeled alternative in {@link MCCodeParser#expr()}.
+	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
