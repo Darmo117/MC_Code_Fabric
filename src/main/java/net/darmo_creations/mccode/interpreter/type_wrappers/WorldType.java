@@ -12,7 +12,10 @@ import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Utils;
 import net.darmo_creations.mccode.interpreter.annotations.*;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
-import net.darmo_creations.mccode.interpreter.types.*;
+import net.darmo_creations.mccode.interpreter.types.MCList;
+import net.darmo_creations.mccode.interpreter.types.MCMap;
+import net.darmo_creations.mccode.interpreter.types.MCSet;
+import net.darmo_creations.mccode.interpreter.types.Position;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.EntitySelector;
@@ -46,23 +49,23 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Wrapper type for {@link WorldProxy} class.
+ * Wrapper type for {@link ServerWorld} class.
  * <p>
  * It does not have a cast operator.
  */
 @Type(name = WorldType.NAME,
     generateCastOperator = false,
     doc = "This type represents a specific dimension (overworld, nether, end, etc.).")
-public class WorldType extends TypeBase<WorldProxy> {
+public class WorldType extends TypeBase<ServerWorld> {
   public static final String NAME = "world";
 
   @Override
-  public Class<WorldProxy> getWrappedType() {
-    return WorldProxy.class;
+  public Class<ServerWorld> getWrappedType() {
+    return ServerWorld.class;
   }
 
   @Override
-  protected List<String> getAdditionalPropertiesNames(final WorldProxy self) {
+  protected List<String> getAdditionalPropertiesNames(final ServerWorld self) {
     List<String> gamerules = new ArrayList<>();
     GameRules.accept(new GameRules.Visitor() {
       @Override
@@ -74,14 +77,14 @@ public class WorldType extends TypeBase<WorldProxy> {
   }
 
   @Override
-  protected Object __get_property__(final Scope scope, final WorldProxy self, final String propertyName) {
+  protected Object __get_property__(final Scope scope, final ServerWorld self, final String propertyName) {
     // Hack to get the value out of the anonymous class
     List<Object> container = new ArrayList<>();
     GameRules.accept(new GameRules.Visitor() {
       @Override
       public <T extends GameRules.Rule<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {
         if (("gr_" + key.getName()).equals(propertyName)) {
-          T value = self.world().getServer().getGameRules().get(key);
+          T value = self.getServer().getGameRules().get(key);
           if (value instanceof GameRules.BooleanRule b) {
             container.add(b.get());
           } else if (value instanceof GameRules.IntRule i) {
@@ -100,8 +103,8 @@ public class WorldType extends TypeBase<WorldProxy> {
   }
 
   @Override
-  protected void __set_property__(final Scope scope, WorldProxy self, final String propertyName, final Object value) {
-    MinecraftServer server = self.world().getServer();
+  protected void __set_property__(final Scope scope, ServerWorld self, final String propertyName, final Object value) {
+    MinecraftServer server = self.getServer();
     // Hack to get the value out of the anonymous class
     List<Boolean> container = new ArrayList<>();
 
@@ -129,23 +132,23 @@ public class WorldType extends TypeBase<WorldProxy> {
   }
 
   @Property(name = "seed", doc = "The seed of the world.")
-  public Long getSeed(final WorldProxy self) {
-    return self.world().getSeed();
+  public Long getSeed(final ServerWorld self) {
+    return self.getSeed();
   }
 
   @Property(name = "day", doc = "The current day of the world.")
-  public Long getWorldDay(final WorldProxy self) {
-    return self.world().getTimeOfDay() / 24000 % 0x7fffffff; // TODO check
+  public Long getWorldDay(final ServerWorld self) {
+    return self.getTimeOfDay() / 24000 % 0x7fffffff; // TODO check
   }
 
   @Property(name = "day_time", doc = "The current time of day of the world.")
-  public Long getWorldDayTime(final WorldProxy self) {
-    return self.world().getTimeOfDay() % 24000;
+  public Long getWorldDayTime(final ServerWorld self) {
+    return self.getTimeOfDay() % 24000;
   }
 
   @Property(name = "game_time", doc = "The current game time of the world.")
-  public Long getWorldTick(final WorldProxy self) {
-    return self.world().getTime() % 0x7fffffff;
+  public Long getWorldTick(final ServerWorld self) {
+    return self.getTime() % 0x7fffffff;
   }
 
   /*
@@ -159,7 +162,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of advancements granted to all targetted players or #null if the action failed."),
       doc = "Grants all advancements to the selected players.")
-  public Long grantAllAdvancements(final Scope scope, WorldProxy self, final String targetSelector) {
+  public Long grantAllAdvancements(final Scope scope, ServerWorld self, final String targetSelector) {
     return executeCommand(
         self,
         "advancement",
@@ -176,7 +179,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of advancements granted to all targetted players or #null if the action failed."),
       doc = "Grants the given advancement to the selected players.")
-  public Long grantAdvancement(final Scope scope, WorldProxy self, final String targetSelector, final String advancement, final String criterion) {
+  public Long grantAdvancement(final Scope scope, ServerWorld self, final String targetSelector, final String advancement, final String criterion) {
     List<String> args = new ArrayList<>(Arrays.asList("grant", targetSelector, "only", advancement));
     if (criterion != null) {
       args.add(criterion);
@@ -196,7 +199,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of advancements granted to all targetted players or #null if the action failed."),
       doc = "Grants all advancements down from the specified one to the selected players.")
-  public Long grantAdvancementsFrom(final Scope scope, WorldProxy self, final String targetSelector, final String advancement) {
+  public Long grantAdvancementsFrom(final Scope scope, ServerWorld self, final String targetSelector, final String advancement) {
     return executeCommand(
         self,
         "advancement",
@@ -212,7 +215,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of advancements granted to all targetted players or #null if the action failed."),
       doc = "Grants all advancements whose tree contains the specified one to the selected players.")
-  public Long grantAdvancementsThrough(final Scope scope, WorldProxy self, final String targetSelector, final String advancement) {
+  public Long grantAdvancementsThrough(final Scope scope, ServerWorld self, final String targetSelector, final String advancement) {
     return executeCommand(
         self,
         "advancement",
@@ -228,7 +231,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of advancements granted to all targetted players or #null if the action failed."),
       doc = "Grants all advancements from the root to the specified to the selected players.")
-  public Long grantAdvancementsUntil(final Scope scope, WorldProxy self, final String targetSelector, final String advancement) {
+  public Long grantAdvancementsUntil(final Scope scope, ServerWorld self, final String targetSelector, final String advancement) {
     return executeCommand(
         self,
         "advancement",
@@ -243,7 +246,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of advancements revoked from all targetted players or #null if the action failed."),
       doc = "Revokes all advancements from the selected players.")
-  public Long revokeAllAdvancements(final Scope scope, WorldProxy self, final String targetSelector) {
+  public Long revokeAllAdvancements(final Scope scope, ServerWorld self, final String targetSelector) {
     return executeCommand(
         self,
         "advancement",
@@ -260,7 +263,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of advancements revoked from all targetted players or #null if the action failed."),
       doc = "Revokes the given advancement to the selected players.")
-  public Long revokeAdvancements(final Scope scope, WorldProxy self, final String targetSelector, final String advancement, final String criterion) {
+  public Long revokeAdvancements(final Scope scope, ServerWorld self, final String targetSelector, final String advancement, final String criterion) {
     List<String> args = new ArrayList<>(Arrays.asList("revoke", targetSelector, "only", advancement));
     if (criterion != null) {
       args.add(criterion);
@@ -280,7 +283,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of advancements revoked from all targetted players or #null if the action failed."),
       doc = "Revokes all advancements down from the specified one from the selected players.")
-  public Long revokeAdvancementsFrom(final Scope scope, WorldProxy self, final String targetSelector, final String advancement) {
+  public Long revokeAdvancementsFrom(final Scope scope, ServerWorld self, final String targetSelector, final String advancement) {
     return executeCommand(
         self,
         "advancement",
@@ -296,7 +299,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of advancements revoked from all targetted players or #null if the action failed."),
       doc = "Revokes all advancements whose tree contains the specified one from the selected players.")
-  public Long revokeAdvancementsThrough(final Scope scope, WorldProxy self, final String targetSelector, final String advancement) {
+  public Long revokeAdvancementsThrough(final Scope scope, ServerWorld self, final String targetSelector, final String advancement) {
     return executeCommand(
         self,
         "advancement",
@@ -312,7 +315,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of advancements revoked from all targetted players or #null if the action failed."),
       doc = "Revokes all advancements from the root to the specified from the selected players.")
-  public Long revokeAdvancementsUntil(final Scope scope, WorldProxy self, final String targetSelector, final String advancement) {
+  public Long revokeAdvancementsUntil(final Scope scope, ServerWorld self, final String targetSelector, final String advancement) {
     return executeCommand(
         self,
         "advancement",
@@ -330,7 +333,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "#True if all the targetted players have the specified advancement, #false otherwise, #null if an error occured."),
       doc = "Returns whether the selected players have the given advancement.")
-  public Boolean hasAdvancement(final Scope scope, WorldProxy self, final String targetSelector, final String advancement, final String criterion) {
+  public Boolean hasAdvancement(final Scope scope, ServerWorld self, final String targetSelector, final String advancement, final String criterion) {
     List<String> args = new ArrayList<>(Arrays.asList("test", targetSelector, advancement));
     if (criterion != null) {
       args.add(criterion);
@@ -356,7 +359,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The attribute’s value for the entity, scaled by the given value then cast to an `int, #null if the action failed."),
       doc = "Returns the total value of the given attribute of a single player, armor stand or mob.")
-  public Long getAttributeValue(final Scope scope, WorldProxy self, final String targetSelector, final String attributeName, final Double scale) {
+  public Long getAttributeValue(final Scope scope, ServerWorld self, final String targetSelector, final String attributeName, final Double scale) {
     return executeCommand(
         self,
         "attribute",
@@ -374,7 +377,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The attribute’s base value for the entity, scaled by the given value then cast to an `int, #null if the action failed."),
       doc = "Returns the base value of the given attribute of a single player, armor stand or mob.")
-  public Long getAttributeBaseValue(final Scope scope, WorldProxy self, final String targetSelector, final String attributeName, final Double scale) {
+  public Long getAttributeBaseValue(final Scope scope, ServerWorld self, final String targetSelector, final String attributeName, final Double scale) {
     return executeCommand(
         self,
         "attribute",
@@ -391,7 +394,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the base value of the given attribute of a single player, armor stand or mob.")
-  public Boolean setAttributeBaseValue(final Scope scope, WorldProxy self, final String targetSelector,
+  public Boolean setAttributeBaseValue(final Scope scope, ServerWorld self, final String targetSelector,
                                        final String attributeName, final Double value) {
     return executeCommand(
         self,
@@ -412,7 +415,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Adds a modifier to the given attribute of a single player, armor stand or mob.")
-  public Boolean addAttributeModifier(final Scope scope, WorldProxy self, final String targetSelector, final String attributeName,
+  public Boolean addAttributeModifier(final Scope scope, ServerWorld self, final String targetSelector, final String attributeName,
                                       final String modifierUUID, final String modifierName, final Double value, final String modifierOperation) {
     return executeCommand(
         self,
@@ -430,7 +433,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Removes a modifier from the given attribute of a single player, armor stand or mob.")
-  public Boolean removeAttributeModifier(final Scope scope, WorldProxy self, final String targetSelector, final String attributeName,
+  public Boolean removeAttributeModifier(final Scope scope, ServerWorld self, final String targetSelector, final String attributeName,
                                          final String modifierUUID) {
     return executeCommand(
         self,
@@ -450,7 +453,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The modifier’s value for the entity, scaled by the given value then cast to an `int, or #null if the action failed."),
       doc = "Returns the value of a modifier of the given attribute of a single player, armor stand or mob.")
-  public Long getAttributeModifierValue(final Scope scope, WorldProxy self, final String targetSelector, final String attributeName,
+  public Long getAttributeModifierValue(final Scope scope, ServerWorld self, final String targetSelector, final String attributeName,
                                         final String modifierUUID, final Double scale) {
     return executeCommand(
         self,
@@ -472,7 +475,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of custom bossbars that exist after the command is executed or #null if the action failed."),
       doc = "Adds a new boss bar.")
-  public Long addBossBar(final Scope scope, WorldProxy self, final String id, final String name) {
+  public Long addBossBar(final Scope scope, ServerWorld self, final String id, final String name) {
     return executeCommand(
         self,
         "bossbar",
@@ -488,7 +491,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The boss bar’s maximum value or #null if the action failed."),
       doc = "Returns the maximum value of a boss bar.")
-  public Long getBossBarMaxValue(final Scope scope, WorldProxy self, final String id) {
+  public Long getBossBarMaxValue(final Scope scope, ServerWorld self, final String id) {
     return executeCommand(
         self,
         "bossbar",
@@ -505,7 +508,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The boss bar’s new maximum value or #null if the action failed."),
       doc = "Sets the maximum value of a boss bar.")
-  public Long setBossBarMaxValue(final Scope scope, WorldProxy self, final String id, final Long value) {
+  public Long setBossBarMaxValue(final Scope scope, ServerWorld self, final String id, final Long value) {
     return executeCommand(
         self,
         "bossbar",
@@ -521,7 +524,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The boss bar’s value or #null if the action failed."),
       doc = "Returns the value of a boss bar.")
-  public Long getBossBarValue(final Scope scope, WorldProxy self, final String id) {
+  public Long getBossBarValue(final Scope scope, ServerWorld self, final String id) {
     return executeCommand(
         self,
         "bossbar",
@@ -538,7 +541,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The boss bar’s new value or #null if the action failed."),
       doc = "Sets the value of a boss bar.")
-  public Long setBossBarValue(final Scope scope, WorldProxy self, final String id, final Long value) {
+  public Long setBossBarValue(final Scope scope, ServerWorld self, final String id, final Long value) {
     return executeCommand(
         self,
         "bossbar",
@@ -554,7 +557,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "#True if the boss bar is visible, #false otherwise, #null if an error occured."),
       doc = "Returns whether a boss bar is visible.")
-  public Boolean isBossBarVisible(final Scope scope, WorldProxy self, final String id) {
+  public Boolean isBossBarVisible(final Scope scope, ServerWorld self, final String id) {
     return executeCommand(
         self,
         "bossbar",
@@ -570,7 +573,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if action succeeded, #false otherwise."),
       doc = "Sets the visibility of a boss bar.")
-  public Boolean setBossBarVisible(final Scope scope, WorldProxy self, final String id, final Boolean visible) {
+  public Boolean setBossBarVisible(final Scope scope, ServerWorld self, final String id, final Boolean visible) {
     return executeCommand(
         self,
         "bossbar",
@@ -586,7 +589,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of players to whom the bar is visible or #null if the action failed."),
       doc = "Returns the number of players to whom a bar is visible.")
-  public Long getBossBarPlayersNumber(final Scope scope, WorldProxy self, final String id) {
+  public Long getBossBarPlayersNumber(final Scope scope, ServerWorld self, final String id) {
     return executeCommand(
         self,
         "bossbar",
@@ -603,7 +606,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of players to whom the bar is visible or #null if the action failed."),
       doc = "Sets the set of players to whom a bar is visible.")
-  public Long setBossBarPlayers(final Scope scope, WorldProxy self, final String id, final String targetSelector) {
+  public Long setBossBarPlayers(final Scope scope, ServerWorld self, final String id, final String targetSelector) {
     return executeCommand(
         self,
         "bossbar",
@@ -619,7 +622,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if action succeeded, #false otherwise."),
       doc = "Sets the display name of a boss bar.")
-  public Boolean setBossBarName(final Scope scope, WorldProxy self, final String id, final String name) {
+  public Boolean setBossBarName(final Scope scope, ServerWorld self, final String id, final String name) {
     return executeCommand(
         self,
         "bossbar",
@@ -635,7 +638,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if action succeeded, #false otherwise."),
       doc = "Sets the display name of a boss bar.")
-  public Boolean setBossBarStyle(final Scope scope, WorldProxy self, final String id, final String style) {
+  public Boolean setBossBarStyle(final Scope scope, ServerWorld self, final String id, final String style) {
     return executeCommand(
         self,
         "bossbar",
@@ -651,7 +654,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if action succeeded, #false otherwise."),
       doc = "Sets the color of a boss bar.")
-  public Boolean setBossBarColor(final Scope scope, WorldProxy self, final String id, final String color) {
+  public Boolean setBossBarColor(final Scope scope, ServerWorld self, final String id, final String color) {
     return executeCommand(
         self,
         "bossbar",
@@ -670,7 +673,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of removed items or #null if the action failed."),
       doc = "Removes all items from the inventory of the selected players.")
-  public Long clearInventory(final Scope scope, WorldProxy self, final String targetSelector) {
+  public Long clearInventory(final Scope scope, ServerWorld self, final String targetSelector) {
     return executeCommand(
         self,
         "clear",
@@ -687,7 +690,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise"),
       doc = "Removes matching items from the inventory of selected players.")
-  public Boolean clearItems(final Scope scope, WorldProxy self, final String targetSelector,
+  public Boolean clearItems(final Scope scope, ServerWorld self, final String targetSelector,
                             final String item, final MCMap dataTags, final Long maxCount) {
     List<String> args = new ArrayList<>(Arrays.asList(targetSelector, item + mapToDataTag(dataTags)));
     if (maxCount != null) {
@@ -709,7 +712,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of matching items or #null if the operation failed."),
       doc = "Returns the number of items matching the given one that are present in the given players’ inventory.")
-  public Long getItemsCount(final Scope scope, WorldProxy self, final String targetSelector,
+  public Long getItemsCount(final Scope scope, ServerWorld self, final String targetSelector,
                             final String item, final MCMap dataTags) {
     return executeCommand(
         self,
@@ -735,7 +738,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of affected blocks or #null if the action failed."),
       doc = "Clones blocks from one region to another.")
-  public Long clone(final Scope scope, WorldProxy self, final Position pos1, final Position pos2, final Position destination,
+  public Long clone(final Scope scope, ServerWorld self, final Position pos1, final Position pos2, final Position destination,
                     final String maskMode, final String cloneMode) {
     BlockPos p1 = pos1.toBlockPos();
     BlockPos p2 = pos2.toBlockPos();
@@ -765,7 +768,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of affected blocks or #null if the action failed."),
       doc = "Clones from one region to another only blocks that match the given predicate.")
-  public Long clone(final Scope scope, WorldProxy self, final Position pos1, final Position pos2, final Position destination,
+  public Long clone(final Scope scope, ServerWorld self, final Position pos1, final Position pos2, final Position destination,
                     final String block, final MCMap blockState, final MCMap dataTags, final String cloneMode) {
     BlockPos p1 = pos1.toBlockPos();
     BlockPos p2 = pos2.toBlockPos();
@@ -801,7 +804,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "The queried data or #null if an error occured."),
       doc = "Returns NBT data from the specified target.")
-  public Object getData(final Scope scope, WorldProxy self, final String targetType, final Object target, final String targetNBTPath) {
+  public Object getData(final Scope scope, ServerWorld self, final String targetType, final Object target, final String targetNBTPath) {
     // TODO
     return null;
   }
@@ -821,7 +824,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of lists or arrays to which new elements are added or #null if an error occured."),
       doc = "Appends data from the given source to the end of the given target’s list.")
-  public Long appendDataFrom(final Scope scope, WorldProxy self,
+  public Long appendDataFrom(final Scope scope, ServerWorld self,
                              final String targetType, final Object target, final String targetNBTPath,
                              final String sourceType, final Object source, final String sourceNBTPath) {
     List<String> args = new ArrayList<>(List.of("modify"));
@@ -852,7 +855,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of lists or arrays to which new elements are added or #null if an error occured."),
       doc = "Appends data to the end of the given target’s list.")
-  public Long appendData(final Scope scope, WorldProxy self,
+  public Long appendData(final Scope scope, ServerWorld self,
                          final String targetType, final Object target, final String targetNBTPath,
                          final String nbt) {
     List<String> args = new ArrayList<>(List.of("modify"));
@@ -883,7 +886,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of lists or arrays to which new elements are added or #null if an error occured."),
       doc = "Prepends data from the given source to the start of the given target’s list.")
-  public Long prependDataFrom(final Scope scope, WorldProxy self,
+  public Long prependDataFrom(final Scope scope, ServerWorld self,
                               final String targetType, final Object target, final String targetNBTPath,
                               final String sourceType, final Object source, final String sourceNBTPath) {
     List<String> args = new ArrayList<>(List.of("modify"));
@@ -914,7 +917,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of lists or arrays to which new elements are added or #null if an error occured."),
       doc = "Prepends data to the start of the given target’s list.")
-  public Long prependData(final Scope scope, WorldProxy self,
+  public Long prependData(final Scope scope, ServerWorld self,
                           final String targetType, final Object target, final String targetNBTPath,
                           final String nbt) {
     List<String> args = new ArrayList<>(List.of("modify"));
@@ -946,7 +949,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of lists or arrays to which new elements are added or #null if an error occured."),
       doc = "Inserts data from the given source to the specified index in the given target’s list.")
-  public Long insertDataFrom(final Scope scope, WorldProxy self,
+  public Long insertDataFrom(final Scope scope, ServerWorld self,
                              final String targetType, final Object target, final String targetNBTPath,
                              final Long index,
                              final String sourceType, final Object source, final String sourceNBTPath) {
@@ -980,7 +983,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of lists or arrays to which new elements are added or #null if an error occured."),
       doc = "Prepends data to the specified index in the given target’s list.")
-  public Long insertData(final Scope scope, WorldProxy self,
+  public Long insertData(final Scope scope, ServerWorld self,
                          final String targetType, final Object target, final String targetNBTPath,
                          final Long index, final String nbt) {
     List<String> args = new ArrayList<>(List.of("modify"));
@@ -1012,7 +1015,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of target tags that were successfully modified or #null if an error occured."),
       doc = "Merges data from the given source into the given target’s object.")
-  public Long mergeDataFrom(final Scope scope, WorldProxy self,
+  public Long mergeDataFrom(final Scope scope, ServerWorld self,
                             final String targetType, final Object target, final String targetNBTPath,
                             final String sourceType, final Object source, final String sourceNBTPath) {
     List<String> args = new ArrayList<>(List.of("modify"));
@@ -1043,7 +1046,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of target tags that were successfully modified or #null if an error occured."),
       doc = "Merges data into the given target’s object.")
-  public Long mergeData(final Scope scope, WorldProxy self,
+  public Long mergeData(final Scope scope, ServerWorld self,
                         final String targetType, final Object target, final String targetNBTPath,
                         final String nbt) {
     List<String> args = new ArrayList<>(List.of("modify"));
@@ -1074,7 +1077,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of target tags that were successfully modified or #null if an error occured."),
       doc = "Sets the tag specified by $target_nbt_path to the source data.")
-  public Long setDataFrom(final Scope scope, WorldProxy self,
+  public Long setDataFrom(final Scope scope, ServerWorld self,
                           final String targetType, final Object target, final String targetNBTPath,
                           final String sourceType, final Object source, final String sourceNBTPath) {
     List<String> args = new ArrayList<>(List.of("modify"));
@@ -1105,7 +1108,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of target tags that were successfully modified or #null if an error occured."),
       doc = "Sets the tag specified by $target_nbt_path to the specified value.")
-  public Long setData(final Scope scope, WorldProxy self,
+  public Long setData(final Scope scope, ServerWorld self,
                       final String targetType, final Object target, final String targetNBTPath,
                       final String nbt) {
     List<String> args = new ArrayList<>(List.of("modify"));
@@ -1131,7 +1134,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Merges the given data with the specified target’s data.")
-  public Boolean mergeNBTData(final Scope scope, WorldProxy self,
+  public Boolean mergeNBTData(final Scope scope, ServerWorld self,
                               final String targetType, final Object target, final String nbt) {
     List<String> args = new ArrayList<>(List.of("merge"));
     appendDataTarget(scope, targetType, target, args);
@@ -1153,7 +1156,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Removes the data specified by $target_nbt_path from the specified target.")
-  public Boolean removeData(final Scope scope, WorldProxy self,
+  public Boolean removeData(final Scope scope, ServerWorld self,
                             final String targetType, final Object target, final String targetNBTPath) {
     List<String> args = new ArrayList<>(List.of("remove"));
     appendDataTarget(scope, targetType, target, args);
@@ -1188,7 +1191,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the datapack was disabled, #false otherwise."),
       doc = "Disables a datapack.")
-  public Boolean disableDatapack(final Scope scope, WorldProxy self, final String name) {
+  public Boolean disableDatapack(final Scope scope, ServerWorld self, final String name) {
     return executeCommand(
         self,
         "datapack",
@@ -1203,7 +1206,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the datapack was enabled, #false otherwise."),
       doc = "Enables a datapack.")
-  public Boolean enableDatapack(final Scope scope, WorldProxy self, final String name) {
+  public Boolean enableDatapack(final Scope scope, ServerWorld self, final String name) {
     return executeCommand(
         self,
         "datapack",
@@ -1218,7 +1221,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the datapack was enabled, #false otherwise."),
       doc = "Enables a datapack before all others.")
-  public Boolean enableDatapackFirst(final Scope scope, WorldProxy self, final String name) {
+  public Boolean enableDatapackFirst(final Scope scope, ServerWorld self, final String name) {
     return executeCommand(
         self,
         "datapack",
@@ -1233,7 +1236,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the datapack was enabled, #false otherwise."),
       doc = "Enables a datapack after all others.")
-  public Boolean enableDatapackLast(final Scope scope, WorldProxy self, final String name) {
+  public Boolean enableDatapackLast(final Scope scope, ServerWorld self, final String name) {
     return executeCommand(
         self,
         "datapack",
@@ -1249,7 +1252,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the datapack was enabled, #false otherwise."),
       doc = "Enables a datapack before another one.")
-  public Boolean enableDatapackBefore(final Scope scope, WorldProxy self, final String name, final String other) {
+  public Boolean enableDatapackBefore(final Scope scope, ServerWorld self, final String name, final String other) {
     return executeCommand(
         self,
         "datapack",
@@ -1265,7 +1268,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the datapack was enabled, #false otherwise."),
       doc = "Enables a datapack before after another one.")
-  public Boolean enableDatapackAfter(final Scope scope, WorldProxy self, final String name, final String other) {
+  public Boolean enableDatapackAfter(final Scope scope, ServerWorld self, final String name, final String other) {
     return executeCommand(
         self,
         "datapack",
@@ -1278,7 +1281,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The `list of names of all available and/or enabled datapacks, #null if an error occured."),
       doc = "Returns the `list of names of all available and/or enabled datapacks.")
-  public MCList listAllDatapacks(final Scope scope, WorldProxy self) {
+  public MCList listAllDatapacks(final Scope scope, ServerWorld self) {
     MCList list = listAvailablePacks(scope);
     list.addAll(listEnabledPacks(scope));
     return list;
@@ -1289,7 +1292,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The `list of names of all available datapacks excluding those enabled, #null if an error occured."),
       doc = "Returns the `list of names of all available but non-enabled datapacks.")
-  public MCList listAvailableDatapacks(final Scope scope, WorldProxy self) {
+  public MCList listAvailableDatapacks(final Scope scope, ServerWorld self) {
     return listAvailablePacks(scope);
   }
 
@@ -1298,7 +1301,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The `list of names of all enabled datapacks, #null if an error occured."),
       doc = "Returns the `list of names of all enabled datapacks.")
-  public MCList listEnabledDatapacks(final Scope scope, WorldProxy self) {
+  public MCList listEnabledDatapacks(final Scope scope, ServerWorld self) {
     return listEnabledPacks(scope);
   }
 
@@ -1327,7 +1330,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action was successful, #false otherwise."),
       doc = "Sets the default game mode for new players.")
-  public Boolean setDefaultGameMode(final Scope scope, WorldProxy self, final String gamemode) {
+  public Boolean setDefaultGameMode(final Scope scope, ServerWorld self, final String gamemode) {
     return executeCommand(
         self,
         "defaultgamemode",
@@ -1343,7 +1346,7 @@ public class WorldType extends TypeBase<WorldProxy> {
   @Method(name = "get_difficulty",
       returnTypeMetadata = @ReturnMeta(mayBeNull = true, doc = "The current difficulty."),
       doc = "Returns the current difficulty.")
-  public String getDifficulty(final Scope scope, WorldProxy self) {
+  public String getDifficulty(final Scope scope, ServerWorld self) {
     return executeCommand(
         self,
         "difficulty"
@@ -1362,7 +1365,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action was successful, #false otherwise."),
       doc = "Sets the difficulty level.")
-  public Boolean setDifficulty(final Scope scope, WorldProxy self, final String difficulty) {
+  public Boolean setDifficulty(final Scope scope, ServerWorld self, final String difficulty) {
     return executeCommand(
         self,
         "difficulty",
@@ -1381,7 +1384,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of affected entities or #null if the action failed."),
       doc = "Removes all effects from the selected entities.")
-  public Long clearAllEffects(final Scope scope, WorldProxy self, final String targetSelector) {
+  public Long clearAllEffects(final Scope scope, ServerWorld self, final String targetSelector) {
     return executeCommand(
         self,
         "effect",
@@ -1397,7 +1400,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of affected entities or #null if the action failed."),
       doc = "Removes a single effect from the selected entities.")
-  public Long clearAllEffects(final Scope scope, WorldProxy self, final String targetSelector, final String effect) {
+  public Long clearAllEffects(final Scope scope, ServerWorld self, final String targetSelector, final String effect) {
     return executeCommand(
         self,
         "effect",
@@ -1416,7 +1419,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of affected entities or #null if the action failed."),
       doc = "Gives an effect to the selected entities.")
-  public Long giveEffect(final Scope scope, WorldProxy self, final String targetSelector, final String effect,
+  public Long giveEffect(final Scope scope, ServerWorld self, final String targetSelector, final String effect,
                          final Long seconds, final Long amplifier, final Boolean hideParticles) {
     return executeCommand(
         self,
@@ -1438,7 +1441,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of players whose items are successfully enchanted or #null if the action failed."),
       doc = "Enchants the active item of all selected entities with the given enchantment.")
-  public Long enchantSelectedItem(final Scope scope, WorldProxy self, final String targetSelector,
+  public Long enchantSelectedItem(final Scope scope, ServerWorld self, final String targetSelector,
                                   final String enchantment, final Long level) {
     return executeCommand(
         self,
@@ -1459,7 +1462,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of experience points or levels the players have or #null if the action failed."),
       doc = "Returns the number of experience points or levels the players have.")
-  public Long getXP(final Scope scope, WorldProxy self, final String targetSelector, final Boolean levels) {
+  public Long getXP(final Scope scope, ServerWorld self, final String targetSelector, final Boolean levels) {
     return executeCommand(
         self,
         "xp",
@@ -1476,7 +1479,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of targeted players or #null if the action failed."),
       doc = "Sets the XP points or levels of the selected players.")
-  public Long setXP(final Scope scope, WorldProxy self, final String targetSelector, final Long amount, final Boolean levels) {
+  public Long setXP(final Scope scope, ServerWorld self, final String targetSelector, final Long amount, final Boolean levels) {
     return executeCommand(
         self,
         "xp",
@@ -1493,7 +1496,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of targeted players or #null if the action failed."),
       doc = "Gives the indicated amount of XP points or levels to the selected players.")
-  public Long giveXP(final Scope scope, WorldProxy self, final String targetSelector, final Long amount, final Boolean levels) {
+  public Long giveXP(final Scope scope, ServerWorld self, final String targetSelector, final Long amount, final Boolean levels) {
     return executeCommand(
         self,
         "xp",
@@ -1517,7 +1520,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of affected blocks or #null if the action failed."),
       doc = "Fills the region between the given positions in this world with the specified block.")
-  public Long fill(final Scope scope, WorldProxy self, final Position pos1, final Position pos2,
+  public Long fill(final Scope scope, ServerWorld self, final Position pos1, final Position pos2,
                    final String block, final MCMap blockState, final MCMap dataTags, final String mode) {
     BlockPos p1 = pos1.toBlockPos();
     BlockPos p2 = pos2.toBlockPos();
@@ -1557,7 +1560,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of affected blocks or #null if the action failed."),
       doc = "Fills the region between the given positions in this world with the specified block in replace mode.")
-  public Long fill(final Scope scope, WorldProxy self, final Position pos1, final Position pos2,
+  public Long fill(final Scope scope, ServerWorld self, final Position pos1, final Position pos2,
                    final String block, final MCMap blockState, final MCMap dataTags,
                    final String blockToReplace, final MCMap blockStateToReplace, final MCMap dataTagsToReplace) {
     BlockPos p1 = pos1.toBlockPos();
@@ -1598,7 +1601,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(doc = "The number of forceloaded chunks that were newly added, #null if an error occured."),
       doc = "Forces the chunks at the <from> position (through to <to> if set) to be loaded constantly. " +
           "There is no guarantee that affected chunks will be load in the same tick as this method is executed.")
-  public Long forceLoadChunks(final Scope scope, WorldProxy self, final Position from, final Position to) {
+  public Long forceLoadChunks(final Scope scope, ServerWorld self, final Position from, final Position to) {
     BlockPos p1 = from.toBlockPos();
     List<String> args = new ArrayList<>(Arrays.asList("add", "" + p1.getX(), "" + p1.getZ()));
     if (to != null) {
@@ -1621,7 +1624,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "The number of forceloaded chunks that were successfully removed, #null if an error occured."),
       doc = "Unforces the chunks at the <from> position (through to <to> if set) to be loaded constantly.")
-  public Long unforceLoadChunks(final Scope scope, WorldProxy self, final Position from, final Position to) {
+  public Long unforceLoadChunks(final Scope scope, ServerWorld self, final Position from, final Position to) {
     BlockPos p1 = from.toBlockPos();
     List<String> args = new ArrayList<>(Arrays.asList("remove", "" + p1.getX(), "" + p1.getZ()));
     if (to != null) {
@@ -1640,7 +1643,7 @@ public class WorldType extends TypeBase<WorldProxy> {
   @Method(name = "unforce_load_all_chunks",
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Unforces all chunks to be loaded constantly.")
-  public Boolean unforceLoadAllChunks(final Scope scope, WorldProxy self) {
+  public Boolean unforceLoadAllChunks(final Scope scope, ServerWorld self) {
     return executeCommand(
         self,
         "forceload",
@@ -1652,7 +1655,7 @@ public class WorldType extends TypeBase<WorldProxy> {
   @Method(name = "get_force_loaded_chunks",
       returnTypeMetadata = @ReturnMeta(doc = "The `list of force loaded chunks’ positions."),
       doc = "Queries all force loaded chunks.")
-  public MCList getForceLoadedChunks(final Scope scope, WorldProxy self) {
+  public MCList getForceLoadedChunks(final Scope scope, ServerWorld self) {
     ServerWorld serverlevel = scope.getProgram().getProgramManager().getWorld();
     LongSet longset = serverlevel.getForcedChunks();
     return new MCList(longset.longStream().sorted().mapToObj(l -> {
@@ -1668,7 +1671,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the chunk is force loaded, #false otherwise."),
       doc = "Checks whether the chunk at the given position is force loaded.")
-  public Boolean isChunkForceLoaded(final Scope scope, WorldProxy self, final Position position) {
+  public Boolean isChunkForceLoaded(final Scope scope, ServerWorld self, final Position position) {
     ChunkPos chunkpos = new ChunkPos(position.toBlockPos());
     ServerWorld serverlevel = scope.getProgram().getProgramManager().getWorld();
     return serverlevel.getForcedChunks().contains(chunkpos.toLong());
@@ -1685,7 +1688,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of executed commands plus the number of embedded functions, #null if an error occured."),
       doc = "Runs the given mcfunction.")
-  public Long runMCFunction(final Scope scope, WorldProxy self, final String functionID) {
+  public Long runMCFunction(final Scope scope, ServerWorld self, final String functionID) {
     return executeCommand(
         self,
         "function",
@@ -1705,7 +1708,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "Returns the number of affected players or #null if the action failed."),
       doc = "Sets the game mode of the selected players.")
-  public Long setGameMode(final Scope scope, WorldProxy self, final String targetSelector, final String gameMode) {
+  public Long setGameMode(final Scope scope, ServerWorld self, final String targetSelector, final String gameMode) {
     return executeCommand(
         self,
         "gamemode",
@@ -1726,7 +1729,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "Returns the number of affected players or #null if the action failed."),
       doc = "Gives items to the selected players.")
-  public Long giveItems(final Scope scope, WorldProxy self, final String targetSelector, final String item, final MCMap dataTags) {
+  public Long giveItems(final Scope scope, ServerWorld self, final String targetSelector, final String item, final MCMap dataTags) {
     return executeCommand(
         self,
         "give",
@@ -1744,8 +1747,8 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "The `block at the given position."),
       doc = "Returns the block at the given position.")
-  public Block getBlock(final Scope scope, final WorldProxy self, final Position position) {
-    return self.world().getBlockState(position.toBlockPos()).getBlock();
+  public Block getBlock(final Scope scope, final ServerWorld self, final Position position) {
+    return self.getBlockState(position.toBlockPos()).getBlock();
   }
 
   @Method(name = "get_block_state",
@@ -1754,8 +1757,8 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "A `map containing all properties of the block."),
       doc = "Returns the block state at the given position in this world.")
-  public MCMap getBlockState(final Scope scope, final WorldProxy self, final Position position) {
-    BlockState blockState = self.world().getBlockState(position.toBlockPos());
+  public MCMap getBlockState(final Scope scope, final ServerWorld self, final Position position) {
+    BlockState blockState = self.getBlockState(position.toBlockPos());
     return new MCMap(blockState.getProperties().stream().collect(Collectors.toMap(
         net.minecraft.state.property.Property::getName,
         p -> {
@@ -1780,9 +1783,9 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the block is loaded, #false otherwise."),
       doc = "Returns whether the block at the given position is currently loaded.")
-  public Boolean isBlockLoaded(final Scope scope, final WorldProxy self, final Position position) {
+  public Boolean isBlockLoaded(final Scope scope, final ServerWorld self, final Position position) {
     //noinspection deprecation
-    return self.world().isChunkLoaded(position.toBlockPos());
+    return self.isChunkLoaded(position.toBlockPos());
   }
 
   /*
@@ -1798,7 +1801,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Modifies an item in a block’s inventory.")
-  public Boolean modifyItemForBlock(final Scope scope, WorldProxy self, final Position position,
+  public Boolean modifyItemForBlock(final Scope scope, ServerWorld self, final Position position,
                                     final String slotID, final String modifierID) {
     BlockPos p = position.toBlockPos();
     return executeCommand(
@@ -1820,7 +1823,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of affected entities, #null if an error occured."),
       doc = "Modifies an item in inventories of selected entities.")
-  public Long modifyItemForEntities(final Scope scope, WorldProxy self, final String targetSelector,
+  public Long modifyItemForEntities(final Scope scope, ServerWorld self, final String targetSelector,
                                     final String slotID, final String modifierID) {
     return executeCommand(
         self,
@@ -1841,7 +1844,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Replaces an item in a block’s inventory.")
-  public Boolean replaceItemForBlock(final Scope scope, WorldProxy self, final Position position,
+  public Boolean replaceItemForBlock(final Scope scope, ServerWorld self, final Position position,
                                      final String slotID, final String item, final MCMap dataTags, final Long count) {
     BlockPos p = position.toBlockPos();
     return executeCommand(
@@ -1867,7 +1870,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of affected entities, #null if an error occured."),
       doc = "Replaces an item in inventories of selected entities.")
-  public Long replaceItemForEntities(final Scope scope, WorldProxy self, final String targetSelector,
+  public Long replaceItemForEntities(final Scope scope, ServerWorld self, final String targetSelector,
                                      final String slotID, final String item, final MCMap dataTags, final Long count) {
     return executeCommand(
         self,
@@ -1890,7 +1893,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Copies an item from a block’s inventory into another’s.")
-  public Boolean copyItemFromBlockToBlock(final Scope scope, WorldProxy self, final Position sourcePos, final String sourceSlotID,
+  public Boolean copyItemFromBlockToBlock(final Scope scope, ServerWorld self, final Position sourcePos, final String sourceSlotID,
                                           final Position targetPos, final String targetSlotID, final String modifierID) {
     BlockPos p1 = targetPos.toBlockPos();
     BlockPos p2 = sourcePos.toBlockPos();
@@ -1921,7 +1924,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Copies an item the inventories of selected entities into a block’s inventory.")
-  public Boolean copyItemFromEntitiesToBlock(final Scope scope, WorldProxy self, final String sourceSelector, final String sourceSlotID,
+  public Boolean copyItemFromEntitiesToBlock(final Scope scope, ServerWorld self, final String sourceSelector, final String sourceSlotID,
                                              final Position targetPos, final String targetSlotID, final String modifierID) {
     BlockPos p = targetPos.toBlockPos();
     List<String> args = new ArrayList<>(Arrays.asList(
@@ -1952,7 +1955,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of entities whose items were successfully replaced or #null if an error occured."),
       doc = "Copies an item from a block’s inventory into the inventories of selected entities.")
-  public Long copyItemFromBlockToEntities(final Scope scope, WorldProxy self, final Position sourcePos, final String sourceSlotID,
+  public Long copyItemFromBlockToEntities(final Scope scope, ServerWorld self, final Position sourcePos, final String sourceSlotID,
                                           final String targetSelector, final String targetSlotID, final String modifierID) {
     BlockPos p = sourcePos.toBlockPos();
     List<String> args = new ArrayList<>(Arrays.asList(
@@ -1983,7 +1986,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of entities whose items were successfully replaced or #null if an error occured."),
       doc = "Copies an item from inventories of selected entities into other’s.")
-  public Long copyItemFromEntitiesToEntities(final Scope scope, WorldProxy self, final String sourceSelector, final String sourceSlotID,
+  public Long copyItemFromEntitiesToEntities(final Scope scope, ServerWorld self, final String sourceSelector, final String sourceSlotID,
                                              final String targetSelector, final String targetSlotID, final String modifierID) {
     List<String> args = new ArrayList<>(Arrays.asList(
         "replace", "entity",
@@ -2012,7 +2015,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of affected entities or #null if an error occured."),
       doc = "Kills all selected entities.")
-  public Long killEntities(final Scope scope, final WorldProxy self, final String targetSelector) {
+  public Long killEntities(final Scope scope, final ServerWorld self, final String targetSelector) {
     return executeCommand(
         self,
         "kill",
@@ -2027,8 +2030,8 @@ public class WorldType extends TypeBase<WorldProxy> {
   @Method(name = "list_players",
       returnTypeMetadata = @ReturnMeta(doc = "A `list containing data for all connected players."),
       doc = "Fetches profile data for all connected players.")
-  public MCMap listPlayers(final Scope scope, final WorldProxy self) {
-    return new MCMap(self.world().getServer().getPlayerManager().getPlayerList()
+  public MCMap listPlayers(final Scope scope, final ServerWorld self) {
+    return new MCMap(self.getServer().getPlayerManager().getPlayerList()
         .stream()
         .collect(Collectors.toMap(
             p -> p.getGameProfile().getId().toString(),
@@ -2059,25 +2062,25 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The position of the nearest structure of desired type or #null if an error occured."),
       doc = "Returns the coordinates of the closest structure around the given point.")
-  public Position locateStructure(final Scope scope, final WorldProxy self, final String structureID,
+  public Position locateStructure(final Scope scope, final ServerWorld self, final String structureID,
                                   final Position around, final Long radius, final Boolean skipExistingChunks) {
     String command = "/locate " + structureID;
-    ParseResults<ServerCommandSource> parseResults = self.world().getServer().getCommandManager().getDispatcher()
-        .parse(command, self.world().getServer().getCommandSource());
+    ParseResults<ServerCommandSource> parseResults = self.getServer().getCommandManager().getDispatcher()
+        .parse(command, self.getServer().getCommandSource());
     RegistryPredicateArgumentType.RegistryPredicate<ConfiguredStructureFeature<?, ?>> p;
     try {
       p = RegistryPredicateArgumentType.getConfiguredStructureFeaturePredicate(parseResults.getContext().build(command), "structure");
     } catch (CommandSyntaxException e) {
       return null;
     }
-    Registry<ConfiguredStructureFeature<?, ?>> registry = self.world().getRegistryManager().get(Registry.CONFIGURED_STRUCTURE_FEATURE_KEY);
+    Registry<ConfiguredStructureFeature<?, ?>> registry = self.getRegistryManager().get(Registry.CONFIGURED_STRUCTURE_FEATURE_KEY);
     RegistryEntryList<ConfiguredStructureFeature<?, ?>> registryEntryList =
         p.getKey().map(key -> registry.getEntry(key).map(RegistryEntryList::of), registry::getEntryList).orElse(null);
     if (registryEntryList == null) {
       return null;
     }
-    Pair<BlockPos, RegistryEntry<ConfiguredStructureFeature<?, ?>>> pair = self.world().getChunkManager().getChunkGenerator()
-        .locateStructure(self.world(), registryEntryList, around.toBlockPos(), radius.intValue(), skipExistingChunks);
+    Pair<BlockPos, RegistryEntry<ConfiguredStructureFeature<?, ?>>> pair = self.getChunkManager().getChunkGenerator()
+        .locateStructure(self, registryEntryList, around.toBlockPos(), radius.intValue(), skipExistingChunks);
     if (pair == null) {
       return null;
     }
@@ -2098,11 +2101,11 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "A position in the nearest biome of desired type or #null if an error occured."),
       doc = "Returns the coordinates of the closest structure around the given point.")
-  public Position locateBiome(final Scope scope, final WorldProxy self, final String biomeID,
+  public Position locateBiome(final Scope scope, final ServerWorld self, final String biomeID,
                               final Position around, final Long radius) {
     String command = "/locatebiome " + biomeID;
-    ParseResults<ServerCommandSource> parseResults = self.world().getServer().getCommandManager().getDispatcher()
-        .parse(command, self.world().getServer().getCommandSource());
+    ParseResults<ServerCommandSource> parseResults = self.getServer().getCommandManager().getDispatcher()
+        .parse(command, self.getServer().getCommandSource());
     RegistryPredicateArgumentType.RegistryPredicate<Biome> p;
     try {
       p = RegistryPredicateArgumentType
@@ -2110,7 +2113,7 @@ public class WorldType extends TypeBase<WorldProxy> {
     } catch (CommandSyntaxException e) {
       return null;
     }
-    Pair<BlockPos, RegistryEntry<Biome>> entry = self.world().locateBiome(p, around.toBlockPos(), radius.intValue(), 1);
+    Pair<BlockPos, RegistryEntry<Biome>> entry = self.locateBiome(p, around.toBlockPos(), radius.intValue(), 1);
     if (entry == null) {
       return null;
     }
@@ -2136,7 +2139,7 @@ public class WorldType extends TypeBase<WorldProxy> {
           doc = "The number of targetted players or #null if an error occured."),
       doc = "Sends a private message to the selected players. " +
           "The message can be either a `string or a `map representing a JSON object.")
-  public Long sendMessage(final Scope scope, WorldProxy self, final String targetSelector, final Object message) {
+  public Long sendMessage(final Scope scope, ServerWorld self, final String targetSelector, final Object message) {
     String command;
     String msg;
     if (message instanceof String s) {
@@ -2185,7 +2188,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of players who can see the particles or #null if an error occured."),
       doc = "Spawns particles at the given position.")
-  public Long spawnParticles(final Scope scope, WorldProxy self, final String name, final Position position,
+  public Long spawnParticles(final Scope scope, ServerWorld self, final String name, final Position position,
                              final Double deltaX, final Double deltaY, final Double deltaZ,
                              final Double speed, final Long count,
                              final Boolean force, final String targetSelector) {
@@ -2211,7 +2214,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Places a feature at the specified position.")
-  public Boolean placeFeature(final Scope scope, WorldProxy self, final String featureID, final Position position) {
+  public Boolean placeFeature(final Scope scope, ServerWorld self, final String featureID, final Position position) {
     BlockPos p = position.toBlockPos();
     return executeCommand(
         self,
@@ -2235,7 +2238,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of players who can hear the sound or #null if an error occured."),
       doc = "Plays the specified sound.")
-  public Long playSound(final Scope scope, WorldProxy self, final String sound, final String category,
+  public Long playSound(final Scope scope, ServerWorld self, final String sound, final String category,
                         final String targetSelector, final Position position) {
     List<String> args = new ArrayList<>(Arrays.asList(
         sound, category, targetSelector,
@@ -2262,7 +2265,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of players who can hear the sound or #null if an error occured."),
       doc = "Plays the specified sound.")
-  public Long playSoundWithVolume(final Scope scope, WorldProxy self, final String sound, final String category,
+  public Long playSoundWithVolume(final Scope scope, ServerWorld self, final String sound, final String category,
                                   final String targetSelector, final Position position,
                                   final Double volume, final Double pitch, final Double minVolume) {
     List<String> args = new ArrayList<>(Arrays.asList(
@@ -2294,7 +2297,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The total number of recipes given to each player or #null if an error occured."),
       doc = "Unlocks all recipes for the selected players.")
-  public Long unlockAllRecipes(final Scope scope, WorldProxy self, final String targetSelector) {
+  public Long unlockAllRecipes(final Scope scope, ServerWorld self, final String targetSelector) {
     return executeCommand(
         self,
         "recipe",
@@ -2310,7 +2313,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The total number of recipes given to each player or #null if an error occured."),
       doc = "Unlocks the given recipe for the selected players.")
-  public Long unlockRecipe(final Scope scope, WorldProxy self, final String targetSelector, final String recipe) {
+  public Long unlockRecipe(final Scope scope, ServerWorld self, final String targetSelector, final String recipe) {
     return executeCommand(
         self,
         "recipe",
@@ -2325,7 +2328,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The total number of recipes taken from each player or #null if an error occured."),
       doc = "Locks all recipes for the selected players.")
-  public Long lockAllRecipes(final Scope scope, WorldProxy self, final String targetSelector) {
+  public Long lockAllRecipes(final Scope scope, ServerWorld self, final String targetSelector) {
     return executeCommand(
         self,
         "recipe",
@@ -2341,7 +2344,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The total number of recipes taken from each player or #null if an error occured."),
       doc = "Locks the given recipe for the selected players.")
-  public Long lockRecipe(final Scope scope, WorldProxy self, final String targetSelector, final String recipe) {
+  public Long lockRecipe(final Scope scope, ServerWorld self, final String targetSelector, final String recipe) {
     return executeCommand(
         self,
         "recipe",
@@ -2354,7 +2357,7 @@ public class WorldType extends TypeBase<WorldProxy> {
    */
 
   @Method(name = "reload_datapacks", doc = "Reloads all datapacks.")
-  public Void reloadDataPacks(final Scope scope, WorldProxy self) {
+  public Void reloadDataPacks(final Scope scope, ServerWorld self) {
     executeCommand(self, "reload");
     return null;
   }
@@ -2373,7 +2376,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The game tick the function is to execute at modulo 2,147,483,647 or #null if an error occured."),
       doc = "Reschedules a function. Replaces any previous schedule for the same function.")
-  public Long rescheduleFunction(final Scope scope, WorldProxy self, final String functionID, final Long time, final String unit) {
+  public Long rescheduleFunction(final Scope scope, ServerWorld self, final String functionID, final Long time, final String unit) {
     return executeCommand(
         self,
         "schedule",
@@ -2391,7 +2394,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The game tick the function is to execute at modulo 2,147,483,647 or #null if an error occured."),
       doc = "Creates a new schedule for a function.")
-  public Long scheduleFunction(final Scope scope, WorldProxy self, final String functionID, final Long time, final String unit) {
+  public Long scheduleFunction(final Scope scope, ServerWorld self, final String functionID, final Long time, final String unit) {
     return executeCommand(
         self,
         "schedule",
@@ -2407,7 +2410,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of schedules that were cleared or #null if an error occured."),
       doc = "Removes all schedules for a function.")
-  public Long unscheduleFunction(final Scope scope, WorldProxy self, final String functionID) {
+  public Long unscheduleFunction(final Scope scope, ServerWorld self, final String functionID) {
     return executeCommand(
         self,
         "schedule",
@@ -2424,8 +2427,8 @@ public class WorldType extends TypeBase<WorldProxy> {
   @Method(name = "sb_get_objectives",
       returnTypeMetadata = @ReturnMeta(doc = "A `list of `map objects that each contain data of a single objective."),
       doc = "Returns the list of defined scoreboard objectives.")
-  public MCList getScoreboardObjectives(final Scope scope, WorldProxy self) {
-    return new MCList(self.world().getScoreboard().getObjectives().stream().map(obj -> {
+  public MCList getScoreboardObjectives(final Scope scope, ServerWorld self) {
+    return new MCList(self.getScoreboard().getObjectives().stream().map(obj -> {
       MCMap map = new MCMap();
       map.put("name", obj.getName());
       map.put("display_name", obj.getDisplayName());
@@ -2445,7 +2448,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of objectives in scoreboard system after execution or #null if an error occured."),
       doc = "Adds an objective to the scoreboard.")
-  public Long createScoreboardObjective(final Scope scope, WorldProxy self, final String name, final String criteria, final MCMap displayName) {
+  public Long createScoreboardObjective(final Scope scope, ServerWorld self, final String name, final String criteria, final MCMap displayName) {
     List<String> args = new ArrayList<>(Arrays.asList(
         "objectives", "add", name, criteria
     ));
@@ -2466,7 +2469,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of objectives in scoreboard system after execution or #null if an error occured."),
       doc = "Removes an objective from the scoreboard.")
-  public Long deleteScoreboardObjective(final Scope scope, WorldProxy self, final String name) {
+  public Long deleteScoreboardObjective(final Scope scope, ServerWorld self, final String name) {
     return executeCommand(
         self,
         "scoreboard",
@@ -2481,7 +2484,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the display slot of a scoreboard objective.")
-  public Boolean setScoreboardObjectiveDisplaySlot(final Scope scope, WorldProxy self, final String slot, final String name) {
+  public Boolean setScoreboardObjectiveDisplaySlot(final Scope scope, ServerWorld self, final String slot, final String name) {
     return executeCommand(
         self,
         "scoreboard",
@@ -2495,7 +2498,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Clears a display slot of the scoreboard.")
-  public Boolean clearScoreboardDisplaySlot(final Scope scope, WorldProxy self, final String slot) {
+  public Boolean clearScoreboardDisplaySlot(final Scope scope, ServerWorld self, final String slot) {
     return executeCommand(
         self,
         "scoreboard",
@@ -2510,7 +2513,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the display name of a scoreboard objective.")
-  public Boolean setScoreboardObjectiveDisplayName(final Scope scope, WorldProxy self, final String objective, final String displayName) {
+  public Boolean setScoreboardObjectiveDisplayName(final Scope scope, ServerWorld self, final String objective, final String displayName) {
     return executeCommand(
         self,
         "scoreboard",
@@ -2525,7 +2528,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the render type of the score of a scoreboard objective.")
-  public Boolean setScoreboardObjectiveRenderType(final Scope scope, WorldProxy self, final String objective, final String renderType) {
+  public Boolean setScoreboardObjectiveRenderType(final Scope scope, ServerWorld self, final String objective, final String renderType) {
     return executeCommand(
         self,
         "scoreboard",
@@ -2538,8 +2541,8 @@ public class WorldType extends TypeBase<WorldProxy> {
   @Method(name = "sb_get_tracked_players",
       returnTypeMetadata = @ReturnMeta(doc = "A sorted `list of the names of all players tracked by the scoreboard."),
       doc = "Returns the names of all players tracked by the scoreboard.")
-  public MCList getPlayersInScoreboard(final Scope scope, WorldProxy self) {
-    MCList list = new MCList(self.world().getScoreboard().getObjectiveNames());
+  public MCList getPlayersInScoreboard(final Scope scope, ServerWorld self) {
+    MCList list = new MCList(self.getScoreboard().getObjectiveNames());
     list.sort(null);
     return list;
   }
@@ -2550,9 +2553,9 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "A `map containing the scores of each objective."),
       doc = "Returns the scoreboard scores for the given player.")
-  public MCMap getPlayerScores(final Scope scope, WorldProxy self, final String name) {
-    ScoreboardObjective objective = self.world().getScoreboard().getObjective(name);
-    Collection<ScoreboardPlayerScore> objectives = self.world().getScoreboard().getAllPlayerScores(objective);
+  public MCMap getPlayerScores(final Scope scope, ServerWorld self, final String name) {
+    ScoreboardObjective objective = self.getScoreboard().getObjective(name);
+    Collection<ScoreboardPlayerScore> objectives = self.getScoreboard().getAllPlayerScores(objective);
     //noinspection ConstantConditions
     return new MCMap(objectives.stream().collect(Collectors.toMap(
         e -> e.getObjective().getName(),
@@ -2569,7 +2572,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of targets multiplied by the specified score or #null if an error occured."),
       doc = "Sets the score of an objective of the selected entities.")
-  public Long setPlayerScore(final Scope scope, WorldProxy self, final String targetSelector,
+  public Long setPlayerScore(final Scope scope, ServerWorld self, final String targetSelector,
                              final String objective, final Long score) {
     return executeCommand(
         self,
@@ -2587,7 +2590,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The sum of the objective’s score value of each target after execution or #null if an error occured."),
       doc = "Updates the score of an objective of the selected players.")
-  public Long updatePlayerScore(final Scope scope, WorldProxy self, final String targetSelector,
+  public Long updatePlayerScore(final Scope scope, ServerWorld self, final String targetSelector,
                                 final String objective, Long amount) {
     String action;
     if (amount < 0) {
@@ -2611,7 +2614,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of targetted players or #null if an error occured."),
       doc = "Resets the score of a single objective of the selected players.")
-  public Long resetPlayerScore(final Scope scope, WorldProxy self, final String targetSelector, final String objective) {
+  public Long resetPlayerScore(final Scope scope, ServerWorld self, final String targetSelector, final String objective) {
     return executeCommand(
         self,
         "scoreboard",
@@ -2626,7 +2629,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of targetted players or #null if an error occured."),
       doc = "Resets all scores of the selected players.")
-  public Long resetPlayerScores(final Scope scope, WorldProxy self, final String targetSelector) {
+  public Long resetPlayerScores(final Scope scope, ServerWorld self, final String targetSelector) {
     return executeCommand(
         self,
         "scoreboard",
@@ -2642,7 +2645,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of the targets whose scores are newly enabled or #null if an error occured."),
       doc = "Enables the targets to use the /trigger command on the specified objective.")
-  public Boolean enableTriggerForPlayers(final Scope scope, WorldProxy self, final String targetSelector, final String objective) {
+  public Boolean enableTriggerForPlayers(final Scope scope, ServerWorld self, final String targetSelector, final String objective) {
     return executeCommand(
         self,
         "scoreboard",
@@ -2661,7 +2664,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "#True if the score of all targetted players is within the range, #false otherwise, #null if an error occured."),
       doc = "Checks whether the score of the selected players is within the given range.")
-  public Boolean isPlayerScoreWithinRange(final Scope scope, WorldProxy self, final String targetSelector,
+  public Boolean isPlayerScoreWithinRange(final Scope scope, ServerWorld self, final String targetSelector,
                                           final String objective, final Long min, final Long max) {
     return executeCommand(
         self,
@@ -2682,7 +2685,7 @@ public class WorldType extends TypeBase<WorldProxy> {
           doc = "The sum of the objective’s score value of each target after the operation on it or #null if an error occured."),
       doc = "Applies an arithmetic operation altering the targets’ scores in the target objective, " +
           "using sources’ scores in the source objective as input.")
-  public Long applyScoreOperation(final Scope scope, WorldProxy self,
+  public Long applyScoreOperation(final Scope scope, ServerWorld self,
                                   final String targetSelector, final String targetObjective,
                                   final String operation,
                                   final String sourceSelector, final String sourceObjective) {
@@ -2707,7 +2710,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the block was placed, #false otherwise."),
       doc = "Sets the block at the given position. ")
-  public Boolean setBlock(final Scope scope, WorldProxy self, final Position position,
+  public Boolean setBlock(final Scope scope, ServerWorld self, final Position position,
                           final String block, final MCMap blockState, final MCMap dataTags, final String mode) {
     BlockPos p = position.toBlockPos();
     String blockPredicate = block;
@@ -2735,7 +2738,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the world’s spawn.")
-  public Boolean setWorldSpawn(final Scope scope, WorldProxy self, final Position position, final Double yawAngle) {
+  public Boolean setWorldSpawn(final Scope scope, ServerWorld self, final Position position, final Double yawAngle) {
     List<String> args = new ArrayList<>(Arrays.asList("" + position.getX(), "" + position.getY(), "" + position.getZ()));
     if (yawAngle != null) {
       args.add(yawAngle.toString());
@@ -2760,7 +2763,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of players whose spawn point was changed or #null if an error occured."),
       doc = "Sets the spawn point of the selected players.")
-  public Long setPlayerSpawn(final Scope scope, WorldProxy self, final String targetSelector, final Position position, final Double yawAngle) {
+  public Long setPlayerSpawn(final Scope scope, ServerWorld self, final String targetSelector, final Position position, final Double yawAngle) {
     List<String> args = new ArrayList<>(Arrays.asList(targetSelector, "" + position.getX(), "" + position.getY(), "" + position.getZ()));
     if (yawAngle != null) {
       args.add(yawAngle.toString());
@@ -2790,7 +2793,7 @@ public class WorldType extends TypeBase<WorldProxy> {
           doc = "The number of teams that the targets are in if $respect_teams is #true, " +
               "otherwise the number of targeted entities, #null if an error occured."),
       doc = "Teleports players to a random location in the given area.")
-  public Long spreadPlayers(final Scope scope, WorldProxy self, final Double centerX, final Double centerZ,
+  public Long spreadPlayers(final Scope scope, ServerWorld self, final Double centerX, final Double centerZ,
                             final Double spreadDistance, final Double maxRange, final Double maxHeight,
                             final Boolean respectTeams, final String targetSelector) {
     return executeCommand(
@@ -2816,7 +2819,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of targetted players or #null if an error occured."),
       doc = "Stops the selected sounds for specified players.")
-  public Long stopSounds(final Scope scope, WorldProxy self, final String targetSelector, final String category, final String soundID) {
+  public Long stopSounds(final Scope scope, ServerWorld self, final String targetSelector, final String category, final String soundID) {
     List<String> args = new ArrayList<>();
     args.add(targetSelector);
     if (category != null) {
@@ -2844,7 +2847,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the entity was summoned, #false otherwise."),
       doc = "Summons an entity.")
-  public Boolean summonEntity(final Scope scope, WorldProxy self, final String entityType,
+  public Boolean summonEntity(final Scope scope, ServerWorld self, final String entityType,
                               final Position position, final MCMap nbtData) {
     return executeCommand(
         self,
@@ -2865,7 +2868,7 @@ public class WorldType extends TypeBase<WorldProxy> {
           doc = "A `map that contains the tags of each targetted entities or #null if an error occurs. " +
               "Keys correspond to entities IDs."),
       doc = "Returns the tags of selected entities.")
-  public MCMap getEntitiesTags(final Scope scope, WorldProxy self, final String targetSelector) {
+  public MCMap getEntitiesTags(final Scope scope, ServerWorld self, final String targetSelector) {
     List<? extends Entity> entities = getSelectedEntities(self, targetSelector);
     if (entities == null) {
       return null;
@@ -2885,7 +2888,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of entities to which the tag was added or #null if an error occured."),
       doc = "Adds a tag to selected entities.")
-  public Long addTagToEntities(final Scope scope, WorldProxy self, final String targetSelector, final String tagName) {
+  public Long addTagToEntities(final Scope scope, ServerWorld self, final String targetSelector, final String tagName) {
     return executeCommand(
         self,
         "tag",
@@ -2901,7 +2904,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of entities from which the tag was removed or #null if an error occured."),
       doc = "Removes a tag from selected entities.")
-  public Long removeTagFromEntities(final Scope scope, WorldProxy self, final String targetSelector, final String tagName) {
+  public Long removeTagFromEntities(final Scope scope, ServerWorld self, final String targetSelector, final String tagName) {
     return executeCommand(
         self,
         "tag",
@@ -2917,8 +2920,8 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "A `map that contains data for each team. Keys correspond to team names. or #null if an error occured"),
       doc = "Returns data for all currently defined teams.")
-  public MCMap getTeams(final Scope scope, WorldProxy self) {
-    return new MCMap(self.world().getScoreboard().getTeams().stream()
+  public MCMap getTeams(final Scope scope, ServerWorld self) {
+    return new MCMap(self.getScoreboard().getTeams().stream()
         .collect(Collectors.toMap(
             Team::getName,
             t -> {
@@ -2945,7 +2948,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of existing teams after execution or #null if an error occured."),
       doc = "Creates a new player team.")
-  public Long createTeam(final Scope scope, WorldProxy self, final String teamName, final String displayName) {
+  public Long createTeam(final Scope scope, ServerWorld self, final String teamName, final String displayName) {
     List<String> args = new ArrayList<>(Arrays.asList("add", teamName));
     if (displayName != null) {
       args.add(displayName);
@@ -2964,7 +2967,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of existing teams after execution or #null if an error occured."),
       doc = "Deletes a team of players.")
-  public Long deleteTeam(final Scope scope, WorldProxy self, final String teamName) {
+  public Long deleteTeam(final Scope scope, ServerWorld self, final String teamName) {
     return executeCommand(
         self,
         "team",
@@ -2979,7 +2982,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of members in the team before execution or #null if an error occured."),
       doc = "Removes all players from a team.")
-  public Long clearTeam(final Scope scope, WorldProxy self, final String teamName) {
+  public Long clearTeam(final Scope scope, ServerWorld self, final String teamName) {
     return executeCommand(
         self,
         "team",
@@ -2995,7 +2998,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of entities that were added to the team or #null if an error occured."),
       doc = "Adds entities to a team.")
-  public Long addPlayersToTeam(final Scope scope, WorldProxy self, final String teamName, final String targetSelector) {
+  public Long addPlayersToTeam(final Scope scope, ServerWorld self, final String teamName, final String targetSelector) {
     return executeCommand(
         self,
         "team",
@@ -3010,7 +3013,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of entities that were added to the team or #null if an error occured."),
       doc = "Removes entities from their team.")
-  public Long removePlayersFromTeam(final Scope scope, WorldProxy self, final String targetSelector) {
+  public Long removePlayersFromTeam(final Scope scope, ServerWorld self, final String targetSelector) {
     return executeCommand(
         self,
         "team",
@@ -3025,7 +3028,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the display name of a team.")
-  public Boolean setTeamDisplayName(final Scope scope, WorldProxy self, final String teamName, final MCMap displayName) {
+  public Boolean setTeamDisplayName(final Scope scope, ServerWorld self, final String teamName, final MCMap displayName) {
     return executeCommand(
         self,
         "team",
@@ -3040,7 +3043,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the color of a team.")
-  public Boolean setTeamColor(final Scope scope, WorldProxy self, final String teamName, final String color) {
+  public Boolean setTeamColor(final Scope scope, ServerWorld self, final String teamName, final String color) {
     return executeCommand(
         self,
         "team",
@@ -3055,7 +3058,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Activates/deactivates friendly fire for the specified team.")
-  public Boolean setTeamFriendlyFire(final Scope scope, WorldProxy self, final String teamName, final Boolean active) {
+  public Boolean setTeamFriendlyFire(final Scope scope, ServerWorld self, final String teamName, final Boolean active) {
     return executeCommand(
         self,
         "team",
@@ -3070,7 +3073,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets whether players from the specified team should see invisible players from their team.")
-  public Boolean setTeamSeeFriendlyInvisible(final Scope scope, WorldProxy self, final String teamName, final Boolean active) {
+  public Boolean setTeamSeeFriendlyInvisible(final Scope scope, ServerWorld self, final String teamName, final Boolean active) {
     return executeCommand(
         self,
         "team",
@@ -3085,7 +3088,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the visibility of the name tags of players from the specified team.")
-  public Boolean setTeamNameTagVisibility(final Scope scope, WorldProxy self, final String teamName, final String nameTagVisiblity) {
+  public Boolean setTeamNameTagVisibility(final Scope scope, ServerWorld self, final String teamName, final String nameTagVisiblity) {
     return executeCommand(
         self,
         "team",
@@ -3100,7 +3103,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the visibility of the death messages of players from the specified team.")
-  public Boolean setTeamDeathMessageVisibility(final Scope scope, WorldProxy self, final String teamName, final String deathMessageVisibility) {
+  public Boolean setTeamDeathMessageVisibility(final Scope scope, ServerWorld self, final String teamName, final String deathMessageVisibility) {
     return executeCommand(
         self,
         "team",
@@ -3115,7 +3118,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the collision rule of players from the specified team.")
-  public Boolean setTeamCollisionRule(final Scope scope, WorldProxy self, final String teamName, final String collisionRule) {
+  public Boolean setTeamCollisionRule(final Scope scope, ServerWorld self, final String teamName, final String collisionRule) {
     return executeCommand(
         self,
         "team",
@@ -3130,7 +3133,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the prefix of a team.")
-  public Boolean setTeamPrefix(final Scope scope, WorldProxy self, final String teamName, final MCMap prefix) {
+  public Boolean setTeamPrefix(final Scope scope, ServerWorld self, final String teamName, final MCMap prefix) {
     return executeCommand(
         self,
         "team",
@@ -3145,7 +3148,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the suffix of a team.")
-  public Boolean setTeamSuffix(final Scope scope, WorldProxy self, final String teamName, final MCMap suffix) {
+  public Boolean setTeamSuffix(final Scope scope, ServerWorld self, final String teamName, final MCMap suffix) {
     return executeCommand(
         self,
         "team",
@@ -3165,7 +3168,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of teleported entities or #null if an error occured."),
       doc = "Teleports the selected entities to the position of the given entity.")
-  public Long teleportEntitiesToEntity(final Scope scope, WorldProxy self, final String sourceSelector, final String targetSelector) {
+  public Long teleportEntitiesToEntity(final Scope scope, ServerWorld self, final String sourceSelector, final String targetSelector) {
     return executeCommand(
         self,
         "tp",
@@ -3183,7 +3186,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of teleported entities or #null if an error occured."),
       doc = "Teleports the selected entities to the specified position.")
-  public Long teleportEntitiesToPos(final Scope scope, WorldProxy self, final String targetSelector,
+  public Long teleportEntitiesToPos(final Scope scope, ServerWorld self, final String targetSelector,
                                     final Position destination, final Double yawAngle, final Double pitchAngle) {
     List<String> args = new ArrayList<>(Arrays.asList(
         targetSelector,
@@ -3211,7 +3214,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of teleported entities or #null if an error occured."),
       doc = "Teleports the selected entities to the specified position, looking at the specified location.")
-  public Long teleportEntitiesToPosFacingBlock(final Scope scope, WorldProxy self, final String targetSelector,
+  public Long teleportEntitiesToPosFacingBlock(final Scope scope, ServerWorld self, final String targetSelector,
                                                final Position destination, final Position lookAtPos) {
     return executeCommand(
         self,
@@ -3232,7 +3235,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of teleported entities or #null if an error occured."),
       doc = "Teleports the selected entities to the specified position, looking at the specified location.")
-  public Long teleportEntitiesToPosFacingEntity(final Scope scope, WorldProxy self, final String targetSelector,
+  public Long teleportEntitiesToPosFacingEntity(final Scope scope, ServerWorld self, final String targetSelector,
                                                 final Position destination, final String targetEntity, final Boolean lookAtEyes) {
     return executeCommand(
         self,
@@ -3256,7 +3259,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The new time of day in ticks or #null if an error occured."),
       doc = "Sets the time for all worlds.")
-  public Long setTime(final Scope scope, WorldProxy self, final Object time, final String unit) {
+  public Long setTime(final Scope scope, ServerWorld self, final Object time, final String unit) {
     return executeCommand(
         self,
         "time",
@@ -3272,7 +3275,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The new time of day in ticks or #null if an error occured."),
       doc = "Adds the given amount to the time for all worlds.")
-  public Long addTime(final Scope scope, WorldProxy self, final Long amount, final String unit) {
+  public Long addTime(final Scope scope, ServerWorld self, final Long amount, final String unit) {
     return executeCommand(
         self,
         "time",
@@ -3291,7 +3294,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of targetted players or #null if an error occured."),
       doc = "Clears the screen title from the screens of the selected players.")
-  public Long clearTitle(final Scope scope, WorldProxy self, final String targetSelector) {
+  public Long clearTitle(final Scope scope, ServerWorld self, final String targetSelector) {
     return executeCommand(
         self,
         "title",
@@ -3307,7 +3310,7 @@ public class WorldType extends TypeBase<WorldProxy> {
           doc = "The number of targetted players or #null if an error occured."),
       doc = "Resets the subtitle text for the selected players to blank text, " +
           "and the fade-in, stay and fade-out times to their default values.")
-  public Long resetTitle(final Scope scope, WorldProxy self, final String targetSelector) {
+  public Long resetTitle(final Scope scope, ServerWorld self, final String targetSelector) {
     return executeCommand(
         self,
         "title",
@@ -3324,7 +3327,7 @@ public class WorldType extends TypeBase<WorldProxy> {
           doc = "The number of targetted players or #null if an error occured."),
       doc = "Displays a screen title to the selected players, or changes the current screen title to the specified text. " +
           "After fading out, resets the subtitle back to blank text, but does not reset fade-in, stay, and fade-out times.")
-  public Long displayTitle(final Scope scope, WorldProxy self, final String targetSelector, final MCMap title) {
+  public Long displayTitle(final Scope scope, ServerWorld self, final String targetSelector, final MCMap title) {
     return executeCommand(
         self,
         "title",
@@ -3341,7 +3344,7 @@ public class WorldType extends TypeBase<WorldProxy> {
           doc = "The number of targetted players or #null if an error occured."),
       doc = "If a screen title is currently being displayed to the specified players, changes the current subtitle to the specified text; " +
           "otherwise, specifies the subtitle for the next screen title to be displayed to the specified players.")
-  public Long setSubtitle(final Scope scope, WorldProxy self, final String targetSelector, final MCMap subtitle) {
+  public Long setSubtitle(final Scope scope, ServerWorld self, final String targetSelector, final MCMap subtitle) {
     return executeCommand(
         self,
         "title",
@@ -3357,7 +3360,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of targetted players or #null if an error occured."),
       doc = "Displays text on the action bar to the specified player(s), or changes the current action bar title.")
-  public Long displayActionBarText(final Scope scope, WorldProxy self, final String targetSelector, final MCMap text) {
+  public Long displayActionBarText(final Scope scope, ServerWorld self, final String targetSelector, final MCMap text) {
     return executeCommand(
         self,
         "title",
@@ -3375,7 +3378,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of targetted players or #null if an error occured."),
       doc = "Changes the fade-in, stay, and fade-out times (measured in game ticks) of all current and future screen titles for the specified players.")
-  public Long setTitleTimes(final Scope scope, WorldProxy self, final String targetSelector,
+  public Long setTitleTimes(final Scope scope, ServerWorld self, final String targetSelector,
                             final Long fadeIn, final Long stay, final Long fadeOut) {
     return executeCommand(
         self,
@@ -3396,7 +3399,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The amount time the specified weather should last in seconds or #null if an error occured."),
       doc = "Sets the weather for this world.")
-  public Long setWeather(final Scope scope, WorldProxy self, final String weather, final Long duration) {
+  public Long setWeather(final Scope scope, ServerWorld self, final String weather, final Long duration) {
     return executeCommand(
         self,
         "weather",
@@ -3411,7 +3414,7 @@ public class WorldType extends TypeBase<WorldProxy> {
   @Method(name = "wb_get_diameter",
       returnTypeMetadata = @ReturnMeta(mayBeNull = true),
       doc = "Returns the size of the world border after rounding to the nearest `int or #null if an error occured.")
-  public Long getWorldBorderDiameter(final Scope scope, WorldProxy self) {
+  public Long getWorldBorderDiameter(final Scope scope, ServerWorld self) {
     return executeCommand(
         self,
         "worldborder",
@@ -3426,7 +3429,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the center coordinate of the world border.")
-  public Boolean setWorldBorderCenter(final Scope scope, WorldProxy self, final Long centerX, final Long centerZ) {
+  public Boolean setWorldBorderCenter(final Scope scope, ServerWorld self, final Long centerX, final Long centerZ) {
     return executeCommand(
         self,
         "worldborder",
@@ -3441,7 +3444,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the diameter of the world border in the specified number of seconds.")
-  public Boolean setWorldBorderDiameter(final Scope scope, WorldProxy self, final Long diameter, final Long time) {
+  public Boolean setWorldBorderDiameter(final Scope scope, ServerWorld self, final Long diameter, final Long time) {
     List<String> args = new ArrayList<>(Arrays.asList("set", diameter.toString()));
     if (time != null) {
       args.add(time.toString());
@@ -3460,7 +3463,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Adds the given value to the diameter of the world border in the specified number of seconds.")
-  public Boolean updateWorldBorderDiameter(final Scope scope, WorldProxy self, final Long amount, final Long time) {
+  public Boolean updateWorldBorderDiameter(final Scope scope, ServerWorld self, final Long amount, final Long time) {
     List<String> args = new ArrayList<>(Arrays.asList("add", amount.toString()));
     if (time != null) {
       args.add(time.toString());
@@ -3478,7 +3481,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the world border damage amount to the specified value.")
-  public Boolean setWorldBorderDamage(final Scope scope, WorldProxy self, final Double damagePerBlock) {
+  public Boolean setWorldBorderDamage(final Scope scope, ServerWorld self, final Double damagePerBlock) {
     return executeCommand(
         self,
         "worldborder",
@@ -3492,7 +3495,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the world border buffer distance to the specified value.")
-  public Boolean setWorldBorderDamageBuffer(final Scope scope, WorldProxy self, final Long bufferDistance) {
+  public Boolean setWorldBorderDamageBuffer(final Scope scope, ServerWorld self, final Long bufferDistance) {
     return executeCommand(
         self,
         "worldborder",
@@ -3507,7 +3510,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the world border warning distance to the specified value.")
-  public Boolean setWorldBorderWarnDistance(final Scope scope, WorldProxy self, final Long distance) {
+  public Boolean setWorldBorderWarnDistance(final Scope scope, ServerWorld self, final Long distance) {
     return executeCommand(
         self,
         "worldborder",
@@ -3522,7 +3525,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the world border warning time to the specified value.")
-  public Boolean setWorldBorderWarnTime(final Scope scope, WorldProxy self, final Long time) {
+  public Boolean setWorldBorderWarnTime(final Scope scope, ServerWorld self, final Long time) {
     return executeCommand(
         self,
         "worldborder",
@@ -3542,7 +3545,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The result of the command or #null if an error occured."),
       doc = "Executes an arbitrary command. See the Minecraft wiki for more information.")
-  public Long executeCommand(final Scope scope, WorldProxy self, final String command, final MCList args) {
+  public Long executeCommand(final Scope scope, ServerWorld self, final String command, final MCList args) {
     return executeCommand(
         self,
         command.charAt(0) == '/' ? command.substring(1) : command,
@@ -3556,7 +3559,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       },
       returnTypeMetadata = @ReturnMeta(mayBeNull = true),
       doc = "Returns the number of entities that matched the selector or #null if an error occured.")
-  public Long entitiesMatch(final Scope scope, WorldProxy self, final String targetSelector) {
+  public Long entitiesMatch(final Scope scope, ServerWorld self, final String targetSelector) {
     return Optional.ofNullable(this.getEntitiesData(scope, self, targetSelector))
         .map(list -> (long) list.size()).orElse(null);
   }
@@ -3569,7 +3572,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "A `list of `map objects that each contain the data of an entity that matched the selector or #null if an error occured."),
       doc = "Fetches the data of all entities that match the given selector.")
-  public MCList getEntitiesData(final Scope scope, final WorldProxy self, final String targetSelector) {
+  public MCList getEntitiesData(final Scope scope, final ServerWorld self, final String targetSelector) {
     List<? extends Entity> entities = getSelectedEntities(self, targetSelector);
     if (entities == null) {
       return null;
@@ -3582,7 +3585,7 @@ public class WorldType extends TypeBase<WorldProxy> {
    */
 
   @Override
-  protected Object __add__(final Scope scope, final WorldProxy self, final Object o, final boolean inPlace) {
+  protected Object __add__(final Scope scope, final ServerWorld self, final Object o, final boolean inPlace) {
     if (o instanceof String s) {
       return this.__str__(self) + s;
     }
@@ -3590,24 +3593,23 @@ public class WorldType extends TypeBase<WorldProxy> {
   }
 
   @Override
-  protected String __str__(final WorldProxy self) {
-    return "<this world>";
+  protected String __str__(final ServerWorld self) {
+    return "<this world>"; // TODO add dimension
   }
 
   @Override
-  public WorldProxy readFromTag(final Scope scope, final CompoundTag tag) {
-    return (WorldProxy) scope.getVariable(Program.WORLD_VAR_NAME, false);
+  public ServerWorld readFromTag(final Scope scope, final CompoundTag tag) {
+    return (ServerWorld) scope.getVariable(Program.WORLD_VAR_NAME, false);
   }
 
   /*
    * Utility methods
    */
 
-  private static Optional<Long> executeCommand(WorldProxy self, final String commandName, final String... args) {
-    ServerWorld serverlevel = self.world();
-    MinecraftServer server = serverlevel.getServer();
+  private static Optional<Long> executeCommand(ServerWorld self, final String commandName, final String... args) {
+    MinecraftServer server = self.getServer();
     String command = commandName + " " + String.join(" ", args);
-    CommandSourceStackWrapper commandSourceStack = new CommandSourceStackWrapper(server, serverlevel);
+    CommandSourceStackWrapper commandSourceStack = new CommandSourceStackWrapper(server, self);
     long result = server.getCommandManager().execute(commandSourceStack, command);
     if (result == 0 && commandSourceStack.anyFailures) {
       return Optional.empty();
@@ -3646,10 +3648,10 @@ public class WorldType extends TypeBase<WorldProxy> {
   /**
    * Returns a list of entities that match the given target selector or null if the selector is invalid.
    */
-  private static List<? extends Entity> getSelectedEntities(final WorldProxy world, final String targetSelector) {
+  private static List<? extends Entity> getSelectedEntities(final ServerWorld world, final String targetSelector) {
     try {
       EntitySelector selector = EntityArgumentType.entities().parse(new StringReader(targetSelector));
-      return selector.getEntities(new CommandSourceStackWrapper(world.world().getServer(), world.world()));
+      return selector.getEntities(new CommandSourceStackWrapper(world.getServer(), world));
     } catch (CommandSyntaxException e) {
       return null;
     }

@@ -10,7 +10,6 @@ import net.darmo_creations.mccode.interpreter.statements.WaitStatement;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.tags.StringListTag;
 import net.darmo_creations.mccode.interpreter.tags.TagType;
-import net.darmo_creations.mccode.interpreter.types.WorldProxy;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -139,7 +138,7 @@ public class Program {
    */
   private void setup() {
     this.scope.declareVariable(new Variable(WORLD_VAR_NAME, false, false, true,
-        false, new WorldProxy(this.programManager.getWorld())));
+        false, this.programManager.getWorld()));
     this.scope.declareVariable(new Variable("$$", false, false, true, false, (long) this.args.size()));
     for (int i = 0; i < this.args.size(); i++) {
       this.scope.declareVariable(new Variable("$" + i, false, false, true, false, this.args.get(i)));
