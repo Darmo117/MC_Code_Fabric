@@ -161,6 +161,7 @@ public class ProgramManager extends PersistentState {
         }
       }
     }
+    this.markDirty();
 
     return errorReports;
   }
@@ -203,6 +204,7 @@ public class ProgramManager extends PersistentState {
     if (!asModule) {
       this.loadProgram(program);
     }
+    this.markDirty();
     return program;
   }
 
@@ -239,6 +241,7 @@ public class ProgramManager extends PersistentState {
     this.programsSchedules.remove(name);
     this.programsRepeats.remove(name);
     this.runningPrograms.remove(name);
+    this.markDirty();
   }
 
   /**
@@ -253,6 +256,7 @@ public class ProgramManager extends PersistentState {
     }
     this.programs.get(name).reset();
     this.runningPrograms.put(name, false);
+    this.markDirty();
   }
 
   /**
@@ -270,6 +274,7 @@ public class ProgramManager extends PersistentState {
       throw new ProgramAlreadyRunningException(name);
     }
     this.runningPrograms.put(name, true);
+    this.markDirty();
   }
 
   /**
@@ -287,6 +292,7 @@ public class ProgramManager extends PersistentState {
       throw new ProgramAlreadyPausedException(name);
     }
     this.runningPrograms.put(name, false);
+    this.markDirty();
   }
 
   /**
@@ -315,6 +321,7 @@ public class ProgramManager extends PersistentState {
     return this.programsDir;
   }
 
+  // TODO use own tag system then convert to NBT to avoid rewriting every class after updates
   @Override
   public NbtCompound writeNbt(NbtCompound nbt) {
     NbtList programs = new NbtList();
