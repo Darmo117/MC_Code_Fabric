@@ -1,16 +1,9 @@
 package net.darmo_creations.mccode.interpreter;
 
 import net.darmo_creations.mccode.interpreter.statements.Statement;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Util;
 
 import java.util.List;
 import java.util.StringJoiner;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Utility functions for interpreter-related classes.
@@ -73,46 +66,6 @@ public final class Utils {
    */
   public static String unescapeString(final String s) {
     return s.substring(1, s.length() - 1).replaceAll("\\\\([\"\\\\])", "$1").replace("\\n", "\n");
-  }
-
-  /**
-   * Replaces all substrings that match the given pattern by the values returned by the specified callback.
-   *
-   * @param input    The target string.
-   * @param regex    The pattern to apply.
-   * @param callback A function that is called for each pattern match and returns a replacement string.
-   * @return The resulting string.
-   */
-  public static String replaceAll(String input, Pattern regex, Function<Matcher, String> callback) {
-    StringBuilder resultString = new StringBuilder();
-    Matcher regexMatcher = regex.matcher(input);
-    while (regexMatcher.find()) {
-      regexMatcher.appendReplacement(resultString, callback.apply(regexMatcher));
-    }
-    regexMatcher.appendTail(resultString);
-
-    return resultString.toString();
-  }
-
-  /**
-   * Print a message in the server console.
-   *
-   * @param server  Server instance.
-   * @param message Message to displaly.
-   */
-  public static void consoleLog(MinecraftServer server, final String message) {
-    server.sendSystemMessage(new LiteralText(message), Util.NIL_UUID);
-  }
-
-  /**
-   * Print a translated message in the server console.
-   *
-   * @param server         Server instance.
-   * @param translationKey Translation key.
-   * @param args           Translation arguments.
-   */
-  public static void consoleLogTranslated(MinecraftServer server, final String translationKey, final Object... args) {
-    server.sendSystemMessage(new TranslatableText(translationKey, args), Util.NIL_UUID);
   }
 
   private Utils() {

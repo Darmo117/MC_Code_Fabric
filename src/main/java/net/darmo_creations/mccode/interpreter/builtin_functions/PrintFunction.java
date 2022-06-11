@@ -42,7 +42,7 @@ public class PrintFunction extends BuiltinFunction {
           .forEach(player -> player.sendMessage(new LiteralText(text), false));
     }
     if (channel == Channel.CONSOLE || channel == Channel.BOTH) {
-      String dimension = scope.getProgram().getProgramManager().getWorld().method_40134().toString(); // TODO check
+      String dimension = scope.getProgram().getProgramManager().getWorld().method_40134().toString();
       server.sendSystemMessage(new LiteralText("[MCCode:%s][%s] %s".formatted(program.getName(), dimension, text)), Util.NIL_UUID);
     }
     return null;
