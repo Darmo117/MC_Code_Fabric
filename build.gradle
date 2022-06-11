@@ -29,7 +29,9 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    implementation 'org.antlr:antlr4:4.10.1'
+    modImplementation "org.antlr:antlr4:4.10.1"
+    // Include ANTLR4 runtime within mod’s jar
+    include "org.antlr:antlr4-runtime:4.10.1"
 }
 
 processResources {
