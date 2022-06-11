@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter;
 
+import net.darmo_creations.mccode.MCCode;
 import net.darmo_creations.mccode.interpreter.annotations.*;
 import net.darmo_creations.mccode.interpreter.builtin_functions.*;
 import net.darmo_creations.mccode.interpreter.exceptions.*;
@@ -23,7 +24,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Paths;
@@ -457,7 +457,7 @@ public class ProgramManager extends PersistentState {
    * Declare all default builtin types.
    */
   public static void declareDefaultBuiltinTypes() {
-    // TODO load through reflection
+    MCCode.LOGGER.info("[MC Code] Loading default types");
     declareType(AnyType.class);
     declareType(NullType.class);
     declareType(BooleanType.class);
@@ -474,6 +474,7 @@ public class ProgramManager extends PersistentState {
     declareType(FunctionType.class);
     declareType(RangeType.class);
     declareType(ModuleType.class);
+    MCCode.LOGGER.info("[MC Code] Default types loaded");
   }
 
   /**
@@ -485,6 +486,7 @@ public class ProgramManager extends PersistentState {
    */
   public static <T extends TypeBase<?>> void declareType(final Class<T> typeClass) throws TypeException {
     ensureNotInitialized();
+    MCCode.LOGGER.info("[MC Code] Found type wrapper %s class".formatted(typeClass.getSimpleName()));
 
     T type;
     try {
@@ -514,9 +516,9 @@ public class ProgramManager extends PersistentState {
       throw new TypeException("a wrapper class is already declared for class %s" + wrappedType);
     }
 
-    setPrivateField(TypeBase.class, type, "name", typeName);
-    setPrivateField(TypeBase.class, type, "generateCastOperator", typeAnnotation.generateCastOperator());
-    setPrivateField(TypeBase.class, type, "doc", typeAnnotation.doc().trim());
+    ReflectionUtils.setPrivateField(TypeBase.class, type, "name", typeName);
+    ReflectionUtils.setPrivateField(TypeBase.class, type, "generateCastOperator", typeAnnotation.generateCastOperator());
+    ReflectionUtils.setPrivateField(TypeBase.class, type, "doc", typeAnnotation.doc().trim());
 
     TYPES.put(typeName, type);
     WRAPPED_TYPES.put(wrappedType, type);
@@ -539,7 +541,7 @@ public class ProgramManager extends PersistentState {
     Map<String, Triple<Method, Boolean, String>> getterMethods = new HashMap<>();
     Map<String, Method> setterMethods = new HashMap<>();
     extractTypeProperties(type, getterMethods, setterMethods);
-    setPrivateField(TypeBase.class, type, "properties",
+    ReflectionUtils.setPrivateField(TypeBase.class, type, "properties",
         createPropertyObjects(type, getterMethods, setterMethods));
   }
 
@@ -718,7 +720,7 @@ public class ProgramManager extends PersistentState {
       }
     }
 
-    setPrivateField(TypeBase.class, type, "methods", methods);
+    ReflectionUtils.setPrivateField(TypeBase.class, type, "methods", methods);
   }
 
   /**
@@ -774,7 +776,7 @@ public class ProgramManager extends PersistentState {
    * Declare all default builtin functions.
    */
   public static void declareDefaultBuiltinFunctions() {
-    // TODO load through reflection
+    MCCode.LOGGER.info("[MC Code] Loading default builtin functions");
     declareBuiltinFunction(AbsFunction.class);
     declareBuiltinFunction(AcosFunction.class);
     declareBuiltinFunction(AsinFunction.class);
@@ -820,7 +822,7 @@ public class ProgramManager extends PersistentState {
           }
         };
         // Generate doc
-        setPrivateField(BuiltinFunction.class, function, "doc", generateFunctionDoc(
+        ReflectionUtils.setPrivateField(BuiltinFunction.class, function, "doc", generateFunctionDoc(
             "§2§l%s§r".formatted(function.getName()),
             "Converts a value into a `%s object.\nIncompatible values will raise an error.".formatted(typeName),
             Collections.singletonList(new ImmutablePair<>(new Parameter("v", getTypeInstance(AnyType.class)), "The value to convert.")),
@@ -831,6 +833,7 @@ public class ProgramManager extends PersistentState {
         FUNCTIONS.put(name, function);
       }
     }
+    MCCode.LOGGER.info("[MC Code] Default builtin functions loaded");
   }
 
   /**
@@ -840,6 +843,7 @@ public class ProgramManager extends PersistentState {
    */
   public static void declareBuiltinFunction(final Class<? extends BuiltinFunction> functionClass) {
     ensureNotInitialized();
+    MCCode.LOGGER.info("[MC Code] Found builtin function %s class".formatted(functionClass.getSimpleName()));
 
     Function functionAnnotation = functionClass.getAnnotation(Function.class);
     if (functionAnnotation == null) {
@@ -886,7 +890,7 @@ public class ProgramManager extends PersistentState {
         function.mayReturnNull()
     );
 
-    setPrivateField(BuiltinFunction.class, function, "doc", doc);
+    ReflectionUtils.setPrivateField(BuiltinFunction.class, function, "doc", doc);
   }
 
   private static String generateFunctionDoc(final String functionName, final String baseDoc,
@@ -954,16 +958,6 @@ public class ProgramManager extends PersistentState {
   public static final String DOC_FUNCTION_PREFIX = "%";
   public static final String DOC_LITERAL_PREFIX = "#";
   public static final String DOC_TAG_PREFIX = "@";
-
-  private static <C, I extends C> void setPrivateField(final Class<C> class_, I instance, final String fieldName, final Object fieldValue) {
-    try {
-      Field field = class_.getDeclaredField(fieldName);
-      field.setAccessible(true);
-      field.set(instance, fieldValue);
-    } catch (NoSuchFieldException | IllegalAccessException e) {
-      throw new TypeException("missing field '%s' for class %s".formatted(fieldName, class_.getSimpleName()));
-    }
-  }
 
   /**
    * Throw an exception if the program manager is already initialized.

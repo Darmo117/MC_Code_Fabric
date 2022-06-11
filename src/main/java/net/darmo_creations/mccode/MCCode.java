@@ -29,7 +29,7 @@ import java.util.Map;
 // TODO mod icon
 public class MCCode implements ModInitializer {
   public static final String MOD_ID = "mccode";
-  public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+  public static final Logger LOGGER = LoggerFactory.getLogger("MC Code");
 
   public static final GameRules.Key<GameRules.BooleanRule> GR_SHOW_ERROR_MESSAGES =
       GameRuleRegistry.register("show_mccode_error_messages", GameRules.Category.MISC, GameRuleFactory.createBooleanRule(true));
@@ -43,14 +43,18 @@ public class MCCode implements ModInitializer {
 
   @Override
   public void onInitialize() {
-    ServerTickEvents.START_WORLD_TICK.register(this::onWorldTickStart);
-    ServerWorldEvents.LOAD.register(this::onWorldLoad);
+    MCCode.LOGGER.info("[MC Code] Setting up…");
+    MCCode.LOGGER.info("[MC Code] Setting up program manager");
     ProgramManager.declareDefaultBuiltinTypes();
     ProgramManager.declareDefaultBuiltinFunctions();
     ProgramManager.initialize();
+    MCCode.LOGGER.info("[MC Code] Program manager setup done");
+    ServerTickEvents.START_WORLD_TICK.register(this::onWorldTickStart);
+    ServerWorldEvents.LOAD.register(this::onWorldLoad);
     this.registerCommands();
     // Nasty hack, but don’t know how to do it any other way…
     INSTANCE = this;
+    MCCode.LOGGER.info("[MC Code] Setup done");
   }
 
   /**
