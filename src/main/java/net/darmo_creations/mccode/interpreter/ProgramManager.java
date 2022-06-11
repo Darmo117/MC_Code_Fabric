@@ -10,6 +10,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.WorldSavePath;
 import net.minecraft.world.PersistentState;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
@@ -20,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -64,7 +66,16 @@ public class ProgramManager extends PersistentState {
     this.runningPrograms = new HashMap<>();
     this.lastTick = -1;
     this.world = world;
-    this.programsDir = world.getPersistentStateManager().getFile();
+    WorldSavePath path;
+    // Constructor is private, invoke it anyways
+    try {
+      Constructor<WorldSavePath> constructor = WorldSavePath.class.getDeclaredConstructor(String.class);
+      constructor.setAccessible(true);
+      path = constructor.newInstance("mccode");
+    } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+      throw new RuntimeException(e);
+    }
+    this.programsDir = world.getServer().getSavePath(path).toFile();
   }
 
   /**

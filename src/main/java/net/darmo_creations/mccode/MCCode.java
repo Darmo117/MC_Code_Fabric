@@ -1,8 +1,10 @@
 package net.darmo_creations.mccode;
 
+import net.darmo_creations.mccode.commands.ProgramCommand;
 import net.darmo_creations.mccode.interpreter.ProgramErrorReport;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
@@ -32,6 +34,8 @@ public class MCCode implements ModInitializer {
   public static final GameRules.Key<GameRules.BooleanRule> GR_SHOW_ERROR_MESSAGES =
       GameRuleRegistry.register("show_mccode_error_messages", GameRules.Category.MISC, GameRuleFactory.createBooleanRule(true));
 
+  public static MCCode INSTANCE;
+
   /**
    * Map associating worlds to their program managers.
    */
@@ -44,6 +48,16 @@ public class MCCode implements ModInitializer {
     ProgramManager.declareDefaultBuiltinTypes();
     ProgramManager.declareDefaultBuiltinFunctions();
     ProgramManager.initialize();
+    this.registerCommands();
+    // Nasty hack, but don’t know how to do it any other way…
+    INSTANCE = this;
+  }
+
+  /**
+   * Registers all custom commands.
+   */
+  private void registerCommands() {
+    CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> ProgramCommand.register(dispatcher));
   }
 
   private void onWorldLoad(MinecraftServer server, ServerWorld world) {

@@ -1,8 +1,10 @@
 package net.darmo_creations.mccode.interpreter.type_wrappers;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.darmo_creations.mccode.interpreter.Program;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
@@ -12,46 +14,32 @@ import net.darmo_creations.mccode.interpreter.annotations.*;
 import net.darmo_creations.mccode.interpreter.types.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.command.CommandSource;
 import net.minecraft.command.EntitySelector;
+import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.commands.CommandSource;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.arguments.EntityAnchorArgument;
-import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.selector.EntitySelector;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
-import net.minecraft.core.SectionPos;
+import net.minecraft.command.argument.RegistryPredicateArgumentType;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.*;
+import net.minecraft.resource.ResourcePackManager;
+import net.minecraft.scoreboard.ScoreboardObjective;
+import net.minecraft.scoreboard.ScoreboardPlayerScore;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.packs.repository.Pack;
-import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.server.command.CommandOutput;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
-import net.minecraft.util.Identifier;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.Vec2f;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.util.registry.RegistryEntryList;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
-import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.scores.PlayerTeam;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.gen.feature.ConfiguredStructureFeature;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -1298,8 +1286,8 @@ public class WorldType extends TypeBase<WorldProxy> {
   // TEST
   @Method(name = "list_available_datapacks",
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
-          doc = "The `list of names of all available datapacks, #null if an error occured."),
-      doc = "Returns the `list of names of all available datapacks.")
+          doc = "The `list of names of all available datapacks excluding those enabled, #null if an error occured."),
+      doc = "Returns the `list of names of all available but non-enabled datapacks.")
   public MCList listAvailableDatapacks(final Scope scope, WorldProxy self) {
     return listAvailablePacks(scope);
   }
@@ -1308,23 +1296,23 @@ public class WorldType extends TypeBase<WorldProxy> {
   @Method(name = "list_enabled_datapacks",
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The `list of names of all enabled datapacks, #null if an error occured."),
-      doc = "Returns the `list of names of all available datapacks.")
+      doc = "Returns the `list of names of all enabled datapacks.")
   public MCList listEnabledDatapacks(final Scope scope, WorldProxy self) {
     return listEnabledPacks(scope);
   }
 
   private static MCList listAvailablePacks(final Scope scope) {
-    PackRepository packrepository = scope.getProgram().getProgramManager().getWorld().getServer().getPackRepository();
-    packrepository.reload();
-    Collection<String> selectedPacks = packrepository.getSelectedPacks().stream().map(Pack::getId).toList();
-    Collection<String> availablePacks = packrepository.getAvailablePacks().stream().map(Pack::getId).toList();
+    ResourcePackManager packrepository = scope.getProgram().getProgramManager().getWorld().getServer().getDataPackManager();
+    packrepository.scanPacks(); // TODO check if necessary
+    Collection<String> selectedPacks = packrepository.getEnabledNames().stream().toList();
+    Collection<String> availablePacks = packrepository.getNames().stream().toList();
     return new MCList(availablePacks.stream().filter(pack -> !selectedPacks.contains(pack)).collect(Collectors.toList()));
   }
 
   private static MCList listEnabledPacks(final Scope scope) {
-    PackRepository packrepository = scope.getProgram().getProgramManager().getWorld().getServer().getPackRepository();
-    packrepository.reload();
-    return new MCList(packrepository.getSelectedPacks().stream().map(Pack::getId).toList());
+    ResourcePackManager packrepository = scope.getProgram().getProgramManager().getWorld().getServer().getDataPackManager();
+    packrepository.scanPacks(); // TODO check if necessary
+    return new MCList(packrepository.getEnabledNames().stream().toList());
   }
 
   /*
@@ -1664,9 +1652,9 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(doc = "The `list of force loaded chunks’ positions."),
       doc = "Queries all force loaded chunks.")
   public MCList getForceLoadedChunks(final Scope scope, WorldProxy self) {
-    ServerLevel serverlevel = scope.getProgram().getProgramManager().getWorld().getLevel();
+    ServerWorld serverlevel = scope.getProgram().getProgramManager().getWorld();
     LongSet longset = serverlevel.getForcedChunks();
-    return new MCList(longset.stream().sorted().map(l -> {
+    return new MCList(longset.longStream().sorted().mapToObj(l -> {
       ChunkPos p = new ChunkPos(l);
       return new Position(p.x, 0, p.z);
     }).collect(Collectors.toList()));
@@ -1680,8 +1668,7 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(doc = "#True if the chunk is force loaded, #false otherwise."),
       doc = "Checks whether the chunk at the given position is force loaded.")
   public Boolean isChunkForceLoaded(final Scope scope, WorldProxy self, final Position position) {
-    BlockPos p = position.toBlockPos();
-    ChunkPos chunkpos = new ChunkPos(SectionPos.blockToSectionCoord(p.getX()), SectionPos.blockToSectionCoord(p.getZ()));
+    ChunkPos chunkpos = new ChunkPos(position.toBlockPos());
     ServerWorld serverlevel = scope.getProgram().getProgramManager().getWorld();
     return serverlevel.getForcedChunks().contains(chunkpos.toLong());
   }
@@ -1793,7 +1780,8 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(doc = "#True if the block is loaded, #false otherwise."),
       doc = "Returns whether the block at the given position is currently loaded.")
   public Boolean isBlockLoaded(final Scope scope, final WorldProxy self, final Position position) {
-    return self.world().isLoaded(position.toBlockPos());
+    //noinspection deprecation
+    return self.world().isChunkLoaded(position.toBlockPos());
   }
 
   /*
@@ -2059,27 +2047,40 @@ public class WorldType extends TypeBase<WorldProxy> {
    * /locate command
    */
 
+  // TEST
   @Method(name = "locate_structure",
       parametersMetadata = {
           @ParameterMeta(name = "structure_id", doc = "ID of the structure to find."),
           @ParameterMeta(name = "around", doc = "Position to look around of."),
           @ParameterMeta(name = "radius", doc = "Search radius around the position."),
-          @ParameterMeta(name = "include_unexplored", doc = "Whether to include unexplored structures in the search.")
+          @ParameterMeta(name = "skip_existing_chunks", doc = "Whether to skip existing chunks during the search.")
       },
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The position of the nearest structure of desired type or #null if an error occured."),
       doc = "Returns the coordinates of the closest structure around the given point.")
   public Position locateStructure(final Scope scope, final WorldProxy self, final String structureID,
-                                  final Position around, final Long radius, final Boolean findUnexplored) {
-    StructureFeature<?> structureFeature = ForgeRegistries.STRUCTURE_FEATURES.getValue(new ResourceLocation(structureID));
-    if (structureFeature == null) {
+                                  final Position around, final Long radius, final Boolean skipExistingChunks) {
+    String command = "/locate " + structureID;
+    ParseResults<ServerCommandSource> parseResults = self.world().getServer().getCommandManager().getDispatcher()
+        .parse(command, self.world().getServer().getCommandSource());
+    RegistryPredicateArgumentType.RegistryPredicate<ConfiguredStructureFeature<?, ?>> p;
+    try {
+      p = RegistryPredicateArgumentType.getConfiguredStructureFeaturePredicate(parseResults.getContext().build(command), "structure");
+    } catch (CommandSyntaxException e) {
       return null;
     }
-    BlockPos pos = self.world().findNearestMapFeature(structureFeature, around.toBlockPos(), radius.intValue(), findUnexplored);
-    if (pos == null) {
+    Registry<ConfiguredStructureFeature<?, ?>> registry = self.world().getRegistryManager().get(Registry.CONFIGURED_STRUCTURE_FEATURE_KEY);
+    RegistryEntryList<ConfiguredStructureFeature<?, ?>> registryEntryList =
+        p.getKey().map(key -> registry.getEntry(key).map(RegistryEntryList::of), registry::getEntryList).orElse(null);
+    if (registryEntryList == null) {
       return null;
     }
-    return new Position(pos);
+    Pair<BlockPos, RegistryEntry<ConfiguredStructureFeature<?, ?>>> pair = self.world().getChunkManager().getChunkGenerator()
+        .locateStructure(self.world(), registryEntryList, around.toBlockPos(), radius.intValue(), skipExistingChunks);
+    if (pair == null) {
+      return null;
+    }
+    return new Position(pair.getFirst());
   }
 
   /*
@@ -2098,16 +2099,21 @@ public class WorldType extends TypeBase<WorldProxy> {
       doc = "Returns the coordinates of the closest structure around the given point.")
   public Position locateBiome(final Scope scope, final WorldProxy self, final String biomeID,
                               final Position around, final Long radius) {
-    Biome biome = self.world().getServer().registryAccess().registryOrThrow(Registry.BIOME_REGISTRY)
-        .getOptional(new Identifier(biomeID)).orElse(null);
-    if (biome == null) {
+    String command = "/locatebiome " + biomeID;
+    ParseResults<ServerCommandSource> parseResults = self.world().getServer().getCommandManager().getDispatcher()
+        .parse(command, self.world().getServer().getCommandSource());
+    RegistryPredicateArgumentType.RegistryPredicate<Biome> p;
+    try {
+      p = RegistryPredicateArgumentType
+          .getBiomePredicate(parseResults.getContext().build(command), "biome");
+    } catch (CommandSyntaxException e) {
       return null;
     }
-    BlockPos pos = self.world().findNearestBiome(biome, around.toBlockPos(), radius.intValue(), 8); // TODO understand what the last arg means
-    if (pos == null) {
+    Pair<BlockPos, RegistryEntry<Biome>> entry = self.world().locateBiome(p, around.toBlockPos(), radius.intValue(), 1);
+    if (entry == null) {
       return null;
     }
-    return new Position(pos);
+    return new Position(entry.getFirst());
   }
 
   /*
@@ -2422,9 +2428,9 @@ public class WorldType extends TypeBase<WorldProxy> {
       MCMap map = new MCMap();
       map.put("name", obj.getName());
       map.put("display_name", obj.getDisplayName());
-      map.put("render_type", obj.getRenderType().getId());
-      map.put("criteria", obj.getCriteria().getName());
-      map.put("read_only", obj.getCriteria().isReadOnly());
+      map.put("render_type", obj.getRenderType().getName());
+      map.put("criteria", obj.getCriterion().getName());
+      map.put("read_only", obj.getCriterion().isReadOnly());
       return map;
     }).collect(Collectors.toList()));
   }
@@ -2544,8 +2550,13 @@ public class WorldType extends TypeBase<WorldProxy> {
       returnTypeMetadata = @ReturnMeta(doc = "A `map containing the scores of each objective."),
       doc = "Returns the scoreboard scores for the given player.")
   public MCMap getPlayerScores(final Scope scope, WorldProxy self, final String name) {
-    return new MCMap(self.world().getScoreboard().getPlayerScores(name).entrySet().stream()
-        .collect(Collectors.toMap(e -> e.getKey().getName(), e -> e.getValue().getScore())));
+    ScoreboardObjective objective = self.world().getScoreboard().getObjective(name);
+    Collection<ScoreboardPlayerScore> objectives = self.world().getScoreboard().getAllPlayerScores(objective);
+    //noinspection ConstantConditions
+    return new MCMap(objectives.stream().collect(Collectors.toMap(
+        e -> e.getObjective().getName(),
+        ScoreboardPlayerScore::getScore
+    )));
   }
 
   @Method(name = "sb_set_players_score",
@@ -3562,7 +3573,7 @@ public class WorldType extends TypeBase<WorldProxy> {
     if (entities == null) {
       return null;
     }
-    return new MCList(entities.stream().map(e -> nbtTagToMap(e.saveWithoutId(new NbtCompound()))).collect(Collectors.toList()));
+    return new MCList(entities.stream().map(e -> nbtTagToMap(e.writeNbt(new NbtCompound()))).collect(Collectors.toList()));
   }
 
   /*
@@ -3592,11 +3603,11 @@ public class WorldType extends TypeBase<WorldProxy> {
    */
 
   private static Optional<Long> executeCommand(WorldProxy self, final String commandName, final String... args) {
-    ServerLevel serverlevel = self.world();
+    ServerWorld serverlevel = self.world();
     MinecraftServer server = serverlevel.getServer();
     String command = commandName + " " + String.join(" ", args);
     CommandSourceStackWrapper commandSourceStack = new CommandSourceStackWrapper(server, serverlevel);
-    long result = server.getCommands().performCommand(commandSourceStack, command);
+    long result = server.getCommandManager().execute(commandSourceStack, command);
     if (result == 0 && commandSourceStack.anyFailures) {
       return Optional.empty();
     }
@@ -3606,7 +3617,7 @@ public class WorldType extends TypeBase<WorldProxy> {
   /**
    * Custom source stack wrapper.
    */
-  private static class CommandSourceStackWrapper implements CommandSource {
+  private static class CommandSourceStackWrapper extends ServerCommandSource {
     /**
      * Whether any failures occured while executing the last command.
      */
@@ -3617,16 +3628,16 @@ public class WorldType extends TypeBase<WorldProxy> {
      * The new instance has a permission level of 2 in order to
      * prevent op commands from being executed from within scripts.
      */
-    CommandSourceStackWrapper(CommandSource source, ServerWorld level) {
-      super(source, Vec3i.atLowerCornerOf(level.getSharedSpawnPos()), Vec2.ZERO, level, 2,
-          "Server", new LiteralText("Server"), level.getServer(), null,
+    CommandSourceStackWrapper(CommandOutput source, ServerWorld world) {
+      super(source, Vec3d.ofBottomCenter(world.getSpawnPos()), Vec2f.ZERO, world, 2,
+          "Server", new LiteralText("Server"), world.getServer(), null,
           true, (context, success, result) -> {
-          }, EntityAnchorArgument.Anchor.FEET);
+          }, EntityAnchorArgumentType.EntityAnchor.FEET);
     }
 
     @Override
-    public void sendFailure(Component component) {
-      super.sendFailure(component);
+    public void sendError(Text message) {
+      super.sendError(message);
       this.anyFailures = true;
     }
   }
@@ -3754,7 +3765,7 @@ public class WorldType extends TypeBase<WorldProxy> {
    */
   private static MCMap nbtTagToMap(final NbtCompound tag) {
     MCMap map = new MCMap();
-    for (String key : tag.getAllKeys()) {
+    for (String key : tag.getKeys()) {
       Object value = deserializeNBTTag(tag.get(key));
       if (value != null) {
         map.put(key, value);
@@ -3764,30 +3775,30 @@ public class WorldType extends TypeBase<WorldProxy> {
   }
 
   /**
-   * Convert a {@link Tag} to an MCCode-compatible object.
+   * Convert a {@link NbtElement} to an MCCode-compatible object.
    */
-  private static Object deserializeNBTTag(final Tag tag) {
-    if (tag instanceof ByteTag || tag instanceof ShortTag || tag instanceof IntTag || tag instanceof LongTag) {
-      return ((NumericTag) tag).getAsLong();
-    } else if (tag instanceof FloatTag || tag instanceof DoubleTag) {
-      return ((NumericTag) tag).getAsDouble();
-    } else if (tag instanceof StringTag t) {
-      return t.getAsString();
-    } else if (tag instanceof ByteArrayTag t) {
+  private static Object deserializeNBTTag(final NbtElement tag) {
+    if (tag instanceof NbtByte || tag instanceof NbtShort || tag instanceof NbtInt || tag instanceof NbtLong) {
+      return ((AbstractNbtNumber) tag).longValue();
+    } else if (tag instanceof NbtFloat || tag instanceof NbtDouble) {
+      return ((AbstractNbtNumber) tag).doubleValue();
+    } else if (tag instanceof NbtString t) {
+      return t.asString();
+    } else if (tag instanceof NbtByteArray t) {
       MCList list = new MCList();
-      for (byte b : t.getAsByteArray()) {
+      for (byte b : t.getByteArray()) {
         list.add((long) b);
       }
       return list;
-    } else if (tag instanceof IntArrayTag t) {
+    } else if (tag instanceof NbtIntArray t) {
       MCList list = new MCList();
-      Arrays.stream(t.getAsIntArray()).mapToObj(i -> (long) i).forEach(list::add);
+      Arrays.stream(t.getIntArray()).mapToObj(i -> (long) i).forEach(list::add);
       return list;
-    } else if (tag instanceof LongArrayTag t) {
+    } else if (tag instanceof NbtLongArray t) {
       MCList list = new MCList();
-      Arrays.stream(t.getAsLongArray()).forEach(list::add);
+      Arrays.stream(t.getLongArray()).forEach(list::add);
       return list;
-    } else if (tag instanceof ListTag t) {
+    } else if (tag instanceof NbtList t) {
       MCList list = new MCList();
       t.stream().map(WorldType::deserializeNBTTag).forEach(list::add);
       return list;

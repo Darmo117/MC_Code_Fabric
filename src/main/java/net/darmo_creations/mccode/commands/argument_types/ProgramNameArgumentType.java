@@ -7,8 +7,9 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.darmo_creations.mccode.MCCode;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.client.network.ClientCommandSource;
+import net.minecraft.command.CommandSource;
+import net.minecraft.server.command.ServerCommandSource;
 
 import java.io.File;
 import java.util.Arrays;
@@ -19,7 +20,6 @@ import java.util.stream.Collectors;
 /**
  * Command argument type for program names.
  */
-@SuppressWarnings("ClassCanBeRecord")
 public class ProgramNameArgumentType implements ArgumentType<String> {
   /**
    * Generate an argument type for programs available in save’s data directory only.
@@ -53,21 +53,20 @@ public class ProgramNameArgumentType implements ArgumentType<String> {
   @Override
   public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
     S source = context.getSource();
-    if (source instanceof CommandSourceStack s) {
-      ProgramManager pm = MCCode.INSTANCE.PROGRAM_MANAGERS.get(s.getLevel());
-      if (this.loadedOnly) {
+    if (source instanceof ServerCommandSource s) {
+      ProgramManager pm = MCCode.INSTANCE.PROGRAM_MANAGERS.get(s.getWorld());
+      if (!this.loadedOnly) {
         File dir = pm.getProgramsDirectory();
         //noinspection ConstantConditions
         List<String> names = Arrays.stream(dir.listFiles(f -> f.getName().endsWith(".mccode")))
             .map(f -> f.getName().substring(0, f.getName().indexOf('.')))
             .collect(Collectors.toList());
-        return SharedSuggestionProvider.suggest(names, builder);
+        return CommandSource.suggestMatching(names, builder);
       } else {
-        return SharedSuggestionProvider.suggest(pm.getLoadedPrograms(), builder);
+        return CommandSource.suggestMatching(pm.getLoadedPrograms(), builder);
       }
-    } else if (source instanceof SharedSuggestionProvider s) {
-      //noinspection unchecked
-      return s.customSuggestion((CommandContext<SharedSuggestionProvider>) context, builder);
+    } else if (source instanceof ClientCommandSource s) {
+      return s.getCompletions(context);
     }
     return Suggestions.empty();
   }

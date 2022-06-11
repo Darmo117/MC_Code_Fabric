@@ -25,6 +25,7 @@
   "commands.program.error.no_function": "No function with name \"%s\"!",
   "commands.program.error.invalid_property_name": "Invalid property name %s!",
   "commands.program.error.invalid_method_name": "Invalid method name %s!",
+  "commands.program.error.invalid_argument": "Invalid argument %s!",
 
   "mccode.interpreter.error.no_method_for_type": "Type %s has no method named %s!",
   "mccode.interpreter.error.no_property_for_type": "Type %s has no property named %s!",
