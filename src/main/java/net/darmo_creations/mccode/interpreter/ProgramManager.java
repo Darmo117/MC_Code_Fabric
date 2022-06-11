@@ -811,14 +811,24 @@ public class ProgramManager extends PersistentState {
     // Generate cast operators for relevant types
     for (TypeBase<?> type : TYPES.values()) {
       if (type.generateCastOperator()) {
-        // TODO generate doc
-        String name = "to_" + type.getName();
-        FUNCTIONS.put(name, new BuiltinFunction(name, type, false, new Parameter("o", ProgramManager.getTypeInstance(AnyType.class))) {
+        String typeName = type.getName();
+        String name = "to_" + typeName;
+        BuiltinFunction function = new BuiltinFunction(name, type, false, new Parameter("o", ProgramManager.getTypeInstance(AnyType.class))) {
           @Override
           public Object apply(final Scope scope) {
             return type.explicitCast(scope, this.getParameterValue(scope, 0));
           }
-        });
+        };
+        // Generate doc
+        setPrivateField(BuiltinFunction.class, function, "doc", generateFunctionDoc(
+            "§2§l%s§r".formatted(function.getName()),
+            "Converts a value into a `%s object.\nIncompatible values will raise an error.".formatted(typeName),
+            Collections.singletonList(new ImmutablePair<>(new Parameter("v", getTypeInstance(AnyType.class)), "The value to convert.")),
+            "A new `%s object.".formatted(typeName),
+            function.getReturnType().getName(),
+            function.mayReturnNull()
+        ));
+        FUNCTIONS.put(name, function);
       }
     }
   }
