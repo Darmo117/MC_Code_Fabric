@@ -180,12 +180,15 @@ public class ProgramManager extends PersistentState {
    * @throws ProgramFileNotFoundException If no .mccode file was found for the given name.
    */
   public Program loadProgram(final String name, final String alias, final boolean asModule, final String... args)
-      throws SyntaxErrorException, ProgramFileNotFoundException {
+      throws SyntaxErrorException, ProgramFileNotFoundException, ProgramPathException {
     String actualName = alias != null ? alias : name;
     if (!asModule && this.programs.containsKey(actualName)) {
       throw new ProgramAlreadyLoadedException(actualName);
     }
-    String[] splitPath = name.split("\\.");
+    String[] splitPath = name.split("\\.", -1); // -1 to keep empty substrings
+    if (Arrays.asList(splitPath).contains("")) {
+      throw new ProgramPathException(name);
+    }
     splitPath[splitPath.length - 1] += ".mccode";
     File programFile = Paths.get(this.programsDir.getAbsolutePath(), splitPath).toFile();
     if (!programFile.exists()) {
