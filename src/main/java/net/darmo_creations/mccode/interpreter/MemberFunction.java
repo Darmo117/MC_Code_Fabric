@@ -78,7 +78,7 @@ public class MemberFunction extends Function {
       for (int i = 0; i < this.parameters.size(); i++) {
         Parameter parameter = this.parameters.get(i);
         Object arg = scope.getVariable(parameter.getName(), false);
-        args[i + 2] = parameter.getType().implicitCast(scope, arg);
+        args[i + 2] = arg == null ? null : parameter.getType().implicitCast(scope, arg);
       }
 
       return this.method.invoke(this.hostType, args);

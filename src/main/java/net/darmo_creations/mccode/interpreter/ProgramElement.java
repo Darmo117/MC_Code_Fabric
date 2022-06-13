@@ -105,6 +105,11 @@ public abstract class ProgramElement implements TagSerializable {
       throw e;
     } catch (ArithmeticException e) {
       throw new MathException(scope, this.getLine(), this.getColumn(), e.getMessage());
+    } catch (NullPointerException e) {
+      e.printStackTrace();
+      // Custom message for NPEs
+      throw new WrappedException(e, this.getLine(), this.getColumn(),
+          "mccode.interpreter.error.null_pointer_exception");
     } catch (Throwable e) {
       e.printStackTrace();
       // Wrap any other exception to prevent them from being caught by try-except statements

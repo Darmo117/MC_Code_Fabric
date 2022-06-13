@@ -65,6 +65,7 @@
   "mccode.interpreter.error.program_already_running": "Program %s is already running!",
   "mccode.interpreter.error.program_already_paused": "Program %s is already paused!",
   "mccode.interpreter.error.math_error": "Math error: %s!",
+  "mccode.interpreter.error.null_pointer_exception": "Null pointer exception!",
   "mccode.interpreter.error.exception": "An unexpected error occured: %s: %s!",
   "mccode.interpreter.error.syntax_error": "[%s:%d:%d] Syntax error: %s",
   "mccode.interpreter.error.expression_syntax_error": "Syntax error in expression: %s",
