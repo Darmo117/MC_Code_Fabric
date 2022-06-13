@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
  */
 @Type(name = WorldType.NAME,
     generateCastOperator = false,
-    doc = "This type represents a specific dimension (overworld, nether, end, etc.).")
+    doc = "This type represents the dimension/world (overworld, nether, end, etc.) the program is runs in.")
 public class WorldType extends TypeBase<ServerWorld> {
   public static final String NAME = "world";
 
@@ -126,7 +126,7 @@ public class WorldType extends TypeBase<ServerWorld> {
       }
     });
 
-    if (!container.isEmpty()) {
+    if (container.isEmpty()) {
       super.__set_property__(scope, self, propertyName, value);
     }
   }
@@ -138,7 +138,7 @@ public class WorldType extends TypeBase<ServerWorld> {
 
   @Property(name = "day", doc = "The current day of the world.")
   public Long getWorldDay(final ServerWorld self) {
-    return self.getTimeOfDay() / 24000 % 0x7fffffff; // TODO check
+    return self.getTimeOfDay() / 24000 % 0x7fffffff;
   }
 
   @Property(name = "day_time", doc = "The current time of day of the world.")
@@ -3594,7 +3594,8 @@ public class WorldType extends TypeBase<ServerWorld> {
 
   @Override
   protected String __str__(final ServerWorld self) {
-    return "<this world>"; // TODO add dimension
+    //noinspection OptionalGetWithoutIsPresent
+    return self.method_40134().getKey().get().getValue().toString();
   }
 
   @Override

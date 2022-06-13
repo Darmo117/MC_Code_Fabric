@@ -42,7 +42,8 @@ public class PrintFunction extends BuiltinFunction {
           .forEach(player -> player.sendMessage(new LiteralText(text), false));
     }
     if (channel == Channel.CONSOLE || channel == Channel.BOTH) {
-      String dimension = scope.getProgram().getProgramManager().getWorld().method_40134().toString();
+      //noinspection OptionalGetWithoutIsPresent
+      String dimension = scope.getProgram().getProgramManager().getWorld().method_40134().getKey().get().getValue().toString();
       server.sendSystemMessage(new LiteralText("[MCCode:%s][%s] %s".formatted(program.getName(), dimension, text)), Util.NIL_UUID);
     }
     return null;
