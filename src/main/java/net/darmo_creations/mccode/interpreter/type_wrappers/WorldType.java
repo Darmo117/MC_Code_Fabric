@@ -11,6 +11,7 @@ import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Utils;
 import net.darmo_creations.mccode.interpreter.annotations.*;
+import net.darmo_creations.mccode.interpreter.exceptions.CastException;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.types.MCList;
 import net.darmo_creations.mccode.interpreter.types.MCMap;
@@ -349,7 +350,6 @@ public class WorldType extends TypeBase<ServerWorld> {
    * /attribute command
    */
 
-  // TEST
   @Method(name = "get_attribute_value",
       parametersMetadata = {
           @ParameterMeta(name = "targets", doc = "An entity selector that targets a single player, mob or armor stand."),
@@ -367,7 +367,6 @@ public class WorldType extends TypeBase<ServerWorld> {
     ).orElse(null);
   }
 
-  // TEST
   @Method(name = "get_attribute_base_value",
       parametersMetadata = {
           @ParameterMeta(name = "targets", doc = "An entity selector that targets a single player, mob or armor stand."),
@@ -385,7 +384,6 @@ public class WorldType extends TypeBase<ServerWorld> {
     ).orElse(null);
   }
 
-  // TEST
   @Method(name = "set_attribute_base_value",
       parametersMetadata = {
           @ParameterMeta(name = "targets", doc = "An entity selector that targets a single player, mob or armor stand."),
@@ -403,7 +401,6 @@ public class WorldType extends TypeBase<ServerWorld> {
     ).orElse(0L) != 0;
   }
 
-  // TEST
   @Method(name = "add_attribute_modifier",
       parametersMetadata = {
           @ParameterMeta(name = "targets", doc = "An entity selector that targets a single player, mob or armor stand."),
@@ -411,7 +408,7 @@ public class WorldType extends TypeBase<ServerWorld> {
           @ParameterMeta(name = "modifier_uuid", doc = "The modifier’s UUID."),
           @ParameterMeta(name = "modifier_name", doc = "The modifier’s name."),
           @ParameterMeta(name = "modifier_value", doc = "The modifier’s value."),
-          @ParameterMeta(name = "operation", doc = "The modifier’s operation. One of \"add\", \"multiply\" or \"multiply_base\"."),
+          @ParameterMeta(name = "operation", doc = "The modifier’s operation. One of “add”, “multiply” or “multiply_base”."),
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Adds a modifier to the given attribute of a single player, armor stand or mob.")
@@ -424,7 +421,6 @@ public class WorldType extends TypeBase<ServerWorld> {
     ).orElse(0L) != 0;
   }
 
-  // TEST
   @Method(name = "remove_attribute_modifier",
       parametersMetadata = {
           @ParameterMeta(name = "targets", doc = "An entity selector that targets a single player, mob or armor stand."),
@@ -442,7 +438,6 @@ public class WorldType extends TypeBase<ServerWorld> {
     ).orElse(0L) != 0;
   }
 
-  // TEST
   @Method(name = "get_attribute_modifier_value",
       parametersMetadata = {
           @ParameterMeta(name = "targets", doc = "An entity selector that targets a single player, mob or armor stand."),
@@ -466,7 +461,6 @@ public class WorldType extends TypeBase<ServerWorld> {
    * /bossbar command
    */
 
-  // TEST
   @Method(name = "add_boss_bar",
       parametersMetadata = {
           @ParameterMeta(name = "id", doc = "ID of the bar."),
@@ -475,15 +469,29 @@ public class WorldType extends TypeBase<ServerWorld> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of custom bossbars that exist after the command is executed or #null if the action failed."),
       doc = "Adds a new boss bar.")
-  public Long addBossBar(final Scope scope, ServerWorld self, final String id, final String name) {
+  public Long addBossBar(final Scope scope, ServerWorld self, final String id, final MCMap name) {
     return executeCommand(
         self,
         "bossbar",
-        "add", id, name
+        "add", id, mapToJSON(name)
     ).orElse(null);
   }
 
-  // TEST
+  @Method(name = "remove_boss_bar",
+      parametersMetadata = {
+          @ParameterMeta(name = "id", doc = "ID of the bar.")
+      },
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The number of custom bossbars that exist after the command is executed or #null if the action failed."),
+      doc = "Removes the specified bossbar.")
+  public Long removeBossBar(final Scope scope, ServerWorld self, final String id) {
+    return executeCommand(
+        self,
+        "bossbar",
+        "remove", id
+    ).orElse(null);
+  }
+
   @Method(name = "get_boss_bar_max_value",
       parametersMetadata = {
           @ParameterMeta(name = "id", doc = "ID of the bar.")
@@ -499,7 +507,6 @@ public class WorldType extends TypeBase<ServerWorld> {
     ).orElse(null);
   }
 
-  // TEST
   @Method(name = "set_boss_bar_max_value",
       parametersMetadata = {
           @ParameterMeta(name = "id", doc = "ID of the bar."),
@@ -516,7 +523,6 @@ public class WorldType extends TypeBase<ServerWorld> {
     ).orElse(null);
   }
 
-  // TEST
   @Method(name = "get_boss_bar_value",
       parametersMetadata = {
           @ParameterMeta(name = "id", doc = "ID of the bar.")
@@ -532,7 +538,6 @@ public class WorldType extends TypeBase<ServerWorld> {
     ).orElse(null);
   }
 
-  // TEST
   @Method(name = "set_boss_bar_value",
       parametersMetadata = {
           @ParameterMeta(name = "id", doc = "ID of the bar."),
@@ -549,7 +554,6 @@ public class WorldType extends TypeBase<ServerWorld> {
     ).orElse(null);
   }
 
-  // TEST
   @Method(name = "is_boss_bar_visible",
       parametersMetadata = {
           @ParameterMeta(name = "id", doc = "ID of the bar.")
@@ -565,7 +569,6 @@ public class WorldType extends TypeBase<ServerWorld> {
     ).map(i -> i > 0).orElse(null);
   }
 
-  // TEST
   @Method(name = "set_boss_bar_visible",
       parametersMetadata = {
           @ParameterMeta(name = "id", doc = "ID of the bar."),
@@ -578,10 +581,9 @@ public class WorldType extends TypeBase<ServerWorld> {
         self,
         "bossbar",
         "set", id, "visible", visible.toString()
-    ).orElse(-1L) > 0;
+    ).orElse(-1L) >= 0;
   }
 
-  // TEST
   @Method(name = "get_boss_bar_players_number",
       parametersMetadata = {
           @ParameterMeta(name = "id", doc = "ID of the bar.")
@@ -597,7 +599,6 @@ public class WorldType extends TypeBase<ServerWorld> {
     ).orElse(null);
   }
 
-  // TEST
   @Method(name = "set_boss_bar_players",
       parametersMetadata = {
           @ParameterMeta(name = "id", doc = "ID of the bar."),
@@ -614,7 +615,6 @@ public class WorldType extends TypeBase<ServerWorld> {
     ).orElse(null);
   }
 
-  // TEST
   @Method(name = "set_boss_bar_name",
       parametersMetadata = {
           @ParameterMeta(name = "id", doc = "ID of the bar."),
@@ -622,19 +622,18 @@ public class WorldType extends TypeBase<ServerWorld> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if action succeeded, #false otherwise."),
       doc = "Sets the display name of a boss bar.")
-  public Boolean setBossBarName(final Scope scope, ServerWorld self, final String id, final String name) {
+  public Boolean setBossBarName(final Scope scope, ServerWorld self, final String id, final MCMap name) {
     return executeCommand(
         self,
         "bossbar",
-        "set", id, "name", name
+        "set", id, "name", mapToJSON(name)
     ).orElse(-1L) > 0;
   }
 
-  // TEST
   @Method(name = "set_boss_bar_style",
       parametersMetadata = {
           @ParameterMeta(name = "id", doc = "ID of the bar."),
-          @ParameterMeta(name = "style", doc = "The new style. One of \"notched_6\", \"notched_10\", \"notched_12\", \"notched_20\" or \"progress\"."),
+          @ParameterMeta(name = "style", doc = "The new style. One of “notched_6”, “notched_10”, “notched_12”, “notched_20” or “progress”."),
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if action succeeded, #false otherwise."),
       doc = "Sets the display name of a boss bar.")
@@ -646,11 +645,10 @@ public class WorldType extends TypeBase<ServerWorld> {
     ).orElse(-1L) > 0;
   }
 
-  // TEST
   @Method(name = "set_boss_bar_color",
       parametersMetadata = {
           @ParameterMeta(name = "id", doc = "ID of the bar."),
-          @ParameterMeta(name = "color", doc = "The new color. One of \"blue\", \"green\", \"pink\", \"purple\", \"red\", \"white\" or \"yellow\"."),
+          @ParameterMeta(name = "color", doc = "The new color. One of “blue”, “green”, “pink”, “purple”, “red”, “white” or “yellow”."),
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if action succeeded, #false otherwise."),
       doc = "Sets the color of a boss bar.")
@@ -691,8 +689,8 @@ public class WorldType extends TypeBase<ServerWorld> {
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise"),
       doc = "Removes matching items from the inventory of selected players.")
   public Boolean clearItems(final Scope scope, ServerWorld self, final String targetSelector,
-                            final String item, final MCMap dataTags, final Long maxCount) {
-    List<String> args = new ArrayList<>(Arrays.asList(targetSelector, item + mapToDataTag(dataTags)));
+                            final String item, final MCList dataTags, final Long maxCount) {
+    List<String> args = new ArrayList<>(Arrays.asList(targetSelector, item + listToDataTag(dataTags, scope)));
     if (maxCount != null) {
       args.add(maxCount.toString());
     }
@@ -713,11 +711,11 @@ public class WorldType extends TypeBase<ServerWorld> {
           doc = "The number of matching items or #null if the operation failed."),
       doc = "Returns the number of items matching the given one that are present in the given players’ inventory.")
   public Long getItemsCount(final Scope scope, ServerWorld self, final String targetSelector,
-                            final String item, final MCMap dataTags) {
+                            final String item, final MCList dataTags) {
     return executeCommand(
         self,
         "clear",
-        targetSelector, item + mapToDataTag(dataTags), "0"
+        targetSelector, item + listToDataTag(dataTags, scope), "0"
     ).orElse(null);
   }
 
@@ -730,10 +728,10 @@ public class WorldType extends TypeBase<ServerWorld> {
           @ParameterMeta(name = "pos1", doc = "First position."),
           @ParameterMeta(name = "pos2", doc = "Second position."),
           @ParameterMeta(name = "dest", doc = "Destination position. Corresponds to the smallest position of the cloned region."),
-          @ParameterMeta(name = "mask_mode", doc = "Either \"replace\" to copy all blocks or \"masked\" to copy only non-air blocks."),
-          @ParameterMeta(name = "clone_mode", doc = "Either \"force\" to force clone even if regions overlap, " +
-              "\"move\" to move blocks in region instead of simply cloning them or " +
-              "\"normal\" to not force in case of overlap nor move blocks.")
+          @ParameterMeta(name = "mask_mode", doc = "Either “replace” to copy all blocks or “masked” to copy only non-air blocks."),
+          @ParameterMeta(name = "clone_mode", doc = "Either “force” to force clone even if regions overlap, " +
+              "“move” to move blocks in region instead of simply cloning them or " +
+              "“normal” to not force in case of overlap nor move blocks.")
       },
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of affected blocks or #null if the action failed."),
@@ -761,15 +759,15 @@ public class WorldType extends TypeBase<ServerWorld> {
           @ParameterMeta(name = "block", doc = "ID of the blocks to clone."),
           @ParameterMeta(name = "block_state", mayBeNull = true, doc = "Optional block state of the blocks to clone."),
           @ParameterMeta(name = "data_tags", mayBeNull = true, doc = "Optional data tags of the blocks to clone."),
-          @ParameterMeta(name = "clone_mode", doc = "Either \"force\" to force clone even if regions overlap, " +
-              "\"move\" to move blocks in region instead of simply cloning them or " +
-              "\"normal\" to not force in case of overlap nor move blocks.")
+          @ParameterMeta(name = "clone_mode", doc = "Either “force” to force clone even if regions overlap, " +
+              "“move” to move blocks in region instead of simply cloning them or " +
+              "“normal” to not force in case of overlap nor move blocks.")
       },
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of affected blocks or #null if the action failed."),
       doc = "Clones from one region to another only blocks that match the given predicate.")
   public Long clone(final Scope scope, ServerWorld self, final Position pos1, final Position pos2, final Position destination,
-                    final String block, final MCMap blockState, final MCMap dataTags, final String cloneMode) {
+                    final String block, final MCMap blockState, final MCList dataTags, final String cloneMode) {
     BlockPos p1 = pos1.toBlockPos();
     BlockPos p2 = pos2.toBlockPos();
     BlockPos dest = destination.toBlockPos();
@@ -778,7 +776,7 @@ public class WorldType extends TypeBase<ServerWorld> {
       blockPredicate += mapToBlockState(blockState);
     }
     if (dataTags != null) {
-      blockPredicate += mapToDataTag(dataTags);
+      blockPredicate += listToDataTag(dataTags, scope);
     }
     return executeCommand(
         self,
@@ -797,7 +795,7 @@ public class WorldType extends TypeBase<ServerWorld> {
   // TEST
   @Method(name = "get_data",
       parametersMetadata = {
-          @ParameterMeta(name = "target_type", doc = "Type of the target to get data from. One of \"block\", \"entity\" or \"storage\"."),
+          @ParameterMeta(name = "target_type", doc = "Type of the target to get data from. One of “block”, “entity” or “storage”."),
           @ParameterMeta(name = "target", doc = "Depending on the value of the first argument, the block position, " +
               "entity selector or storage resource location to get data from."),
           @ParameterMeta(name = "target_nbt_path", mayBeNull = true, doc = "The path to the data to query. If #null, all data is returned.")
@@ -812,11 +810,11 @@ public class WorldType extends TypeBase<ServerWorld> {
   // TEST
   @Method(name = "append_data_from",
       parametersMetadata = {
-          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of \"block\", \"entity\" or \"storage\"."),
+          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of “block”, “entity” or “storage”."),
           @ParameterMeta(name = "target", doc = "Depending on the value of the first argument, the block position, " +
               "entity selector or storage resource location to change the data of."),
           @ParameterMeta(name = "target_nbt_path", doc = "The NBT path where to append the data."),
-          @ParameterMeta(name = "source_type", doc = "Type of the source to get data from. One of \"block\", \"entity\" or \"storage\"."),
+          @ParameterMeta(name = "source_type", doc = "Type of the source to get data from. One of “block”, “entity” or “storage”."),
           @ParameterMeta(name = "source", doc = "Depending on the value of the previous argument, the block position, " +
               "entity selector or storage resource location to get data from."),
           @ParameterMeta(name = "source_nbt_path", mayBeNull = true, doc = "The NBT path where to get the data from. May be #null.")
@@ -846,7 +844,7 @@ public class WorldType extends TypeBase<ServerWorld> {
   // TEST
   @Method(name = "append_data",
       parametersMetadata = {
-          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of \"block\", \"entity\" or \"storage\"."),
+          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of “block”, “entity” or “storage”."),
           @ParameterMeta(name = "target", doc = "Depending on the value of the first argument, the block position, " +
               "entity selector or storage resource location to change the data of."),
           @ParameterMeta(name = "target_nbt_path", doc = "The NBT path where to append the data."),
@@ -874,11 +872,11 @@ public class WorldType extends TypeBase<ServerWorld> {
   // TEST
   @Method(name = "prepend_data_from",
       parametersMetadata = {
-          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of \"block\", \"entity\" or \"storage\"."),
+          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of “block”, “entity” or “storage”."),
           @ParameterMeta(name = "target", doc = "Depending on the value of the first argument, the block position, " +
               "entity selector or storage resource location to change the data of."),
           @ParameterMeta(name = "target_nbt_path", doc = "The NBT path where to prepend the data."),
-          @ParameterMeta(name = "source_type", doc = "Type of the source to get data from. One of \"block\", \"entity\" or \"storage\"."),
+          @ParameterMeta(name = "source_type", doc = "Type of the source to get data from. One of “block”, “entity” or “storage”."),
           @ParameterMeta(name = "source", doc = "Depending on the value of the previous argument, the block position, " +
               "entity selector or storage resource location to get data from."),
           @ParameterMeta(name = "source_nbt_path", mayBeNull = true, doc = "The NBT path where to get the data from. May be #null.")
@@ -908,7 +906,7 @@ public class WorldType extends TypeBase<ServerWorld> {
   // TEST
   @Method(name = "prepend_data",
       parametersMetadata = {
-          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of \"block\", \"entity\" or \"storage\"."),
+          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of “block”, “entity” or “storage”."),
           @ParameterMeta(name = "target", doc = "Depending on the value of the first argument, the block position, " +
               "entity selector or storage resource location to change the data of."),
           @ParameterMeta(name = "target_nbt_path", doc = "The NBT path where to prepend the data."),
@@ -936,12 +934,12 @@ public class WorldType extends TypeBase<ServerWorld> {
   // TEST
   @Method(name = "insert_data_from",
       parametersMetadata = {
-          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of \"block\", \"entity\" or \"storage\"."),
+          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of “block”, “entity” or “storage”."),
           @ParameterMeta(name = "target", doc = "Depending on the value of the first argument, the block position, " +
               "entity selector or storage resource location to change the data of."),
           @ParameterMeta(name = "target_nbt_path", doc = "The NBT path where to insert the data."),
           @ParameterMeta(name = "index", doc = "The index at which data should be inserted."),
-          @ParameterMeta(name = "source_type", doc = "Type of the source to get data from. One of \"block\", \"entity\" or \"storage\"."),
+          @ParameterMeta(name = "source_type", doc = "Type of the source to get data from. One of “block”, “entity” or “storage”."),
           @ParameterMeta(name = "source", doc = "Depending on the value of the previous argument, the block position, " +
               "entity selector or storage resource location to get data from."),
           @ParameterMeta(name = "source_nbt_path", mayBeNull = true, doc = "The NBT path where to get the data from. May be #null.")
@@ -973,7 +971,7 @@ public class WorldType extends TypeBase<ServerWorld> {
   // TEST
   @Method(name = "insert_data",
       parametersMetadata = {
-          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of \"block\", \"entity\" or \"storage\"."),
+          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of “block”, “entity” or “storage”."),
           @ParameterMeta(name = "target", doc = "Depending on the value of the first argument, the block position, " +
               "entity selector or storage resource location to change the data of."),
           @ParameterMeta(name = "target_nbt_path", doc = "The NBT path where to insert the data."),
@@ -1003,11 +1001,11 @@ public class WorldType extends TypeBase<ServerWorld> {
   // TEST
   @Method(name = "merge_data_from",
       parametersMetadata = {
-          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of \"block\", \"entity\" or \"storage\"."),
+          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of “block”, “entity” or “storage”."),
           @ParameterMeta(name = "target", doc = "Depending on the value of the first argument, the block position, " +
               "entity selector or storage resource location to change the data of."),
           @ParameterMeta(name = "target_nbt_path", doc = "The NBT path where to merge the data."),
-          @ParameterMeta(name = "source_type", doc = "Type of the source to get data from. One of \"block\", \"entity\" or \"storage\"."),
+          @ParameterMeta(name = "source_type", doc = "Type of the source to get data from. One of “block”, “entity” or “storage”."),
           @ParameterMeta(name = "source", doc = "Depending on the value of the previous argument, the block position, " +
               "entity selector or storage resource location to get data from."),
           @ParameterMeta(name = "source_nbt_path", mayBeNull = true, doc = "The NBT path where to get the data from. May be #null.")
@@ -1037,7 +1035,7 @@ public class WorldType extends TypeBase<ServerWorld> {
   // TEST
   @Method(name = "merge_data",
       parametersMetadata = {
-          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of \"block\", \"entity\" or \"storage\"."),
+          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of “block”, “entity” or “storage”."),
           @ParameterMeta(name = "target", doc = "Depending on the value of the first argument, the block position, " +
               "entity selector or storage resource location to change the data of."),
           @ParameterMeta(name = "target_nbt_path", doc = "The NBT path where to merge the data."),
@@ -1065,11 +1063,11 @@ public class WorldType extends TypeBase<ServerWorld> {
   // TEST
   @Method(name = "set_data_from",
       parametersMetadata = {
-          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of \"block\", \"entity\" or \"storage\"."),
+          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of “block”, “entity” or “storage”."),
           @ParameterMeta(name = "target", doc = "Depending on the value of the first argument, the block position, " +
               "entity selector or storage resource location to change the data of."),
           @ParameterMeta(name = "target_nbt_path", doc = "The NBT path where to set the data."),
-          @ParameterMeta(name = "source_type", doc = "Type of the source to get data from. One of \"block\", \"entity\" or \"storage\"."),
+          @ParameterMeta(name = "source_type", doc = "Type of the source to get data from. One of “block”, “entity” or “storage”."),
           @ParameterMeta(name = "source", doc = "Depending on the value of the previous argument, the block position, " +
               "entity selector or storage resource location to get data from."),
           @ParameterMeta(name = "source_nbt_path", mayBeNull = true, doc = "The NBT path where to get the data from. May be #null.")
@@ -1099,7 +1097,7 @@ public class WorldType extends TypeBase<ServerWorld> {
   // TEST
   @Method(name = "set_data",
       parametersMetadata = {
-          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of \"block\", \"entity\" or \"storage\"."),
+          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of “block”, “entity” or “storage”."),
           @ParameterMeta(name = "target", doc = "Depending on the value of the first argument, the block position, " +
               "entity selector or storage resource location to change the data of."),
           @ParameterMeta(name = "target_nbt_path", doc = "The NBT path where to set the data."),
@@ -1127,7 +1125,7 @@ public class WorldType extends TypeBase<ServerWorld> {
   // TEST
   @Method(name = "merge_nbt_data",
       parametersMetadata = {
-          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of \"block\", \"entity\" or \"storage\"."),
+          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of “block”, “entity” or “storage”."),
           @ParameterMeta(name = "target", doc = "Depending on the value of the first argument, the block position, " +
               "entity selector or storage resource location to change the data of."),
           @ParameterMeta(name = "nbt", doc = "A `string representing an NBT compound tag.")
@@ -1149,7 +1147,7 @@ public class WorldType extends TypeBase<ServerWorld> {
   // TEST
   @Method(name = "remove_data",
       parametersMetadata = {
-          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of \"block\", \"entity\" or \"storage\"."),
+          @ParameterMeta(name = "target_type", doc = "Type of the target to modify. One of “block”, “entity” or “storage”."),
           @ParameterMeta(name = "target", doc = "Depending on the value of the first argument, the block position, " +
               "entity selector or storage resource location to change the data of."),
           @ParameterMeta(name = "target_nbt_path", doc = "The path to the data to be removed.")
@@ -1276,7 +1274,6 @@ public class WorldType extends TypeBase<ServerWorld> {
     ).orElse(-1L) > 0;
   }
 
-  // TEST
   @Method(name = "list_all_datapacks",
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The `list of names of all available and/or enabled datapacks, #null if an error occured."),
@@ -1287,7 +1284,6 @@ public class WorldType extends TypeBase<ServerWorld> {
     return list;
   }
 
-  // TEST
   @Method(name = "list_available_datapacks",
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The `list of names of all available datapacks excluding those enabled, #null if an error occured."),
@@ -1296,7 +1292,6 @@ public class WorldType extends TypeBase<ServerWorld> {
     return listAvailablePacks(scope);
   }
 
-  // TEST
   @Method(name = "list_enabled_datapacks",
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The `list of names of all enabled datapacks, #null if an error occured."),
@@ -1307,7 +1302,6 @@ public class WorldType extends TypeBase<ServerWorld> {
 
   private static MCList listAvailablePacks(final Scope scope) {
     ResourcePackManager packrepository = scope.getProgram().getProgramManager().getWorld().getServer().getDataPackManager();
-    packrepository.scanPacks(); // TODO check if necessary
     Collection<String> selectedPacks = packrepository.getEnabledNames().stream().toList();
     Collection<String> availablePacks = packrepository.getNames().stream().toList();
     return new MCList(availablePacks.stream().filter(pack -> !selectedPacks.contains(pack)).collect(Collectors.toList()));
@@ -1315,7 +1309,6 @@ public class WorldType extends TypeBase<ServerWorld> {
 
   private static MCList listEnabledPacks(final Scope scope) {
     ResourcePackManager packrepository = scope.getProgram().getProgramManager().getWorld().getServer().getDataPackManager();
-    packrepository.scanPacks(); // TODO check if necessary
     return new MCList(packrepository.getEnabledNames().stream().toList());
   }
 
@@ -1326,7 +1319,7 @@ public class WorldType extends TypeBase<ServerWorld> {
   @Method(name = "set_default_gamemode",
       parametersMetadata = {
           @ParameterMeta(name = "gamemode",
-              doc = "The new default gamemode. One of \"survival\", \"creative\", \"adventure\" or \"spectator\".")
+              doc = "The new default gamemode. One of “survival”, “creative”, “adventure” or “spectator”.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action was successful, #false otherwise."),
       doc = "Sets the default game mode for new players.")
@@ -1342,7 +1335,6 @@ public class WorldType extends TypeBase<ServerWorld> {
    * /difficulty command
    */
 
-  // TEST
   @Method(name = "get_difficulty",
       returnTypeMetadata = @ReturnMeta(mayBeNull = true, doc = "The current difficulty."),
       doc = "Returns the current difficulty.")
@@ -1361,7 +1353,7 @@ public class WorldType extends TypeBase<ServerWorld> {
   @Method(name = "set_difficulty",
       parametersMetadata = {
           @ParameterMeta(name = "difficulty",
-              doc = "The new difficulty. One of \"peaceful\", \"easy\", \"normal\" or \"difficulty\".")
+              doc = "The new difficulty. One of “peaceful”, “easy”, “normal” or “difficulty”.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action was successful, #false otherwise."),
       doc = "Sets the difficulty level.")
@@ -1370,7 +1362,7 @@ public class WorldType extends TypeBase<ServerWorld> {
         self,
         "difficulty",
         difficulty
-    ).orElse(-1L) > 0;
+    ).orElse(-1L) >= 0;
   }
 
   /*
@@ -1388,7 +1380,7 @@ public class WorldType extends TypeBase<ServerWorld> {
     return executeCommand(
         self,
         "effect",
-        targetSelector, "clear"
+        "clear", targetSelector
     ).orElse(null);
   }
 
@@ -1404,7 +1396,7 @@ public class WorldType extends TypeBase<ServerWorld> {
     return executeCommand(
         self,
         "effect",
-        targetSelector, "clear", effect
+        "clear", targetSelector, effect
     ).orElse(null);
   }
 
@@ -1424,7 +1416,7 @@ public class WorldType extends TypeBase<ServerWorld> {
     return executeCommand(
         self,
         "effect",
-        targetSelector, effect, seconds.toString(), amplifier.toString(), hideParticles.toString()
+        "give", targetSelector, effect, seconds.toString(), amplifier.toString(), hideParticles.toString()
     ).orElse(null);
   }
 
@@ -1508,6 +1500,7 @@ public class WorldType extends TypeBase<ServerWorld> {
    * /fill command
    */
 
+  // TEST datatags
   @Method(name = "fill",
       parametersMetadata = {
           @ParameterMeta(name = "pos1", doc = "First position."),
@@ -1515,13 +1508,13 @@ public class WorldType extends TypeBase<ServerWorld> {
           @ParameterMeta(name = "block", doc = "ID of block to fill region with."),
           @ParameterMeta(name = "block_state", mayBeNull = true, doc = "State of the block."),
           @ParameterMeta(name = "data_tags", mayBeNull = true, doc = "Data tags for the block."),
-          @ParameterMeta(name = "mode", doc = "Fill mode. One of \"destroy\", \"hollow\", \"keep\", \"outline\" or \"replace\".")
+          @ParameterMeta(name = "mode", doc = "Fill mode. One of “destroy”, “hollow”, “keep”, “outline” or “replace”.")
       },
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of affected blocks or #null if the action failed."),
       doc = "Fills the region between the given positions in this world with the specified block.")
   public Long fill(final Scope scope, ServerWorld self, final Position pos1, final Position pos2,
-                   final String block, final MCMap blockState, final MCMap dataTags, final String mode) {
+                   final String block, final MCMap blockState, final MCList dataTags, final String mode) {
     BlockPos p1 = pos1.toBlockPos();
     BlockPos p2 = pos2.toBlockPos();
     String blockPredicate = block;
@@ -1529,7 +1522,7 @@ public class WorldType extends TypeBase<ServerWorld> {
       blockPredicate += mapToBlockState(blockState);
     }
     if (dataTags != null) {
-      blockPredicate += mapToDataTag(dataTags);
+      blockPredicate += listToDataTag(dataTags, scope);
     }
     List<String> args = new ArrayList<>(Arrays.asList(
         "" + p1.getX(), "" + p1.getY(), "" + p1.getZ(),
@@ -1537,7 +1530,7 @@ public class WorldType extends TypeBase<ServerWorld> {
         blockPredicate, mode
     ));
     if (!"replace".equals(mode)) {
-      args.add(mapToJSON(dataTags));
+      args.add(listToDataTag(dataTags, scope));
     }
     return executeCommand(
         self,
@@ -1561,8 +1554,8 @@ public class WorldType extends TypeBase<ServerWorld> {
           doc = "The number of affected blocks or #null if the action failed."),
       doc = "Fills the region between the given positions in this world with the specified block in replace mode.")
   public Long fill(final Scope scope, ServerWorld self, final Position pos1, final Position pos2,
-                   final String block, final MCMap blockState, final MCMap dataTags,
-                   final String blockToReplace, final MCMap blockStateToReplace, final MCMap dataTagsToReplace) {
+                   final String block, final MCMap blockState, final MCList dataTags,
+                   final String blockToReplace, final MCMap blockStateToReplace, final MCList dataTagsToReplace) {
     BlockPos p1 = pos1.toBlockPos();
     BlockPos p2 = pos2.toBlockPos();
     String blockPredicate = block;
@@ -1570,14 +1563,14 @@ public class WorldType extends TypeBase<ServerWorld> {
       blockPredicate += mapToBlockState(blockState);
     }
     if (dataTags != null) {
-      blockPredicate += mapToDataTag(dataTags);
+      blockPredicate += listToDataTag(dataTags, scope);
     }
     String blockPredicate2 = blockToReplace;
     if (blockStateToReplace != null) {
       blockPredicate2 += mapToBlockState(blockStateToReplace);
     }
     if (dataTagsToReplace != null) {
-      blockPredicate2 += mapToDataTag(dataTagsToReplace);
+      blockPredicate2 += listToDataTag(dataTagsToReplace, scope);
     }
     return executeCommand(
         self,
@@ -1729,11 +1722,11 @@ public class WorldType extends TypeBase<ServerWorld> {
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "Returns the number of affected players or #null if the action failed."),
       doc = "Gives items to the selected players.")
-  public Long giveItems(final Scope scope, ServerWorld self, final String targetSelector, final String item, final MCMap dataTags) {
+  public Long giveItems(final Scope scope, ServerWorld self, final String targetSelector, final String item, final MCList dataTags) {
     return executeCommand(
         self,
         "give",
-        targetSelector, item + (dataTags != null ? mapToDataTag(dataTags) : "")
+        targetSelector, item + (dataTags != null ? listToDataTag(dataTags, scope) : "")
     ).orElse(null);
   }
 
@@ -1845,7 +1838,7 @@ public class WorldType extends TypeBase<ServerWorld> {
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Replaces an item in a block’s inventory.")
   public Boolean replaceItemForBlock(final Scope scope, ServerWorld self, final Position position,
-                                     final String slotID, final String item, final MCMap dataTags, final Long count) {
+                                     final String slotID, final String item, final MCList dataTags, final Long count) {
     BlockPos p = position.toBlockPos();
     return executeCommand(
         self,
@@ -1854,7 +1847,7 @@ public class WorldType extends TypeBase<ServerWorld> {
         "" + p.getX(), "" + p.getY(), "" + p.getZ(),
         slotID,
         "with",
-        item + (dataTags != null ? mapToDataTag(dataTags) : ""), count.toString()
+        item + (dataTags != null ? listToDataTag(dataTags, scope) : ""), count.toString()
     ).orElse(-1L) > 0;
   }
 
@@ -1871,14 +1864,14 @@ public class WorldType extends TypeBase<ServerWorld> {
           doc = "The number of affected entities, #null if an error occured."),
       doc = "Replaces an item in inventories of selected entities.")
   public Long replaceItemForEntities(final Scope scope, ServerWorld self, final String targetSelector,
-                                     final String slotID, final String item, final MCMap dataTags, final Long count) {
+                                     final String slotID, final String item, final MCList dataTags, final Long count) {
     return executeCommand(
         self,
         "item",
         "replace", "entity",
         targetSelector, slotID,
         "with",
-        item + (dataTags != null ? mapToDataTag(dataTags) : ""), count.toString()
+        item + (dataTags != null ? listToDataTag(dataTags, scope) : ""), count.toString()
     ).orElse(null);
   }
 
@@ -2231,7 +2224,7 @@ public class WorldType extends TypeBase<ServerWorld> {
       parametersMetadata = {
           @ParameterMeta(name = "sound_id", doc = "ID of the sound to play."),
           @ParameterMeta(name = "category", doc = "The channel in which the sound should play. " +
-              "One of \"master\", \"music\", \"record\", \"weather\", \"block\", \"hostile\", \"neutral\", \"player\", \"ambient\", or \"voice\""),
+              "One of “master”, “music”, “record”, “weather”, “block”, “hostile”, “neutral”, “player”, “ambient”, or “voice”"),
           @ParameterMeta(name = "targets", doc = "An entity selector that targets the players that should hear the sound."),
           @ParameterMeta(name = "pos", doc = "The position at which to play the sound.")
       },
@@ -2255,7 +2248,7 @@ public class WorldType extends TypeBase<ServerWorld> {
       parametersMetadata = {
           @ParameterMeta(name = "sound_id", doc = "ID of the sound to play."),
           @ParameterMeta(name = "category", doc = "The channel in which the sound should play. " +
-              "One of \"master\", \"music\", \"record\", \"weather\", \"block\", \"hostile\", \"neutral\", \"player\", \"ambient\", or \"voice\""),
+              "One of “master”, “music”, “record”, “weather”, “block”, “hostile”, “neutral”, “player”, “ambient”, or “voice”"),
           @ParameterMeta(name = "targets", doc = "An entity selector that targets the players that should hear the sound."),
           @ParameterMeta(name = "pos", doc = "The position at which to play the sound."),
           @ParameterMeta(name = "volume", doc = "Sound’s volume."),
@@ -2371,7 +2364,7 @@ public class WorldType extends TypeBase<ServerWorld> {
       parametersMetadata = {
           @ParameterMeta(name = "function_id", doc = "ID or tag of the function to reschedule."),
           @ParameterMeta(name = "time", doc = "The in-game time delay before the function is executed."),
-          @ParameterMeta(name = "time_unit", doc = "The time unit. One of \"d\" for days, \"s\" for seconds or \"t\" for ticks.")
+          @ParameterMeta(name = "time_unit", doc = "The time unit. One of “d” for days, “s” for seconds or “t” for ticks.")
       },
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The game tick the function is to execute at modulo 2,147,483,647 or #null if an error occured."),
@@ -2389,7 +2382,7 @@ public class WorldType extends TypeBase<ServerWorld> {
       parametersMetadata = {
           @ParameterMeta(name = "function_id", doc = "ID or tag of the function to schedule."),
           @ParameterMeta(name = "time", doc = "The in-game time delay before the function is executed."),
-          @ParameterMeta(name = "time_unit", doc = "The time unit. One of \"d\" for days, \"s\" for seconds or \"t\" for ticks.")
+          @ParameterMeta(name = "time_unit", doc = "The time unit. One of “d” for days, “s” for seconds or “t” for ticks.")
       },
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The game tick the function is to execute at modulo 2,147,483,647 or #null if an error occured."),
@@ -2524,7 +2517,7 @@ public class WorldType extends TypeBase<ServerWorld> {
   @Method(name = "sb_set_objective_render_type",
       parametersMetadata = {
           @ParameterMeta(name = "objective", doc = "Name of the objective."),
-          @ParameterMeta(name = "render_type", doc = "Either \"hearts\" or \"integer\".")
+          @ParameterMeta(name = "render_type", doc = "Either “hearts” or “integer”.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the render type of the score of a scoreboard objective.")
@@ -2565,7 +2558,7 @@ public class WorldType extends TypeBase<ServerWorld> {
 
   @Method(name = "sb_set_players_score",
       parametersMetadata = {
-          @ParameterMeta(name = "targets", doc = "An entity selector that targets players, or \"*\" for all players tracked by the scoreboard."),
+          @ParameterMeta(name = "targets", doc = "An entity selector that targets players, or “*” for all players tracked by the scoreboard."),
           @ParameterMeta(name = "objective", doc = "Name of the objective to update."),
           @ParameterMeta(name = "score", doc = "The new score value.")
       },
@@ -2706,19 +2699,19 @@ public class WorldType extends TypeBase<ServerWorld> {
           @ParameterMeta(name = "block", doc = "ID of the block to place."),
           @ParameterMeta(name = "block_state", mayBeNull = true, doc = "Optional block state."),
           @ParameterMeta(name = "data_tags", mayBeNull = true, doc = "Optional data tags."),
-          @ParameterMeta(name = "mode", doc = "Placing mode. One of \"destroy\", \"keep\" or \"replace\".")
+          @ParameterMeta(name = "mode", doc = "Placing mode. One of “destroy”, “keep” or “replace”.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the block was placed, #false otherwise."),
       doc = "Sets the block at the given position. ")
   public Boolean setBlock(final Scope scope, ServerWorld self, final Position position,
-                          final String block, final MCMap blockState, final MCMap dataTags, final String mode) {
+                          final String block, final MCMap blockState, final MCList dataTags, final String mode) {
     BlockPos p = position.toBlockPos();
     String blockPredicate = block;
     if (blockState != null) {
       blockPredicate += mapToBlockState(blockState);
     }
     if (dataTags != null) {
-      blockPredicate += mapToDataTag(dataTags);
+      blockPredicate += listToDataTag(dataTags, scope);
     }
     return executeCommand(
         self,
@@ -2812,8 +2805,8 @@ public class WorldType extends TypeBase<ServerWorld> {
       parametersMetadata = {
           @ParameterMeta(name = "targets", doc = "An entity selector that targets players."),
           @ParameterMeta(name = "category", mayBeNull = true, doc = "The sound category to stop the sound in. " +
-              "One of \"master\", \"music\", \"record\", \"weather\", \"block\", \"hostile\", \"neutral\", \"player\", " +
-              "\"ambient\", \"voice\" or \"*\". If #null, the next argument is ignored."),
+              "One of “master”, “music”, “record”, “weather”, “block”, “hostile”, “neutral”, “player”, " +
+              "“ambient”, “voice” or “*”. If #null, the next argument is ignored."),
           @ParameterMeta(name = "sound_id", mayBeNull = true, doc = "The sound to stop. May be #null.")
       },
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
@@ -3039,7 +3032,7 @@ public class WorldType extends TypeBase<ServerWorld> {
   @Method(name = "sb_set_team_color",
       parametersMetadata = {
           @ParameterMeta(name = "team", doc = "Name of the team."),
-          @ParameterMeta(name = "color", doc = "The team’s color. One of the 16 chat colors or \"reset\" to reset to the default color.")
+          @ParameterMeta(name = "color", doc = "The team’s color. One of the 16 chat colors or “reset” to reset to the default color.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the color of a team.")
@@ -3084,7 +3077,7 @@ public class WorldType extends TypeBase<ServerWorld> {
   @Method(name = "sb_set_team_name_tag_visibility",
       parametersMetadata = {
           @ParameterMeta(name = "team", doc = "Name of the team."),
-          @ParameterMeta(name = "visibility", doc = "Either \"never\", \"hideForOtherTeams\", \"hideForOwnTeam\" or \"always\".")
+          @ParameterMeta(name = "visibility", doc = "Either “never”, “hideForOtherTeams”, “hideForOwnTeam” or “always”.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the visibility of the name tags of players from the specified team.")
@@ -3099,7 +3092,7 @@ public class WorldType extends TypeBase<ServerWorld> {
   @Method(name = "sb_set_team_death_message_visibility",
       parametersMetadata = {
           @ParameterMeta(name = "team", doc = "Name of the team."),
-          @ParameterMeta(name = "visibility", doc = "Either \"never\", \"hideForOtherTeams\", \"hideForOwnTeam\" or \"always\".")
+          @ParameterMeta(name = "visibility", doc = "Either “never”, “hideForOtherTeams”, “hideForOwnTeam” or “always”.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the visibility of the death messages of players from the specified team.")
@@ -3114,7 +3107,7 @@ public class WorldType extends TypeBase<ServerWorld> {
   @Method(name = "sb_set_team_collision_rule",
       parametersMetadata = {
           @ParameterMeta(name = "team", doc = "Name of the team."),
-          @ParameterMeta(name = "rule", doc = "Either \"never\", \"pushOtherTeams\", \"pushOwnTeam\" or \"always\".")
+          @ParameterMeta(name = "rule", doc = "Either “never”, “pushOtherTeams”, “pushOwnTeam” or “always”.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the action succeeded, #false otherwise."),
       doc = "Sets the collision rule of players from the specified team.")
@@ -3252,8 +3245,8 @@ public class WorldType extends TypeBase<ServerWorld> {
 
   @Method(name = "set_time",
       parametersMetadata = {
-          @ParameterMeta(name = "time", doc = "The new time. May be either a positive integer or one of \"day\", \"night\", \"noon\" or \"midnight\"."),
-          @ParameterMeta(name = "time_unit", doc = "The time unit. One of \"d\" for days, \"s\" for seconds or \"t\" for ticks. " +
+          @ParameterMeta(name = "time", doc = "The new time. May be either a positive integer or one of “day”, “night”, “noon” or “midnight”."),
+          @ParameterMeta(name = "time_unit", doc = "The time unit. One of “d” for days, “s” for seconds or “t” for ticks. " +
               "Ignored if the time is not an integer.")
       },
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
@@ -3270,7 +3263,7 @@ public class WorldType extends TypeBase<ServerWorld> {
   @Method(name = "add_time",
       parametersMetadata = {
           @ParameterMeta(name = "time", doc = "The time to add. Must be positive."),
-          @ParameterMeta(name = "time_unit", doc = "The time unit. One of \"d\" for days, \"s\" for seconds or \"t\" for ticks.")
+          @ParameterMeta(name = "time_unit", doc = "The time unit. One of “d” for days, “s” for seconds or “t” for ticks.")
       },
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The new time of day in ticks or #null if an error occured."),
@@ -3393,7 +3386,7 @@ public class WorldType extends TypeBase<ServerWorld> {
 
   @Method(name = "set_weather",
       parametersMetadata = {
-          @ParameterMeta(name = "weather", doc = "The weather to set. One of \"clear\", \"rain\" or \"thunder\"."),
+          @ParameterMeta(name = "weather", doc = "The weather to set. One of “clear”, “rain” or “thunder”."),
           @ParameterMeta(name = "duration", doc = "The duration in seconds the new weather should last.")
       },
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
@@ -3609,7 +3602,10 @@ public class WorldType extends TypeBase<ServerWorld> {
 
   private static Optional<Long> executeCommand(ServerWorld self, final String commandName, final String... args) {
     MinecraftServer server = self.getServer();
-    String command = commandName + " " + String.join(" ", args);
+    String command = commandName;
+    if (args.length != 0) {
+      command += " " + String.join(" ", args);
+    }
     CommandSourceStackWrapper commandSourceStack = new CommandSourceStackWrapper(server, self);
     long result = server.getCommandManager().execute(commandSourceStack, command);
     if (result == 0 && commandSourceStack.anyFailures) {
@@ -3666,27 +3662,27 @@ public class WorldType extends TypeBase<ServerWorld> {
   }
 
   /**
-   * Convert a map to a compount NBT tag string.
+   * Convert a list to a data tag string.
+   *
+   * @param list  The list. May be null.
+   * @param scope The current scope.
+   * @throws CastException If the list contains a non-string value.
    */
-  private static String mapToNBTString(final MCMap map) {
-    return mapToDataTag(map);
-  }
-
-  /**
-   * Convert a map to a data tag string.
-   */
-  private static String mapToDataTag(final MCMap map) {
-    if (map == null) {
-      return "{}";
+  private static String listToDataTag(final MCList list, Scope scope) {
+    if (list == null || list.isEmpty()) {
+      return "";
     }
     StringBuilder sb = new StringBuilder();
     sb.append("{");
     int i = 0;
-    for (Map.Entry<String, ?> e : map.entrySet()) {
+    for (Object o : list) {
       if (i > 0) {
         sb.append(',');
       }
-      sb.append(e.getKey()).append(':').append(serializedDataTagValue(e.getValue()));
+      if (!(o instanceof String)) {
+        throw new CastException(scope, ProgramManager.getTypeInstance(StringType.class), ProgramManager.getTypeForValue(o));
+      }
+      sb.append(o);
       i++;
     }
     sb.append("}");
@@ -3694,36 +3690,10 @@ public class WorldType extends TypeBase<ServerWorld> {
   }
 
   /**
-   * Returns the data tag string representation of an object.
-   */
-  private static String serializedDataTagValue(final Object value) {
-    StringBuilder sb = new StringBuilder();
-
-    if (value == null) {
-      sb.append("null");
-    } else if (value instanceof Map<?, ?> m) {
-      //noinspection unchecked
-      sb.append(mapToDataTag(new MCMap((Map<? extends String, ?>) m)));
-    } else if (value instanceof List<?> l) {
-      sb.append('[');
-      for (int i = 0; i < l.size(); i++) {
-        if (i > 0) {
-          sb.append(',');
-        }
-        Object o = l.get(i);
-        sb.append(serializedDataTagValue(o));
-      }
-      sb.append(']');
-    }
-
-    return sb.toString();
-  }
-
-  /**
    * Return the JSON representation of a map.
    */
   private static String mapToJSON(final MCMap map) {
-    if (map == null) {
+    if (map == null || map.isEmpty()) {
       return "{}";
     }
     StringBuilder sb = new StringBuilder();
