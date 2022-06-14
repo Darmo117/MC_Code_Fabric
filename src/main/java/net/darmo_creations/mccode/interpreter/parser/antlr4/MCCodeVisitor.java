@@ -194,6 +194,13 @@ public interface MCCodeVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFloatLiteral(MCCodeParser.FloatLiteralContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code RangeLiteral}
+	 * labeled alternative in {@link MCCodeParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRangeLiteral(MCCodeParser.RangeLiteralContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code MethodCall}
 	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree

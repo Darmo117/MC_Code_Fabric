@@ -98,6 +98,6 @@ public class Range implements Iterable<Long>, Cloneable {
 
   @Override
   public String toString() {
-    return String.format("Range{start=%d, end=%d, step=%d}", this.start, this.end, this.step);
+    return "%d:%d:%d".formatted(this.start, this.end, this.step);
   }
 }

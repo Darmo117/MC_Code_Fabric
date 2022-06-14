@@ -22,6 +22,7 @@ public final class NodeTagHelper {
     NODE_PROVIDERS.put(ListLiteralNode.ID, ListLiteralNode::new);
     NODE_PROVIDERS.put(MapLiteralNode.ID, MapLiteralNode::new);
     NODE_PROVIDERS.put(SetLiteralNode.ID, SetLiteralNode::new);
+    NODE_PROVIDERS.put(RangeLiteralNode.ID, RangeLiteralNode::new);
 
     NODE_PROVIDERS.put(VariableNode.ID, VariableNode::new);
     NODE_PROVIDERS.put(PropertyCallNode.ID, PropertyCallNode::new);

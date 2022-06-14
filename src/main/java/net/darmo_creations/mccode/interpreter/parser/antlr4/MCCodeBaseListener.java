@@ -340,6 +340,18 @@ public class MCCodeBaseListener implements MCCodeListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterRangeLiteral(MCCodeParser.RangeLiteralContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRangeLiteral(MCCodeParser.RangeLiteralContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterMethodCall(MCCodeParser.MethodCallContext ctx) { }
 	/**
 	 * {@inheritDoc}

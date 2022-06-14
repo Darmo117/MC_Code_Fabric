@@ -76,6 +76,17 @@ public class NodeVisitor extends MCCodeBaseVisitor<Node> {
   }
 
   @Override
+  public Node visitRangeLiteral(MCCodeParser.RangeLiteralContext ctx) {
+    Node start = this.visit(ctx.start_);
+    Node end = this.visit(ctx.end_);
+    if (ctx.step != null) {
+      return new RangeLiteralNode(start, end, this.visit(ctx.step),
+          ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);
+    }
+    return new RangeLiteralNode(start, end, ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);
+  }
+
+  @Override
   public Node visitVariable(MCCodeParser.VariableContext ctx) {
     if (ctx.IDENT() != null) {
       return new VariableNode(ctx.IDENT().getText(), ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);

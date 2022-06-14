@@ -127,9 +127,11 @@ expr:
   | INT    # IntLiteral // ID: 2
   | FLOAT  # FloatLiteral // ID: 3
   | STRING # StringLiteral // ID: 4
-  | LBRACK (expr (COMMA expr)* COMMA?)? RBRACK                       # ListLiteral // ID: 5
+  | LBRACK (expr (COMMA expr)* COMMA?)? RBRACK                         # ListLiteral // ID: 5
   | LCURL (STRING COLON expr (COMMA STRING COLON expr)* COMMA?)? RCURL # MapLiteral // ID: 6
-  | LCURL expr (COMMA expr)* COMMA? RCURL                            # SetLiteral // ID: 7
+  | LCURL expr (COMMA expr)* COMMA? RCURL                              # SetLiteral // ID: 7
+  | start_=expr COLON end_=expr COLON step=expr # RangeLiteral // ID: 8
+  | start_=expr COLON end_=expr                 # RangeLiteral // ID: 8
   | object=expr DOT property=IDENT LPAREN (expr (COMMA expr)* COMMA?)? RPAREN # MethodCall // ID: 102
   | object=expr DOT property=IDENT                  # GetProperty // ID: 101
   | expr LPAREN (expr (COMMA expr)* COMMA?)? RPAREN # FunctionCall // ID: 103

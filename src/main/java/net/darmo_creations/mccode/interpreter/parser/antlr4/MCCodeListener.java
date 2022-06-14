@@ -320,6 +320,18 @@ public interface MCCodeListener extends ParseTreeListener {
 	 */
 	void exitFloatLiteral(MCCodeParser.FloatLiteralContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code RangeLiteral}
+	 * labeled alternative in {@link MCCodeParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterRangeLiteral(MCCodeParser.RangeLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code RangeLiteral}
+	 * labeled alternative in {@link MCCodeParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitRangeLiteral(MCCodeParser.RangeLiteralContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code MethodCall}
 	 * labeled alternative in {@link MCCodeParser#expr}.
 	 * @param ctx the parse tree
