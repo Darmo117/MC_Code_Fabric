@@ -236,7 +236,7 @@ public class Position implements Comparable<Position> {
    * @param z Z component to add.
    * @return A new position.
    */
-  public Position add(final int x, final int y, final int z) {
+  public Position add(final long x, final long y, final long z) {
     return this.add((double) x, y, z);
   }
 
@@ -292,7 +292,7 @@ public class Position implements Comparable<Position> {
    * @return A new position.
    */
   @SuppressWarnings("unused")
-  public Position subtract(final int x, final int y, final int z) {
+  public Position subtract(final long x, final long y, final long z) {
     return this.add((double) -x, -y, -z);
   }
 
@@ -357,7 +357,7 @@ public class Position implements Comparable<Position> {
    * @return A new position.
    */
   public Position intDivide(final double n) {
-    return new Position((int) (this.x / n), (int) (this.y / n), (int) (this.z / n),
+    return new Position((long) (this.x / n), (long) (this.y / n), (long) (this.z / n),
         this.xRelativity, this.yRelativity, this.zRelativity);
   }
 
@@ -389,7 +389,7 @@ public class Position implements Comparable<Position> {
    * @param n The offset.
    * @return A new position.
    */
-  public Position up(final int n) {
+  public Position up(final long n) {
     return this.offset(Direction.UP, n);
   }
 
@@ -399,7 +399,7 @@ public class Position implements Comparable<Position> {
    * @param n The offset.
    * @return A new position.
    */
-  public Position down(final int n) {
+  public Position down(final long n) {
     return this.offset(Direction.DOWN, n);
   }
 
@@ -409,7 +409,7 @@ public class Position implements Comparable<Position> {
    * @param n The offset.
    * @return A new position.
    */
-  public Position north(final int n) {
+  public Position north(final long n) {
     return this.offset(Direction.NORTH, n);
   }
 
@@ -419,7 +419,7 @@ public class Position implements Comparable<Position> {
    * @param n The offset.
    * @return A new position.
    */
-  public Position south(final int n) {
+  public Position south(final long n) {
     return this.offset(Direction.SOUTH, n);
   }
 
@@ -429,7 +429,7 @@ public class Position implements Comparable<Position> {
    * @param n The offset.
    * @return A new position.
    */
-  public Position west(final int n) {
+  public Position west(final long n) {
     return this.offset(Direction.WEST, n);
   }
 
@@ -439,7 +439,7 @@ public class Position implements Comparable<Position> {
    * @param n The offset.
    * @return A new position.
    */
-  public Position east(final int n) {
+  public Position east(final long n) {
     return this.offset(Direction.EAST, n);
   }
 
@@ -449,7 +449,7 @@ public class Position implements Comparable<Position> {
    * @param n The offset.
    * @return A new position.
    */
-  public Position offset(final Direction facing, final int n) {
+  public Position offset(final Direction facing, final long n) {
     return new Position(
         this.x + facing.getOffsetX() * n,
         this.y + facing.getOffsetY() * n,
