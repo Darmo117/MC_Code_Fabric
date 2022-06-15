@@ -2036,14 +2036,14 @@ public class WorldType extends TypeBase<ServerWorld> {
    * /kill command
    */
 
-  @Method(name = "kill_entities",
+  @Method(name = "kill",
       parametersMetadata = {
           @ParameterMeta(name = "targets", doc = "An entity selector that targets entities to kill.")
       },
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The number of affected entities or #null if an error occured."),
       doc = "Kills all selected entities.")
-  public Long killEntities(final Scope scope, final ServerWorld self, final String targetSelector) {
+  public Long kill(final Scope scope, final ServerWorld self, final String targetSelector) {
     return executeCommand(
         self,
         "kill",
@@ -2055,10 +2055,10 @@ public class WorldType extends TypeBase<ServerWorld> {
    * /list command
    */
 
-  @Method(name = "list_players",
+  @Method(name = "get_player_list",
       returnTypeMetadata = @ReturnMeta(doc = "A `list containing data for all connected players."),
       doc = "Fetches profile data for all connected players.")
-  public MCMap listPlayers(final Scope scope, final ServerWorld self) {
+  public MCMap getPlayerList(final Scope scope, final ServerWorld self) {
     return new MCMap(self.getServer().getPlayerManager().getPlayerList()
         .stream()
         .collect(Collectors.toMap(
@@ -2157,7 +2157,7 @@ public class WorldType extends TypeBase<ServerWorld> {
    * /msg /tell /w /tellraw commands
    */
 
-  @Method(name = "send_message",
+  @Method(name = "send_message_to_players",
       parametersMetadata = {
           @ParameterMeta(name = "targets", doc = "An entity selector that targets entities to send the message to."),
           @ParameterMeta(name = "message", doc = "The message. May be either a `string or a `map representing a valid JSON object.")
