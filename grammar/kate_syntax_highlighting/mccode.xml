@@ -55,21 +55,12 @@
       <item>DIFF_NORMAL</item>
       <item>DIFF_HARD</item>
 
-      <item>GM_SURVIVAL</item>
-      <item>GM_SPECTATOR</item>
-      <item>GM_CREATIVE</item>
-      <item>GM_ADVENTURE</item>
-
       <item>TIME_DAY</item>
       <item>TIME_NIGHT</item>
       <item>TIME_NOON</item>
       <item>TIME_MIDNIGHT</item>
       <item>TIME_SUNRISE</item>
       <item>TIME_SUNSET</item>
-
-      <item>WEATHER_CLEAR</item>
-      <item>WEATHER_RAIN</item>
-      <item>WEATHER_THUNDER</item>
     </list>
     <list name="builtin_functions">
       <item>__name__</item>

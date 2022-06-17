@@ -214,15 +214,10 @@ public class Scope implements TagDeserializable {
       this.declareVariable(new Variable(channel.name(), true, false, true, false, channel.name()));
     }
 
-    this.declareVariable(new Variable("DIFF_PEACEFUL", true, false, true, false, "peaceful"));
-    this.declareVariable(new Variable("DIFF_EASY", true, false, true, false, "easy"));
-    this.declareVariable(new Variable("DIFF_NORMAL", true, false, true, false, "normal"));
-    this.declareVariable(new Variable("DIFF_HARD", true, false, true, false, "hard"));
-
-    this.declareVariable(new Variable("GM_SURVIVAL", true, false, true, false, "survival"));
-    this.declareVariable(new Variable("GM_SPECTATOR", true, false, true, false, "spectator"));
-    this.declareVariable(new Variable("GM_CREATIVE", true, false, true, false, "creative"));
-    this.declareVariable(new Variable("GM_ADVENTURE", true, false, true, false, "adventure"));
+    this.declareVariable(new Variable("DIFF_PEACEFUL", true, false, true, false, 0));
+    this.declareVariable(new Variable("DIFF_EASY", true, false, true, false, 1));
+    this.declareVariable(new Variable("DIFF_NORMAL", true, false, true, false, 2));
+    this.declareVariable(new Variable("DIFF_HARD", true, false, true, false, 3));
 
     this.declareVariable(new Variable("TIME_DAY", true, false, true, false, 1000L));
     this.declareVariable(new Variable("TIME_NIGHT", true, false, true, false, 13000L));
@@ -230,10 +225,6 @@ public class Scope implements TagDeserializable {
     this.declareVariable(new Variable("TIME_MIDNIGHT", true, false, true, false, 18000L));
     this.declareVariable(new Variable("TIME_SUNRISE", true, false, true, false, 23000L));
     this.declareVariable(new Variable("TIME_SUNSET", true, false, true, false, 12000L));
-
-    this.declareVariable(new Variable("WEATHER_CLEAR", true, false, true, false, "clear"));
-    this.declareVariable(new Variable("WEATHER_RAIN", true, false, true, false, "rain"));
-    this.declareVariable(new Variable("WEATHER_THUNDER", true, false, true, false, "thunder"));
   }
 
   /**
