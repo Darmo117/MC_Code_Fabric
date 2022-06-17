@@ -11,6 +11,7 @@ import net.darmo_creations.mccode.interpreter.Program;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.annotations.*;
+import net.darmo_creations.mccode.interpreter.exceptions.MCCodeRuntimeException;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.types.MCList;
 import net.darmo_creations.mccode.interpreter.types.MCMap;
@@ -617,7 +618,7 @@ public class WorldType extends TypeBase<ServerWorld> {
 
   @Method(name = "execute_command",
       parametersMetadata = {
-          @ParameterMeta(name = "name", doc = "Name of the command to execute. The “/” character is not required."),
+          @ParameterMeta(name = "name", doc = "Name of the command to execute. Must not include the / character."),
           @ParameterMeta(name = "args", doc = "A `list that contains the arguments of the command. All elements will be converted to a `string.")
       },
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
@@ -625,12 +626,11 @@ public class WorldType extends TypeBase<ServerWorld> {
       doc = "Executes an arbitrary command. See the Minecraft wiki for more information.")
   public Long executeCommand(final Scope scope, ServerWorld self, final String name, final MCList args) {
     if ("trigger".equals(name)) {
-      // TODO translate
-      throw new IllegalArgumentException("/trigger command cannot be executed from scripts!");
+      throw new MCCodeRuntimeException(scope, name, "mccode.interpreter.error.illegal_command", name);
     }
     return executeCommand(
         self,
-        name.charAt(0) == '/' ? name.substring(1) : name,
+        name,
         args.stream().map(o -> ProgramManager.getTypeForValue(o).toString(o)).toArray(String[]::new)
     ).orElse(null);
   }
