@@ -165,7 +165,7 @@ public class WorldType extends TypeBase<ServerWorld> {
    * Advancement-related
    */
 
-  @Method(name = "has_advancement",
+  @Method(name = "players_have_advancement",
       parametersMetadata = {
           @ParameterMeta(name = "targets", doc = "An entity selector that targets players."),
           @ParameterMeta(name = "advancement", doc = "The advancement to check."),
