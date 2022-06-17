@@ -1,8 +1,12 @@
 package net.darmo_creations.mccode.interpreter;
 
+import com.mojang.brigadier.ParseResults;
+import com.mojang.brigadier.context.CommandContext;
 import net.darmo_creations.mccode.interpreter.statements.Statement;
 import net.darmo_creations.mccode.interpreter.types.MCList;
 import net.darmo_creations.mccode.interpreter.types.MCMap;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.List;
 import java.util.Map;
@@ -192,6 +196,12 @@ public final class Utils {
     }
     sb.append("}");
     return sb.toString();
+  }
+
+  public static <T> T getParsedCommandArgument(final MinecraftServer server, final String command, final Function<CommandContext<ServerCommandSource>, T> f) {
+    ParseResults<ServerCommandSource> parseResults = server.getCommandManager().getDispatcher()
+        .parse(command, server.getCommandSource());
+    return f.apply(parseResults.getContext().build(command));
   }
 
   private Utils() {

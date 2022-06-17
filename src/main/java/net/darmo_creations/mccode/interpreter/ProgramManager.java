@@ -787,6 +787,7 @@ public class ProgramManager extends PersistentState {
     declareBuiltinFunction(Atan2Function.class);
     declareBuiltinFunction(CbrtFunction.class);
     declareBuiltinFunction(CeilFunction.class);
+    declareBuiltinFunction(ConsoleLogFunction.class);
     declareBuiltinFunction(CosFunction.class);
     declareBuiltinFunction(ErrorFunction.class);
     declareBuiltinFunction(EscapeFunction.class);
@@ -807,11 +808,13 @@ public class ProgramManager extends PersistentState {
     declareBuiltinFunction(RangeFunction.class);
     declareBuiltinFunction(ReversedFunction.class);
     declareBuiltinFunction(RoundFunction.class);
+    declareBuiltinFunction(SayFunction.class);
     declareBuiltinFunction(SetRandomSeedFunction.class);
     declareBuiltinFunction(SinFunction.class);
     declareBuiltinFunction(SortedFunction.class);
     declareBuiltinFunction(SqrtFunction.class);
     declareBuiltinFunction(TanFunction.class);
+    declareBuiltinFunction(TellFunction.class);
     declareBuiltinFunction(ToDegreesFunction.class);
     declareBuiltinFunction(ToJSONStringFunction.class);
     declareBuiltinFunction(ToRadiansFunction.class);
