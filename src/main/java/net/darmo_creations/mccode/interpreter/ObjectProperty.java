@@ -80,8 +80,14 @@ public class ObjectProperty {
     }
     try {
       return this.getter.invoke(this.hostType, self);
-    } catch (IllegalAccessException | InvocationTargetException e) {
+    } catch (IllegalAccessException e) {
       throw new MCCodeException(e);
+    } catch (InvocationTargetException e) {
+      Throwable cause = e.getCause();
+      if (cause instanceof RuntimeException ex) {
+        throw ex;
+      }
+      throw new MCCodeException(cause);
     }
   }
 
@@ -101,8 +107,14 @@ public class ObjectProperty {
       }
       try {
         this.setter.invoke(this.hostType, self, this.type.copy(scope, this.type.implicitCast(scope, value)));
-      } catch (IllegalAccessException | InvocationTargetException e) {
+      } catch (IllegalAccessException e) {
         throw new MCCodeException(e);
+      } catch (InvocationTargetException e) {
+        Throwable cause = e.getCause();
+        if (cause instanceof RuntimeException ex) {
+          throw ex;
+        }
+        throw new MCCodeException(cause);
       }
     } else {
       throw new EvaluationException(scope, "mccode.interpreter.error.set_property",

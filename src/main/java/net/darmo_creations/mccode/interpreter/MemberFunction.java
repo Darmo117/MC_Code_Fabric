@@ -82,8 +82,14 @@ public class MemberFunction extends Function {
       }
 
       return this.method.invoke(this.hostType, args);
-    } catch (IllegalAccessException | InvocationTargetException e) {
+    } catch (IllegalAccessException e) {
       throw new MCCodeException(e);
+    } catch (InvocationTargetException e) {
+      Throwable cause = e.getCause();
+      if (cause instanceof RuntimeException ex) {
+        throw ex;
+      }
+      throw new MCCodeException(cause);
     }
   }
 
