@@ -789,8 +789,11 @@ public class ProgramManager extends PersistentState {
     declareBuiltinFunction(CeilFunction.class);
     declareBuiltinFunction(CosFunction.class);
     declareBuiltinFunction(ErrorFunction.class);
+    declareBuiltinFunction(EscapeFunction.class);
     declareBuiltinFunction(ExpFunction.class);
     declareBuiltinFunction(FloorFunction.class);
+    declareBuiltinFunction(FormatBlockFunction.class);
+    declareBuiltinFunction(FormatItemFunction.class);
     declareBuiltinFunction(HypotFunction.class);
     declareBuiltinFunction(IsInstanceFunction.class);
     declareBuiltinFunction(LenFunction.class);
@@ -810,8 +813,10 @@ public class ProgramManager extends PersistentState {
     declareBuiltinFunction(SqrtFunction.class);
     declareBuiltinFunction(TanFunction.class);
     declareBuiltinFunction(ToDegreesFunction.class);
+    declareBuiltinFunction(ToJSONStringFunction.class);
     declareBuiltinFunction(ToRadiansFunction.class);
     declareBuiltinFunction(ToRelativePosFunction.class);
+    declareBuiltinFunction(UnescapeFunction.class);
 
     // Generate cast operators for relevant types
     for (TypeBase<?> type : TYPES.values()) {
