@@ -31,6 +31,3 @@ bin/
 # fabric
 
 run/
-
-# Project exclude paths
-/grammar/kate_syntax_highlighting/
