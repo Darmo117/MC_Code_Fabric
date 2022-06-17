@@ -64,7 +64,7 @@ import java.util.stream.Collectors;
  */
 @Type(name = WorldType.NAME,
     generateCastOperator = false,
-    doc = "This type represents the dimension/world (overworld, nether, end, etc.) the program is runs in.")
+    doc = "This type represents the dimension/world (overworld, nether, end, etc.) the program is currently running in.")
 public class WorldType extends TypeBase<ServerWorld> {
   public static final String NAME = "world";
 
