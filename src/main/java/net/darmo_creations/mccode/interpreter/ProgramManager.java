@@ -802,6 +802,7 @@ public class ProgramManager extends PersistentState {
     declareBuiltinFunction(LogFunction.class);
     declareBuiltinFunction(MaxFunction.class);
     declareBuiltinFunction(MinFunction.class);
+    declareBuiltinFunction(PosFunction.class);
     declareBuiltinFunction(PrintFunction.class);
     declareBuiltinFunction(RandomFloatFunction.class);
     declareBuiltinFunction(RandomIntFunction.class);

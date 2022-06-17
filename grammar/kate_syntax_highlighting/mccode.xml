@@ -112,6 +112,7 @@
       <item>say</item>
       <item>tell</item>
       <item>console_log</item>
+      <item>pos</item>
     </list>
     <list name="comment_tasks">
       <item>TODO</item>
@@ -133,7 +134,8 @@
         <keyword attribute="Literal" context="#stay" String="literals"/>
         <DetectIdentifier attribute="Identifier"/>
         <DetectChar attribute="Comment" context="comment" char="#"/>
-        <RegExpr attribute="Operator" context="#stay" String="(?:[:&lt;&gt;!=+*/%^-]=|//=|[-+*/%^:;,()[\]{}.&lt;&gt;])"/>
+        <RegExpr attribute="Operator" context="#stay"
+                 String="(?:[:&lt;&gt;!=+*/%^-]=|//=|[-+*/%^:;,()[\]{}.&lt;&gt;])"/>
         <RegExpr attribute="Error" context="#stay" String="[^ \n\r\t]"/>
       </context>
       <context attribute="String" lineEndContext="#pop" name="string">
