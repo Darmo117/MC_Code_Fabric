@@ -623,7 +623,7 @@ public class WorldType extends TypeBase<ServerWorld> {
    * Generic methods
    */
 
-  @Method(name = "execute_command",
+  @Method(name = "execute",
       parametersMetadata = {
           @ParameterMeta(name = "name", doc = "Name of the command to execute. Must not include the / character."),
           @ParameterMeta(name = "args", doc = "A `list that contains the arguments of the command. All elements will be converted to a `string.")
