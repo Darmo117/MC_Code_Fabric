@@ -2151,7 +2151,307 @@ public class WorldType extends TypeBase<ServerWorld> {
    * /loot command
    */
 
-  // TODO /loot command
+  @Method(name = "give_fishing_loot_to_players",
+      parametersMetadata = {
+          @ParameterMeta(name = "targets", doc = "An entity selector that targets entities to send the message to."),
+          @ParameterMeta(name = "loot_table", doc = "The loot table resource ID."),
+          @ParameterMeta(name = "pos"),
+          @ParameterMeta(name = "tool", doc = "The tool or hand (“mainhand” or “offhand”) to use."),
+          @ParameterMeta(name = "data_tags", doc = "Data tags for the tool. Ignored if 4th argument is not a tool."),
+      },
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The total number of item stacks successfully allocated to each player."),
+      doc = "Gives items from a fishing loot table to the selected players.")
+  public Long giveFishingLootToPlayers(final Scope scope, ServerWorld self, final String targetSelector, final String lootTable,
+                                       final Position pos, final String tool, final MCMap dataTags) {
+    return executeCommand(
+        self,
+        "loot",
+        "give", targetSelector, "fish", lootTable, pos.toString(),
+        tool + mapToDataTag("mainhand".equals(tool) || "offhand".equals(tool) ? null : dataTags)
+    ).orElse(null);
+  }
+
+  @Method(name = "give_loot_to_players",
+      parametersMetadata = {
+          @ParameterMeta(name = "targets", doc = "An entity selector that targets entities to send the message to."),
+          @ParameterMeta(name = "loot_table", doc = "The loot table resource ID."),
+      },
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The total number of item stacks successfully allocated to each player."),
+      doc = "Gives items from a loot table to the selected players.")
+  public Long giveLootToPlayers(final Scope scope, ServerWorld self, final String targetSelector, final String lootTable) {
+    return executeCommand(
+        self,
+        "loot",
+        "give", targetSelector, "loot", lootTable
+    ).orElse(null);
+  }
+
+  @Method(name = "give_mob_loot_to_players",
+      parametersMetadata = {
+          @ParameterMeta(name = "targets", doc = "An entity selector that targets entities to send the message to."),
+          @ParameterMeta(name = "loot_table", doc = "The loot table resource ID."),
+      },
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The total number of item stacks successfully allocated to each player."),
+      doc = "Gives items an entity would drop if killed to the selected players.")
+  public Long giveMobLootToPlayers(final Scope scope, ServerWorld self, final String targetSelector, final String target) {
+    return executeCommand(
+        self,
+        "loot",
+        "give", targetSelector, "kill", target
+    ).orElse(null);
+  }
+
+  @Method(name = "give_mining_loot_to_players",
+      parametersMetadata = {
+          @ParameterMeta(name = "targets", doc = "An entity selector that targets entities to send the message to."),
+          @ParameterMeta(name = "loot_table", doc = "The loot table resource ID."),
+          @ParameterMeta(name = "pos", doc = "Block’s position."),
+          @ParameterMeta(name = "tool", doc = "The tool or hand (“mainhand” or “offhand”) to use."),
+          @ParameterMeta(name = "data_tags", doc = "Data tags for the tool. Ignored if 4th argument is not a tool."),
+      },
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The total number of item stacks successfully allocated to each player."),
+      doc = "Gives items a block would drop if broken with the given tool to the selected players.")
+  public Long giveMiningLootToPlayers(final Scope scope, ServerWorld self, final String targetSelector,
+                                      final Position pos, final String tool, final MCMap dataTags) {
+    return executeCommand(
+        self,
+        "loot",
+        "give", targetSelector, "mine", pos.toString(),
+        tool + mapToDataTag("mainhand".equals(tool) || "offhand".equals(tool) ? null : dataTags)
+    ).orElse(null);
+  }
+
+  //
+
+  @Method(name = "insert_fishing_loot_into_container",
+      parametersMetadata = {
+          @ParameterMeta(name = "target_pos", doc = "Position of the target container block."),
+          @ParameterMeta(name = "loot_table", doc = "The loot table resource ID."),
+          @ParameterMeta(name = "pos"),
+          @ParameterMeta(name = "tool", doc = "The tool or hand (“mainhand” or “offhand”) to use."),
+          @ParameterMeta(name = "data_tags", doc = "Data tags for the tool. Ignored if 4th argument is not a tool."),
+      },
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The number of item stacks successfully distributed to the container."),
+      doc = "Inserts items from a fishing loot table into the container block at the given position.")
+  public Long insertFishingLootIntoContainer(final Scope scope, ServerWorld self, final Position targetPos, final String lootTable,
+                                             final Position pos, final String tool, final MCMap dataTags) {
+    return executeCommand(
+        self,
+        "loot",
+        "insert", targetPos.toString(), "fish", lootTable, pos.toString(),
+        tool + mapToDataTag("mainhand".equals(tool) || "offhand".equals(tool) ? null : dataTags)
+    ).orElse(null);
+  }
+
+  @Method(name = "insert_loot_into_container",
+      parametersMetadata = {
+          @ParameterMeta(name = "targets", doc = "Position of the target container block."),
+          @ParameterMeta(name = "loot_table", doc = "The loot table resource ID."),
+      },
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The number of item stacks successfully distributed to the container."),
+      doc = "Inserts items from a loot table into the container block at the given position.")
+  public Long insertLootIntoContainer(final Scope scope, ServerWorld self, final Position targetPos, final String lootTable) {
+    return executeCommand(
+        self,
+        "loot",
+        "insert", targetPos.toString(), "loot", lootTable
+    ).orElse(null);
+  }
+
+  @Method(name = "insert_mob_loot_into_container",
+      parametersMetadata = {
+          @ParameterMeta(name = "targets", doc = "Position of the target container block."),
+          @ParameterMeta(name = "loot_table", doc = "The loot table resource ID."),
+      },
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The number of item stacks successfully distributed to the container."),
+      doc = "Inserts items an entity would drop if killed into the container block at the given position.")
+  public Long insertMobLootIntoContainer(final Scope scope, ServerWorld self, final Position targetPos, final String target) {
+    return executeCommand(
+        self,
+        "loot",
+        "insert", targetPos.toString(), "kill", target
+    ).orElse(null);
+  }
+
+  @Method(name = "insert_mining_loot_into_container",
+      parametersMetadata = {
+          @ParameterMeta(name = "targets", doc = "Position of the target container block."),
+          @ParameterMeta(name = "loot_table", doc = "The loot table resource ID."),
+          @ParameterMeta(name = "pos", doc = "Block’s position."),
+          @ParameterMeta(name = "tool", doc = "The tool or hand (“mainhand” or “offhand”) to use."),
+          @ParameterMeta(name = "data_tags", doc = "Data tags for the tool. Ignored if 4th argument is not a tool."),
+      },
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The number of item stacks successfully distributed to the container."),
+      doc = "Inserts items a block would drop if broken with the given tool into the container block at the given position.")
+  public Long insertMiningLootIntoContainer(final Scope scope, ServerWorld self, final Position targetPos,
+                                            final Position pos, final String tool, final MCMap dataTags) {
+    return executeCommand(
+        self,
+        "loot",
+        "insert", targetPos.toString(), "mine", pos.toString(),
+        tool + mapToDataTag("mainhand".equals(tool) || "offhand".equals(tool) ? null : dataTags)
+    ).orElse(null);
+  }
+
+  //
+
+  @Method(name = "replace_container_contents_with_fishing_loot",
+      parametersMetadata = {
+          @ParameterMeta(name = "target_pos", doc = "Position of the target container block."),
+          @ParameterMeta(name = "loot_table", doc = "The loot table resource ID."),
+          @ParameterMeta(name = "pos"),
+          @ParameterMeta(name = "tool", doc = "The tool or hand (“mainhand” or “offhand”) to use."),
+          @ParameterMeta(name = "data_tags", doc = "Data tags for the tool. Ignored if 4th argument is not a tool."),
+      },
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The number of item stacks successfully distributed to the container."),
+      doc = "Replaces the contents of a container block with items from a fishing loot table.")
+  public Long replaceContainerContentsWithFishingLoot(final Scope scope, ServerWorld self, final Position targetPos, final String lootTable,
+                                                      final Position pos, final String tool, final MCMap dataTags) {
+    return executeCommand(
+        self,
+        "loot",
+        "replace block", targetPos.toString(), "fish", lootTable, pos.toString(),
+        tool + mapToDataTag("mainhand".equals(tool) || "offhand".equals(tool) ? null : dataTags)
+    ).orElse(null);
+  }
+
+  @Method(name = "replace_container_contents_with_loot",
+      parametersMetadata = {
+          @ParameterMeta(name = "targets", doc = "Position of the target container block."),
+          @ParameterMeta(name = "loot_table", doc = "The loot table resource ID."),
+      },
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The number of item stacks successfully distributed to the container."),
+      doc = "Replaces the contents of a container block with items from a loot table.")
+  public Long replaceContainerContentsWithLoot(final Scope scope, ServerWorld self, final Position targetPos, final String lootTable) {
+    return executeCommand(
+        self,
+        "loot",
+        "replace block", targetPos.toString(), "loot", lootTable
+    ).orElse(null);
+  }
+
+  @Method(name = "replace_container_contents_with_mob_loot",
+      parametersMetadata = {
+          @ParameterMeta(name = "targets", doc = "Position of the target container block."),
+          @ParameterMeta(name = "loot_table", doc = "The loot table resource ID."),
+      },
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The number of item stacks successfully distributed to the container."),
+      doc = "Replaces the contents of a container block with items an entity would drop if killed.")
+  public Long replaceContainerContentsWithMobLoot(final Scope scope, ServerWorld self, final Position targetPos, final String target) {
+    return executeCommand(
+        self,
+        "loot",
+        "replace block", targetPos.toString(), "kill", target
+    ).orElse(null);
+  }
+
+  @Method(name = "replace_container_contents_with_mining_loot",
+      parametersMetadata = {
+          @ParameterMeta(name = "targets", doc = "Position of the target container block."),
+          @ParameterMeta(name = "loot_table", doc = "The loot table resource ID."),
+          @ParameterMeta(name = "pos", doc = "Block’s position."),
+          @ParameterMeta(name = "tool", doc = "The tool or hand (“mainhand” or “offhand”) to use."),
+          @ParameterMeta(name = "data_tags", doc = "Data tags for the tool. Ignored if 4th argument is not a tool."),
+      },
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The number of item stacks successfully distributed to the container."),
+      doc = "Replaces the contents of a container block with items a block would drop if broken.")
+  public Long replaceContainerContentsWithMiningLoot(final Scope scope, ServerWorld self, final Position targetPos,
+                                                     final Position pos, final String tool, final MCMap dataTags) {
+    return executeCommand(
+        self,
+        "loot",
+        "replace block", targetPos.toString(), "mine", pos.toString(),
+        tool + mapToDataTag("mainhand".equals(tool) || "offhand".equals(tool) ? null : dataTags)
+    ).orElse(null);
+  }
+
+  //
+
+  @Method(name = "replace_entity_contents_with_fishing_loot",
+      parametersMetadata = {
+          @ParameterMeta(name = "target_pos", doc = "Position of the target container block."),
+          @ParameterMeta(name = "loot_table", doc = "The loot table resource ID."),
+          @ParameterMeta(name = "pos"),
+          @ParameterMeta(name = "tool", doc = "The tool or hand (“mainhand” or “offhand”) to use."),
+          @ParameterMeta(name = "data_tags", doc = "Data tags for the tool. Ignored if 4th argument is not a tool."),
+      },
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The number of item stacks successfully distributed to the container."),
+      doc = "Replaces the contents of a container block with items from a fishing loot table.")
+  public Long replaceEntityContentsWithFishingLoot(final Scope scope, ServerWorld self, final Position targetPos, final String lootTable,
+                                                   final Position pos, final String tool, final MCMap dataTags) {
+    return executeCommand(
+        self,
+        "loot",
+        "replace entity", targetPos.toString(), "fish", lootTable, pos.toString(),
+        tool + mapToDataTag("mainhand".equals(tool) || "offhand".equals(tool) ? null : dataTags)
+    ).orElse(null);
+  }
+
+  @Method(name = "replace_entity_contents_with_loot",
+      parametersMetadata = {
+          @ParameterMeta(name = "targets", doc = "Position of the target container block."),
+          @ParameterMeta(name = "loot_table", doc = "The loot table resource ID."),
+      },
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The number of item stacks successfully distributed to the container."),
+      doc = "Replaces the contents of a container block with items from a loot table.")
+  public Long replaceEntityContentsWithLoot(final Scope scope, ServerWorld self, final Position targetPos, final String lootTable) {
+    return executeCommand(
+        self,
+        "loot",
+        "replace entity", targetPos.toString(), "loot", lootTable
+    ).orElse(null);
+  }
+
+  @Method(name = "replace_entity_contents_with_mob_loot",
+      parametersMetadata = {
+          @ParameterMeta(name = "targets", doc = "Position of the target container block."),
+          @ParameterMeta(name = "loot_table", doc = "The loot table resource ID."),
+      },
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The number of item stacks successfully distributed to the container."),
+      doc = "Replaces the contents of a container block with items an entity would drop if killed.")
+  public Long replaceEntityContentsWithMobLoot(final Scope scope, ServerWorld self, final Position targetPos, final String target) {
+    return executeCommand(
+        self,
+        "loot",
+        "replace entity", targetPos.toString(), "kill", target
+    ).orElse(null);
+  }
+
+  @Method(name = "replace_entity_contents_with_mining_loot",
+      parametersMetadata = {
+          @ParameterMeta(name = "targets", doc = "Position of the target container block."),
+          @ParameterMeta(name = "loot_table", doc = "The loot table resource ID."),
+          @ParameterMeta(name = "pos", doc = "Block’s position."),
+          @ParameterMeta(name = "tool", doc = "The tool or hand (“mainhand” or “offhand”) to use."),
+          @ParameterMeta(name = "data_tags", doc = "Data tags for the tool. Ignored if 4th argument is not a tool."),
+      },
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The number of item stacks successfully distributed to the container."),
+      doc = "Replaces the contents of a container block with items a block would drop if broken.")
+  public Long replaceEntityContentsWithMiningLoot(final Scope scope, ServerWorld self, final Position targetPos,
+                                                  final Position pos, final String tool, final MCMap dataTags) {
+    return executeCommand(
+        self,
+        "loot",
+        "replace entity", targetPos.toString(), "mine", pos.toString(),
+        tool + mapToDataTag("mainhand".equals(tool) || "offhand".equals(tool) ? null : dataTags)
+    ).orElse(null);
+  }
 
   /*
    * /msg /tell /w /tellraw commands
