@@ -12,8 +12,8 @@ import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
 /**
  * Converts a map into a JSON string.
  */
-@Function(parametersDoc = {"A `map object. May be #null."},
-    doc = "Converts a `map object into a JSON string.")
+@Function(parametersDoc = {"The value to serialize. May be #null."},
+    doc = "Converts a value into a JSON string.")
 public class ToJSONStringFunction extends BuiltinFunction {
   public ToJSONStringFunction() {
     super("to_json_string", ProgramManager.getTypeInstance(StringType.class), false,
@@ -22,6 +22,6 @@ public class ToJSONStringFunction extends BuiltinFunction {
 
   @Override
   public Object apply(final Scope scope) {
-    return Utils.mapToJSON(this.getParameterValue(scope, 0));
+    return Utils.serializeJSON(this.getParameterValue(scope, 0));
   }
 }

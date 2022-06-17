@@ -153,12 +153,30 @@ public final class Utils {
   }
 
   /**
+   * Returns the JSON representation of an object.
+   *
+   * @param o An object. May be null.
+   * @return The JSON representation of that object.
+   */
+  public static String serializeJSON(final Object o) {
+    if (o instanceof MCMap m) {
+      return mapToJSON(m);
+    } else if (o instanceof MCList list) {
+      return list.stream().map(Utils::serializeJSON).collect(Collectors.joining(",", "[", "]"));
+    } else if (o instanceof String s) {
+      return Utils.escapeString(s);
+    } else {
+      return String.valueOf(o);
+    }
+  }
+
+  /**
    * Returns the JSON representation of a map.
    *
    * @param map A map. May be null.
    * @return The JSON representation of that map. An empty JSON object string is returned if the map is null.
    */
-  public static String mapToJSON(final MCMap map) {
+  private static String mapToJSON(final MCMap map) {
     if (map == null || map.isEmpty()) {
       return "{}";
     }
@@ -174,21 +192,6 @@ public final class Utils {
     }
     sb.append("}");
     return sb.toString();
-  }
-
-  /**
-   * Returns the JSON representation of an object.
-   */
-  private static String serializeJSON(final Object o) {
-    if (o instanceof MCMap m) {
-      return mapToJSON(m);
-    } else if (o instanceof MCList list) {
-      return list.stream().map(Utils::serializeJSON).collect(Collectors.joining(",", "[", "]"));
-    } else if (o instanceof String s) {
-      return Utils.escapeString(s);
-    } else {
-      return String.valueOf(o);
-    }
   }
 
   private Utils() {
