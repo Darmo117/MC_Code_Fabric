@@ -202,26 +202,54 @@ public class WorldType extends TypeBase<ServerWorld> {
    * NBT-related
    */
 
-  // TODO split
-  @Method(name = "get_data",
+  @Method(name = "get_entity_data",
       parametersMetadata = {
-          @ParameterMeta(name = "target_type", doc = "Type of the target to get data from. One of “block”, “entity” or “storage”."),
-          @ParameterMeta(name = "target", doc = "Depending on the value of the first argument, the block position, " +
-              "entity selector or storage resource location to get data from."),
+          @ParameterMeta(name = "target", doc = "An entity selector that targets a single entity."),
           @ParameterMeta(name = "target_nbt_path", mayBeNull = true, doc = "The path to the data to query. If #null, all data is returned.")
       },
-      returnTypeMetadata = @ReturnMeta(doc = "The queried data or #null if an error occured."),
-      doc = "Returns NBT data from the specified target.")
-  public Object getData(final Scope scope, ServerWorld self, final String targetType, final Object target, final String targetNBTPath) {
-    NbtCompound nbt = switch (targetType) {
-      case "entity" ->
-          this.getEntityData(self, ProgramManager.getTypeInstance(StringType.class).implicitCast(scope, target));
-      case "block" ->
-          this.getBlockData(self, ProgramManager.getTypeInstance(PosType.class).implicitCast(scope, target));
-      case "storage" ->
-          this.getStorageData(self, ProgramManager.getTypeInstance(StringType.class).implicitCast(scope, target));
-      default -> null;
-    };
+      returnTypeMetadata = @ReturnMeta(doc = "The queried data or #null if none or more than one entity were targetted or the specified path is invalid."),
+      doc = "Returns NBT data from the targetted entity.")
+  public MCList getEntityData(final Scope scope, ServerWorld self, final String target, final String targetNBTPath) {
+    List<? extends Entity> entities = getSelectedEntities(self, target);
+    if (entities == null || entities.size() != 1) {
+      return null;
+    }
+    return this.getData(targetNBTPath, NbtPredicate.entityToNbt(entities.get(0)));
+  }
+
+  @Method(name = "get_block_data",
+      parametersMetadata = {
+          @ParameterMeta(name = "position", doc = "A block position."),
+          @ParameterMeta(name = "target_nbt_path", mayBeNull = true, doc = "The path to the data to query. If #null, all data is returned.")
+      },
+      returnTypeMetadata = @ReturnMeta(doc = "The queried data or #null if the targetted block does not have a block entity or the specified path is invalid."),
+      doc = "Returns NBT data from the block at the given position.")
+  public MCList getBlockData(final Scope scope, ServerWorld self, final Position position, final String targetNBTPath) {
+    BlockPos pos = position.toBlockPos();
+    BlockEntity blockEntity = self.getBlockEntity(pos);
+    if (blockEntity == null) {
+      return null;
+    }
+    NbtCompound nbt = new BlockDataObject(blockEntity, pos).getNbt();
+    return this.getData(targetNBTPath, nbt);
+  }
+
+  @Method(name = "get_storage_data",
+      parametersMetadata = {
+          @ParameterMeta(name = "identifier", doc = "A storage identifier."),
+          @ParameterMeta(name = "target_nbt_path", mayBeNull = true, doc = "The path to the data to query. If #null, all data is returned.")
+      },
+      returnTypeMetadata = @ReturnMeta(doc = "The queried data or #null if the specified storage does not exist or the specified path is invalid."),
+      doc = "Returns NBT data from the specified storage.")
+  public MCList getStorageData(final Scope scope, ServerWorld self, final String identifier, final String targetNBTPath) {
+    NbtCompound nbt = self.getServer().getDataCommandStorage().get(new Identifier(identifier));
+    return this.getData(targetNBTPath, nbt);
+  }
+
+  /**
+   * Extract NBT data from a tag using the given path.
+   */
+  private MCList getData(final String targetNBTPath, final NbtCompound nbt) {
     if (nbt == null) {
       return null;
     }
@@ -243,27 +271,6 @@ public class WorldType extends TypeBase<ServerWorld> {
       container.put("_", nbtElement);
       return nbtTagToMap(container).get("_");
     }).toList());
-  }
-
-  private NbtCompound getEntityData(final ServerWorld self, final String target) {
-    List<? extends Entity> entities = getSelectedEntities(self, target);
-    if (entities == null || entities.size() != 1) {
-      return null;
-    }
-    return NbtPredicate.entityToNbt(entities.get(0));
-  }
-
-  private NbtCompound getBlockData(final ServerWorld self, final Position position) {
-    BlockPos pos = position.toBlockPos();
-    BlockEntity blockEntity = self.getBlockEntity(pos);
-    if (blockEntity == null) {
-      return null;
-    }
-    return new BlockDataObject(blockEntity, pos).getNbt();
-  }
-
-  private NbtCompound getStorageData(final ServerWorld self, final String identifier) {
-    return self.getServer().getDataCommandStorage().get(new Identifier(identifier));
   }
 
   /*
