@@ -1,12 +1,18 @@
 package net.darmo_creations.mccode.interpreter;
 
 import com.mojang.brigadier.ParseResults;
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.darmo_creations.mccode.interpreter.statements.Statement;
 import net.darmo_creations.mccode.interpreter.types.MCList;
 import net.darmo_creations.mccode.interpreter.types.MCMap;
+import net.minecraft.command.EntitySelector;
+import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 
 import java.util.List;
 import java.util.Map;
@@ -205,5 +211,21 @@ public final class Utils {
   }
 
   private Utils() {
+  }
+
+  /**
+   * Returns the list of players that match the given target selector or null if the selector is invalid.
+   *
+   * @param world          World to query players from.
+   * @param targetSelector A target selector.
+   * @return The list of selected players or null if the selector is invalid.
+   */
+  public static List<ServerPlayerEntity> getSelectedPlayers(final ServerWorld world, final String targetSelector) {
+    try {
+      EntitySelector selector = EntityArgumentType.players().parse(new StringReader(targetSelector));
+      return selector.getPlayers(world.getServer().getCommandSource());
+    } catch (CommandSyntaxException e) {
+      return null;
+    }
   }
 }

@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import net.darmo_creations.mccode.interpreter.Program;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
+import net.darmo_creations.mccode.interpreter.Utils;
 import net.darmo_creations.mccode.interpreter.annotations.*;
 import net.darmo_creations.mccode.interpreter.exceptions.MCCodeRuntimeException;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
@@ -506,7 +507,7 @@ public class WorldType extends TypeBase<ServerWorld> {
       doc = "Checks whether the score of the selected players is within the given range.")
   public Boolean isPlayersScoreWithinRange(final Scope scope, ServerWorld self, final String targetSelector,
                                            final String objective, final Long min, final Long max) {
-    List<ServerPlayerEntity> selectedPlayers = getSelectedPlayers(self, targetSelector);
+    List<ServerPlayerEntity> selectedPlayers = Utils.getSelectedPlayers(self, targetSelector);
     if (selectedPlayers == null) {
       return null;
     }
@@ -666,19 +667,7 @@ public class WorldType extends TypeBase<ServerWorld> {
   private static List<? extends Entity> getSelectedEntities(final ServerWorld world, final String targetSelector) {
     try {
       EntitySelector selector = EntityArgumentType.entities().parse(new StringReader(targetSelector));
-      return selector.getEntities(new CommandSourceStackWrapper(world.getServer(), world));
-    } catch (CommandSyntaxException e) {
-      return null;
-    }
-  }
-
-  /**
-   * Returns a list of players that match the given target selector or null if the selector is invalid.
-   */
-  private static List<ServerPlayerEntity> getSelectedPlayers(final ServerWorld world, final String targetSelector) {
-    try {
-      EntitySelector selector = EntityArgumentType.players().parse(new StringReader(targetSelector));
-      return selector.getPlayers(new CommandSourceStackWrapper(world.getServer(), world));
+      return selector.getEntities(world.getServer().getCommandSource());
     } catch (CommandSyntaxException e) {
       return null;
     }
