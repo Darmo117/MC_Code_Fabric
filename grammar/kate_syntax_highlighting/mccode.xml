@@ -46,10 +46,6 @@
       <item>PI</item>
       <item>E</item>
 
-      <item>CHAT</item>
-      <item>CONSOLE</item>
-      <item>BOTH</item>
-
       <item>DIFF_PEACEFUL</item>
       <item>DIFF_EASY</item>
       <item>DIFF_NORMAL</item>
@@ -113,6 +109,9 @@
       <item>format_block</item>
       <item>format_item</item>
       <item>to_json_string</item>
+      <item>say</item>
+      <item>tell</item>
+      <item>console_log</item>
     </list>
     <list name="comment_tasks">
       <item>TODO</item>
