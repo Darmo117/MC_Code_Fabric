@@ -7,7 +7,9 @@ import net.darmo_creations.mccode.interpreter.types.MCMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Utility functions for interpreter-related classes.
@@ -99,19 +101,55 @@ public final class Utils {
   /**
    * Returns the SNBT representation of an object.
    */
-  // FIXME how to handle number type suffixes and byte/int/long arrays?
   private static String serializeToDataTag(final Object o) {
     if (o instanceof String s) {
       return Utils.escapeString(s);
     } else if (o instanceof Number) {
       return o.toString();
     } else if (o instanceof MCList l) {
-      return l.stream().map(Utils::serializeToDataTag).collect(Collectors.joining(",", "[", "]"));
+      return serializeList(l);
     } else if (o instanceof MCMap m) {
       return formatDataTags(m);
     } else {
       return String.valueOf(o);
     }
+  }
+
+  /**
+   * Serializes a list to a SNBT string. Supports byte, int and long arrays.
+   */
+  private static String serializeList(final MCList l) {
+    boolean isArray = false;
+    Function<Object, String> serializer = Utils::serializeToDataTag;
+    // Check if the list should be treated as a byte, int or long array
+    if (l.size() != 0 && l.get(0) instanceof String prefix && l.stream().skip(1).allMatch(e -> e instanceof Long)) {
+      serializer = switch (prefix) {
+        case "B;" -> {
+          isArray = true;
+          yield e -> e + "b";
+        }
+        case "I;" -> {
+          isArray = true;
+          yield e -> e + "";
+        }
+        case "L;" -> {
+          isArray = true;
+          yield e -> e + "l";
+        }
+        default -> Utils::serializeToDataTag;
+      };
+    }
+    Stream<Object> stream = l.stream();
+    if (isArray) {
+      // Skip array type
+      stream = l.stream().skip(1);
+    }
+    String res = stream.map(serializer).collect(Collectors.joining(",", "[", "]"));
+    if (isArray) {
+      // Insert array type in first position, right after opening bracket
+      res = res.charAt(0) + l.get(0).toString() + res.substring(1);
+    }
+    return res;
   }
 
   /**
