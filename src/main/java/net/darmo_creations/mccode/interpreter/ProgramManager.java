@@ -121,23 +121,8 @@ public class ProgramManager extends PersistentState {
         try {
           program.execute();
           error = false;
-        } catch (ProgramFileNotFoundException e) {
-          errorReports.add(new ProgramErrorReport(program.getScope(),
-              new ProgramErrorReportElement(program.getScope().getProgram().getName(), -1, -1, e.getTranslationKey(), e.getProgramName())));
-        } catch (SyntaxErrorException e) {
-          errorReports.add(new ProgramErrorReport(program.getScope(),
-              new ProgramErrorReportElement(program.getScope().getProgram().getName(), e.getLine(), e.getColumn(), e.getTranslationKey(), e.getArgs())));
-        } catch (ImportException e) {
-          SyntaxErrorException cause = e.getCause();
-          errorReports.add(new ProgramErrorReport(e.getScope(),
-              new ProgramErrorReportElement(e.getScope().getProgram().getName(), e.getLine(), e.getColumn(), e.getTranslationKey(), e.getArgs()),
-              new ProgramErrorReportElement(e.getModuleName(), cause.getLine(), cause.getColumn(), cause.getTranslationKey(), cause.getArgs())));
-        } catch (MCCodeRuntimeException e) {
-          errorReports.add(new ProgramErrorReport(e.getScope(),
-              new ProgramErrorReportElement(e.getScope().getProgram().getName(), e.getLine(), e.getColumn(), e.getTranslationKey(), e.getArgs())));
-        } catch (WrappedException e) {
-          errorReports.add(new ProgramErrorReport(program.getScope(),
-              new ProgramErrorReportElement(program.getScope().getProgram().getName(), e.getLine(), e.getColumn(), e.getTranslationKey(), e.getArgs())));
+        } catch (Exception e) {
+          errorReports.add(new ProgramErrorReport(buildErrorReport(program.getScope(), e).toArray(ProgramErrorReportElement[]::new)));
         }
         // Unload programs that have terminated or failed
         if (error || program.hasTerminated() && (!this.programsSchedules.containsKey(program.getName()) || this.programsRepeats.get(program.getName()) == 0)) {
@@ -170,6 +155,28 @@ public class ProgramManager extends PersistentState {
     this.markDirty();
 
     return errorReports;
+  }
+
+  private static List<ProgramErrorReportElement> buildErrorReport(final Scope scope, final Exception e) {
+    List<ProgramErrorReportElement> elements = new LinkedList<>();
+
+    if (e instanceof ProgramStatusException ex) {
+      elements.add(
+          new ProgramErrorReportElement(scope, scope.getProgram().getName(), -1, -1, ex.getTranslationKey(), ex.getProgramName()));
+    } else if (e instanceof SyntaxErrorException ex) {
+      elements.add(
+          new ProgramErrorReportElement(scope, scope.getProgram().getName(), ex.getLine(), ex.getColumn(), ex.getTranslationKey(), ex.getArgs()));
+    } else if (e instanceof ImportException ex) {
+      elements.addAll(buildErrorReport(ex.getScope(), ex.getCause()));
+    } else if (e instanceof MCCodeRuntimeException ex) {
+      elements.add(
+          new ProgramErrorReportElement(ex.getScope(), ex.getScope().getProgram().getName(), ex.getLine(), ex.getColumn(), ex.getTranslationKey(), ex.getArgs()));
+    } else if (e instanceof WrappedException ex) {
+      elements.add(
+          new ProgramErrorReportElement(scope, scope.getProgram().getName(), ex.getLine(), ex.getColumn(), ex.getTranslationKey(), ex.getArgs()));
+    }
+
+    return elements;
   }
 
   /**

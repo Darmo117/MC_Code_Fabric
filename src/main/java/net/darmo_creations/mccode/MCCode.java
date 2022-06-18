@@ -2,6 +2,7 @@ package net.darmo_creations.mccode;
 
 import net.darmo_creations.mccode.commands.ProgramCommand;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
+import net.darmo_creations.mccode.interpreter.StackTraceElement;
 import net.darmo_creations.mccode.interpreter.exceptions.ProgramErrorReport;
 import net.darmo_creations.mccode.interpreter.exceptions.ProgramErrorReportElement;
 import net.fabricmc.api.ModInitializer;
@@ -13,10 +14,7 @@ import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import net.minecraft.world.GameRules;
@@ -76,25 +74,36 @@ public class MCCode implements ModInitializer {
   private void onWorldTickStart(ServerWorld world) {
     ProgramManager programManager = this.PROGRAM_MANAGERS.get(world);
     for (ProgramErrorReport report : programManager.executePrograms()) {
+      MutableText message = null;
       // Log errors in chat and server console
       for (ProgramErrorReportElement element : report.elements()) {
-        MutableText message;
+        MutableText t;
         if (element.line() != -1 && element.column() != -1) {
-          message = new LiteralText(
+          t = new LiteralText(
               String.format("[%s:%d:%d] ", element.moduleName(), element.line(), element.column()));
         } else {
-          message = new LiteralText(String.format("[%s] ", element.moduleName()));
+          t = new LiteralText(String.format("[%s] ", element.moduleName()));
+        }
+        if (message == null) {
+          message = t;
+        } else {
+          message.append(t);
         }
         message.append(new TranslatableText(element.translationKey(), element.args()));
-        message.setStyle(Style.EMPTY.withColor(Formatting.RED));
-
-        // Only show error messages to players that can use the /program command
-        if (world.getGameRules().getBoolean(GR_SHOW_ERROR_MESSAGES)) {
-          world.getPlayers(PlayerEntity::isCreativeLevelTwoOp)
-              .forEach(player -> player.sendMessage(message, false));
+        if (element.scope() != null) {
+          for (StackTraceElement traceElement : element.scope().getStackTrace()) {
+            message.append(new LiteralText("\n at %s [%d:%d]".formatted(traceElement.scopeName(), traceElement.line(), traceElement.column())));
+          }
         }
-        world.getServer().sendSystemMessage(message, Util.NIL_UUID);
+        message.setStyle(Style.EMPTY.withColor(Formatting.RED));
       }
+      // Only show error messages to players that can use the /program command
+      if (world.getGameRules().getBoolean(GR_SHOW_ERROR_MESSAGES)) {
+        final Text m = message;
+        world.getPlayers(PlayerEntity::isCreativeLevelTwoOp)
+            .forEach(player -> player.sendMessage(m, false));
+      }
+      world.getServer().sendSystemMessage(message, Util.NIL_UUID);
     }
   }
 }

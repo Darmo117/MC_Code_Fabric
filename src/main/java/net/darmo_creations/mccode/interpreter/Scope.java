@@ -7,7 +7,10 @@ import net.darmo_creations.mccode.interpreter.tags.CompoundTagListTag;
 import net.darmo_creations.mccode.interpreter.tags.TagType;
 import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A scope is an object that represents the context of a program during execution.
@@ -26,6 +29,8 @@ public class Scope implements TagDeserializable {
   private final Program program;
   private final Map<String, Variable> variables = new HashMap<>();
   private int callStackSize;
+  private final int line;
+  private final int column;
 
   /**
    * Create a global scope for the given program.
@@ -37,6 +42,8 @@ public class Scope implements TagDeserializable {
     this.parentScope = null;
     this.program = program;
     this.callStackSize = 0;
+    this.line = -1;
+    this.column = -1;
     this.defineBuiltinConstants();
     this.defineBuiltinFunctions();
   }
@@ -47,11 +54,13 @@ public class Scope implements TagDeserializable {
    * @param name        Sub-scope’s name.
    * @param parentScope Parent of this scope.
    */
-  public Scope(final String name, Scope parentScope) {
+  public Scope(final String name, Scope parentScope, final int line, final int column) {
     this.name = name;
     this.parentScope = parentScope;
     this.program = parentScope.program;
     this.callStackSize = parentScope.callStackSize;
+    this.line = line;
+    this.column = column;
   }
 
   /**
@@ -59,13 +68,6 @@ public class Scope implements TagDeserializable {
    */
   public String getName() {
     return this.name;
-  }
-
-  /**
-   * Return this scope’s parent.
-   */
-  public Optional<Scope> getParentScope() {
-    return Optional.ofNullable(this.parentScope);
   }
 
   /**
@@ -197,7 +199,7 @@ public class Scope implements TagDeserializable {
     } else {
       trace = new ArrayList<>();
     }
-    trace.add(0, new StackTraceElement(this.getName()));
+    trace.add(new StackTraceElement(this.getName(), this.line, this.column));
     return trace;
   }
 

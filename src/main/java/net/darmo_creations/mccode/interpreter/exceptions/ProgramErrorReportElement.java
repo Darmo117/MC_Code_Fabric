@@ -1,8 +1,11 @@
 package net.darmo_creations.mccode.interpreter.exceptions;
 
+import net.darmo_creations.mccode.interpreter.Scope;
+
 /**
  * A single element of a program report. It represents a single error.
  *
+ * @param scope          Scope of the program/module that threw the error.
  * @param moduleName     Name of the module that threw the error.
  * @param line           Line where the error occured on.
  * @param column         Column of the line the error occured on.
@@ -11,6 +14,7 @@ package net.darmo_creations.mccode.interpreter.exceptions;
  * @see ProgramErrorReport
  */
 public record ProgramErrorReportElement(
+    Scope scope,
     String moduleName,
     int line,
     int column,

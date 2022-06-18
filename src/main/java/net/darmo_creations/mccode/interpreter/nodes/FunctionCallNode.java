@@ -61,7 +61,7 @@ public class FunctionCallNode extends OperationNode {
     scope.getProgram().getScope().setCallStackSize(callStackSize + 1);
     // Use global scope as user functions can only be defined in global scope
     // and it should not matter for builtin function.
-    Scope functionScope = new Scope(function.getName(), scope.getProgram().getScope());
+    Scope functionScope = new Scope(function.getName(), scope.getProgram().getScope(), this.getLine(), this.getColumn());
 
     if (this.arguments.size() != function.getParameters().size()) {
       throw new EvaluationException(scope, "mccode.interpreter.error.invalid_function_arguments_number",

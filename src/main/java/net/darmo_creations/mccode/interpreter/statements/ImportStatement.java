@@ -4,6 +4,8 @@ import net.darmo_creations.mccode.interpreter.Program;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Variable;
 import net.darmo_creations.mccode.interpreter.exceptions.ImportException;
+import net.darmo_creations.mccode.interpreter.exceptions.MCCodeRuntimeException;
+import net.darmo_creations.mccode.interpreter.exceptions.ProgramStatusException;
 import net.darmo_creations.mccode.interpreter.exceptions.SyntaxErrorException;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.tags.StringListTag;
@@ -56,8 +58,12 @@ public class ImportStatement extends Statement {
     Program module;
     try {
       module = scope.getProgram().getProgramManager().loadProgram(name, null, true);
+    } catch (SyntaxErrorException | ProgramStatusException e) {
+      throw new ImportException(scope, name, e);
+    }
+    try {
       module.execute();
-    } catch (SyntaxErrorException e) {
+    } catch (MCCodeRuntimeException | SyntaxErrorException e) {
       throw new ImportException(scope, name, e);
     }
     scope.declareVariable(new Variable(this.alias != null ? this.alias : name.replace('.', '_'),

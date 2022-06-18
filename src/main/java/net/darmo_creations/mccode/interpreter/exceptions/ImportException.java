@@ -7,7 +7,7 @@ import net.darmo_creations.mccode.interpreter.Scope;
  */
 public class ImportException extends MCCodeRuntimeException {
   private final String moduleName;
-  private final SyntaxErrorException cause;
+  private final MCCodeException cause;
 
   /**
    * Creates a new exception.
@@ -16,7 +16,7 @@ public class ImportException extends MCCodeRuntimeException {
    * @param moduleName Name of the invalid module.
    * @param cause      The error thrown by the module.
    */
-  public ImportException(final Scope scope, final String moduleName, final SyntaxErrorException cause) {
+  public ImportException(final Scope scope, final String moduleName, final MCCodeException cause) {
     super(scope, null, "mccode.interpreter.error.import_error");
     this.moduleName = moduleName;
     this.cause = cause;
@@ -33,7 +33,7 @@ public class ImportException extends MCCodeRuntimeException {
    * Returns the exception thrown by the invalid module.
    */
   @Override
-  public SyntaxErrorException getCause() {
+  public MCCodeException getCause() {
     return this.cause;
   }
 }

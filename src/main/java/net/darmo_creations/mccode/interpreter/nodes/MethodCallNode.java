@@ -66,7 +66,7 @@ public class MethodCallNode extends OperationNode {
       scope.getProgram().getScope().setCallStackSize(callStackSize + 1);
       // Use global scope of module as user functions can only be defined in that scope
       // and it should not matter for builtin function.
-      Scope functionScope = new Scope(function.getName(), module.getScope());
+      Scope functionScope = new Scope(function.getName(), module.getScope(), this.getLine(), this.getColumn());
 
       if (this.arguments.size() != function.getParameters().size()) {
         throw new EvaluationException(scope, "mccode.interpreter.error.invalid_function_arguments_number",
@@ -88,7 +88,7 @@ public class MethodCallNode extends OperationNode {
       if (method == null) {
         throw new EvaluationException(scope, "mccode.interpreter.error.no_method_for_type", selfType.getName(), this.methodName);
       }
-      Scope functionScope = new Scope(method.getName(), scope);
+      Scope functionScope = new Scope(method.getName(), scope, this.getLine(), this.getColumn());
 
       if (this.arguments.size() != method.getParameters().size()) {
         throw new EvaluationException(scope, "mccode.interpreter.error.invalid_method_arguments_number",
