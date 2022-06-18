@@ -61,7 +61,7 @@ public final class Utils {
   }
 
   /**
-   * Escape all special characters from the given string.
+   * Escapes all special characters from the given string.
    * <p>
    * Adds double quotes, escapes '"', '\' and '\n' characters.
    *
@@ -73,7 +73,7 @@ public final class Utils {
   }
 
   /**
-   * Unescape all escaped special characters from the given string.
+   * Unescapes all escaped special characters from the given string.
    * <p>
    * Removes trailing double quotes, unescapes '\"', '\\' and '\\n' sequences.
    *
@@ -81,7 +81,11 @@ public final class Utils {
    * @return The unescaped string.
    */
   public static String unescapeString(final String s) {
-    return s.substring(1, s.length() - 1).replaceAll("\\\\([\"\\\\])", "$1").replace("\\n", "\n");
+    String s_ = s;
+    if (s.charAt(0) == '"' && s.charAt(s.length() - 1) == '"') {
+      s_ = s_.substring(1, s_.length() - 1);
+    }
+    return s_.replaceAll("\\\\([\"\\\\])", "$1").replace("\\n", "\n");
   }
 
   /**
@@ -204,13 +208,20 @@ public final class Utils {
     return sb.toString();
   }
 
-  public static <T> T getParsedCommandArgument(final MinecraftServer server, final String command, final Function<CommandContext<ServerCommandSource>, T> f) {
+  /**
+   * Parses the given command then applies the specified function to the resulting {@link CommandContext} object.
+   *
+   * @param server  The server.
+   * @param command The command to parse.
+   * @param f       The function to apply.
+   * @param <T>     Type of returned value.
+   * @return The value returned by the function.
+   */
+  public static <T> T getParsedCommandArgument(final MinecraftServer server, final String command,
+                                               final Function<CommandContext<ServerCommandSource>, T> f) {
     ParseResults<ServerCommandSource> parseResults = server.getCommandManager().getDispatcher()
         .parse(command, server.getCommandSource());
     return f.apply(parseResults.getContext().build(command));
-  }
-
-  private Utils() {
   }
 
   /**
@@ -227,5 +238,8 @@ public final class Utils {
     } catch (CommandSyntaxException e) {
       return null;
     }
+  }
+
+  private Utils() {
   }
 }
