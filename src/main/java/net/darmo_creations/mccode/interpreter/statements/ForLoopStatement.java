@@ -91,7 +91,6 @@ public class ForLoopStatement extends Statement {
       iterator.next();
     }
 
-    exit:
     // Do not test again if loop was paused by a "wait" statement
     while (this.paused || this.resumeAfterLoad || iterator.hasNext()) {
       // If first statement returns WAIT, "ip" is not yet updated -> do not recreate variable
@@ -103,26 +102,11 @@ public class ForLoopStatement extends Statement {
       this.paused = false;
       this.resumeAfterLoad = false;
 
-      while (this.ip < this.statements.size()) {
-        Statement statement = this.statements.get(this.ip);
-        StatementAction action = statement.execute(scope, callStack);
-        if (action == StatementAction.EXIT_LOOP) {
-          break exit;
-        } else if (action == StatementAction.CONTINUE_LOOP) {
-          break;
-        } else if (action == StatementAction.EXIT_FUNCTION || action == StatementAction.WAIT) {
-          if (action == StatementAction.WAIT) {
-            this.paused = true;
-            if (statement instanceof WaitStatement) {
-              this.ip++;
-            }
-          } else {
-            this.reset(scope);
-          }
-          return action;
-        } else {
-          this.ip++;
-        }
+      StatementAction action = this.executeStatements(scope, callStack);
+      if (action == StatementAction.EXIT_LOOP) {
+        break;
+      } else if (action != StatementAction.PROCEED) {
+        return action;
       }
       if (scope.isVariableDefined(this.variableName)) {
         scope.deleteVariable(this.variableName, false);
@@ -131,6 +115,38 @@ public class ForLoopStatement extends Statement {
     }
     this.reset(scope);
 
+    return StatementAction.PROCEED;
+  }
+
+  /**
+   * Executes the statements contained within the loop.
+   *
+   * @param scope     Current scope.
+   * @param callStack The current call stack.
+   * @return A {@link StatementAction}.
+   */
+  private StatementAction executeStatements(Scope scope, CallStack callStack) {
+    while (this.ip < this.statements.size()) {
+      Statement statement = this.statements.get(this.ip);
+      StatementAction action = statement.execute(scope, callStack);
+      if (action == StatementAction.EXIT_LOOP) {
+        return StatementAction.EXIT_LOOP;
+      } else if (action == StatementAction.CONTINUE_LOOP) {
+        break;
+      } else if (action == StatementAction.EXIT_FUNCTION || action == StatementAction.WAIT) {
+        if (action == StatementAction.WAIT) {
+          this.paused = true;
+          if (statement instanceof WaitStatement) {
+            this.ip++;
+          }
+        } else {
+          this.reset(scope);
+        }
+        return action;
+      } else {
+        this.ip++;
+      }
+    }
     return StatementAction.PROCEED;
   }
 

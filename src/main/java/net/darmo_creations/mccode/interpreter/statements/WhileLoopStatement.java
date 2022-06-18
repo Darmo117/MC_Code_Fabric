@@ -66,37 +66,54 @@ public class WhileLoopStatement extends Statement {
   @Override
   protected StatementAction executeWrapped(Scope scope, CallStack callStack) {
     BooleanType booleanType = ProgramManager.getTypeInstance(BooleanType.class);
-    exit:
     // Do not re-evaluate condition if loop was paused by "wait" a statement
     while (this.paused || booleanType.implicitCast(scope, this.condition.evaluate(scope, callStack))) {
       if (this.paused) {
         this.paused = false;
       }
-      while (this.ip < this.statements.size()) {
-        Statement statement = this.statements.get(this.ip);
-        StatementAction action = statement.execute(scope, callStack);
-        if (action == StatementAction.EXIT_LOOP) {
-          this.ip = 0;
-          break exit;
-        } else if (action == StatementAction.CONTINUE_LOOP) {
-          break;
-        } else if (action == StatementAction.EXIT_FUNCTION || action == StatementAction.WAIT) {
-          if (action == StatementAction.WAIT) {
-            this.paused = true;
-            if (statement instanceof WaitStatement) {
-              this.ip++;
-            }
-          } else {
-            this.ip = 0;
-          }
-          return action;
-        } else {
-          this.ip++;
-        }
+      StatementAction action = this.executeStatements(scope, callStack);
+      if (action == StatementAction.EXIT_LOOP) {
+        break;
+      } else if (action != StatementAction.PROCEED) {
+        return action;
       }
       this.ip = 0;
     }
+    this.ip = 0;
 
+    return StatementAction.PROCEED;
+  }
+
+  /**
+   * Executes the statements contained within the loop.
+   *
+   * @param scope     Current scope.
+   * @param callStack The current call stack.
+   * @return A {@link StatementAction}.
+   */
+  private StatementAction executeStatements(Scope scope, CallStack callStack) {
+    while (this.ip < this.statements.size()) {
+      Statement statement = this.statements.get(this.ip);
+      StatementAction action = statement.execute(scope, callStack);
+      if (action == StatementAction.EXIT_LOOP) {
+        this.ip = 0;
+        return StatementAction.EXIT_LOOP;
+      } else if (action == StatementAction.CONTINUE_LOOP) {
+        break;
+      } else if (action == StatementAction.EXIT_FUNCTION || action == StatementAction.WAIT) {
+        if (action == StatementAction.WAIT) {
+          this.paused = true;
+          if (statement instanceof WaitStatement) {
+            this.ip++;
+          }
+        } else {
+          this.ip = 0;
+        }
+        return action;
+      } else {
+        this.ip++;
+      }
+    }
     return StatementAction.PROCEED;
   }
 
