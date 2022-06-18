@@ -18,7 +18,7 @@ import java.util.List;
  * A function that prints formatted text into the chat and formats any entity selector.
  */
 @Function(parametersDoc = {"An entity selector that targets the players to send the message to.", "A value that will be interpreted as JSON data. May be #null."},
-    doc = "Prints text into the chat formatted from the given value interpreted as a JSON value. Behavior is similar to /tellraw command.")
+    doc = "Prints text into the chat, formatted from the given object interpreted as a JSON-like value. Behavior is similar to /tellraw command.")
 public class TellFunction extends BuiltinFunction {
   /**
    * Create a function that prints formatted text into the chat.
