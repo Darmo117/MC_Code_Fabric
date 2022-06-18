@@ -15,24 +15,12 @@ import java.util.Objects;
 /**
  * Statement that represents a while-loop.
  */
-public class WhileLoopStatement extends Statement {
+public class WhileLoopStatement extends LoopStatement {
   public static final int ID = 41;
 
   private static final String CONDITION_KEY = "Condition";
-  private static final String STATEMENTS_KEY = "Statements";
-  private static final String IP_KEY = "IP";
-  private static final String PAUSED_KEY = "Paused";
 
   private final Node condition;
-  private final List<Statement> statements;
-  /**
-   * Instruction pointer.
-   */
-  private int ip;
-  /**
-   * Whether the loop encountered a "wait" statement.
-   */
-  private boolean paused;
 
   /**
    * Create a statement that represents a while-loop.
@@ -43,11 +31,8 @@ public class WhileLoopStatement extends Statement {
    * @param column     The column in the line this statement starts at.
    */
   public WhileLoopStatement(final Node condition, final List<Statement> statements, final int line, final int column) {
-    super(line, column);
+    super(statements, line, column);
     this.condition = condition;
-    this.statements = statements;
-    this.ip = 0;
-    this.paused = false;
   }
 
   /**
@@ -58,9 +43,6 @@ public class WhileLoopStatement extends Statement {
   public WhileLoopStatement(final CompoundTag tag) {
     super(tag);
     this.condition = NodeTagHelper.getNodeForTag(tag.getCompound(CONDITION_KEY));
-    this.statements = StatementTagHelper.deserializeStatementsList(tag, STATEMENTS_KEY);
-    this.ip = tag.getInt(IP_KEY);
-    this.paused = tag.getBoolean(PAUSED_KEY);
   }
 
   @Override
@@ -74,47 +56,19 @@ public class WhileLoopStatement extends Statement {
       StatementAction action = this.executeStatements(scope, callStack);
       if (action == StatementAction.EXIT_LOOP) {
         break;
-      } else if (action != StatementAction.PROCEED) {
+      } else if (action == StatementAction.WAIT || action == StatementAction.EXIT_FUNCTION) {
         return action;
       }
       this.ip = 0;
     }
-    this.ip = 0;
+    this.reset(scope);
 
     return StatementAction.PROCEED;
   }
 
-  /**
-   * Executes the statements contained within the loop.
-   *
-   * @param scope     Current scope.
-   * @param callStack The current call stack.
-   * @return A {@link StatementAction}.
-   */
-  private StatementAction executeStatements(Scope scope, CallStack callStack) {
-    while (this.ip < this.statements.size()) {
-      Statement statement = this.statements.get(this.ip);
-      StatementAction action = statement.execute(scope, callStack);
-      if (action == StatementAction.EXIT_LOOP) {
-        this.ip = 0;
-        return StatementAction.EXIT_LOOP;
-      } else if (action == StatementAction.CONTINUE_LOOP) {
-        break;
-      } else if (action == StatementAction.EXIT_FUNCTION || action == StatementAction.WAIT) {
-        if (action == StatementAction.WAIT) {
-          this.paused = true;
-          if (statement instanceof WaitStatement) {
-            this.ip++;
-          }
-        } else {
-          this.ip = 0;
-        }
-        return action;
-      } else {
-        this.ip++;
-      }
-    }
-    return StatementAction.PROCEED;
+  @Override
+  protected void reset(Scope scope) {
+    this.ip = 0;
   }
 
   @Override
@@ -126,9 +80,6 @@ public class WhileLoopStatement extends Statement {
   public CompoundTag writeToTag() {
     CompoundTag tag = super.writeToTag();
     tag.putTag(CONDITION_KEY, this.condition.writeToTag());
-    tag.putTag(STATEMENTS_KEY, StatementTagHelper.serializeStatementsList(this.statements));
-    tag.putInt(IP_KEY, this.ip);
-    tag.putBoolean(PAUSED_KEY, this.paused);
     return tag;
   }
 
@@ -149,12 +100,15 @@ public class WhileLoopStatement extends Statement {
     if (o == null || this.getClass() != o.getClass()) {
       return false;
     }
+    if (!super.equals(o)) {
+      return false;
+    }
     WhileLoopStatement that = (WhileLoopStatement) o;
-    return this.ip == that.ip && this.paused == that.paused && this.condition.equals(that.condition) && this.statements.equals(that.statements);
+    return this.condition.equals(that.condition);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(this.condition, this.statements, this.ip, this.paused);
+    return Objects.hash(super.hashCode(), this.condition);
   }
 }
