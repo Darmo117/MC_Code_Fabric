@@ -1,8 +1,9 @@
 package net.darmo_creations.mccode;
 
 import net.darmo_creations.mccode.commands.ProgramCommand;
-import net.darmo_creations.mccode.interpreter.ProgramErrorReport;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
+import net.darmo_creations.mccode.interpreter.exceptions.ProgramErrorReport;
+import net.darmo_creations.mccode.interpreter.exceptions.ProgramErrorReportElement;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -76,22 +77,24 @@ public class MCCode implements ModInitializer {
     ProgramManager programManager = this.PROGRAM_MANAGERS.get(world);
     for (ProgramErrorReport report : programManager.executePrograms()) {
       // Log errors in chat and server console
-      MutableText message;
-      if (report.line() != -1 && report.column() != -1) {
-        message = new LiteralText(
-            String.format("[%s:%d:%d] ", report.scope().getProgram().getName(), report.line(), report.column()));
-      } else {
-        message = new LiteralText(String.format("[%s] ", report.scope().getProgram().getName()));
-      }
-      message.append(new TranslatableText(report.translationKey(), report.args()));
-      message.setStyle(Style.EMPTY.withColor(Formatting.RED));
+      for (ProgramErrorReportElement element : report.elements()) {
+        MutableText message;
+        if (element.line() != -1 && element.column() != -1) {
+          message = new LiteralText(
+              String.format("[%s:%d:%d] ", element.moduleName(), element.line(), element.column()));
+        } else {
+          message = new LiteralText(String.format("[%s] ", element.moduleName()));
+        }
+        message.append(new TranslatableText(element.translationKey(), element.args()));
+        message.setStyle(Style.EMPTY.withColor(Formatting.RED));
 
-      // Only show error messages to players that can use the /program command
-      if (world.getGameRules().getBoolean(GR_SHOW_ERROR_MESSAGES)) {
-        world.getPlayers(PlayerEntity::isCreativeLevelTwoOp)
-            .forEach(player -> player.sendMessage(message, false));
+        // Only show error messages to players that can use the /program command
+        if (world.getGameRules().getBoolean(GR_SHOW_ERROR_MESSAGES)) {
+          world.getPlayers(PlayerEntity::isCreativeLevelTwoOp)
+              .forEach(player -> player.sendMessage(message, false));
+        }
+        world.getServer().sendSystemMessage(message, Util.NIL_UUID);
       }
-      world.getServer().sendSystemMessage(message, Util.NIL_UUID);
     }
   }
 }

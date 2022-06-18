@@ -126,12 +126,8 @@ public class ProgramCommand {
     try {
       pm.loadProgram(programName, alias, false, args);
     } catch (SyntaxErrorException e) {
-      Object[] a = new Object[e.getArgs().length + 3];
-      a[0] = programName;
-      a[1] = e.getLine();
-      a[2] = e.getColumn();
-      System.arraycopy(e.getArgs(), 0, a, 3, e.getArgs().length);
-      context.getSource().sendError(new TranslatableText(e.getTranslationKey(), a));
+      context.getSource().sendError(new LiteralText("[%s:%d:%d] ".formatted(programName, e.getLine(), e.getColumn()))
+          .append(new TranslatableText(e.getTranslationKey(), e.getArgs())));
       return 0;
     } catch (ProgramStatusException e) {
       context.getSource().sendError(new TranslatableText(e.getTranslationKey(), e.getProgramName()));
@@ -139,7 +135,7 @@ public class ProgramCommand {
     }
     context.getSource().sendFeedback(
         new TranslatableText("commands.program.feedback.program_loaded", programName), true);
-    return args.length;
+    return 1;
   }
 
   private static int unloadProgram(CommandContext<ServerCommandSource> context) {

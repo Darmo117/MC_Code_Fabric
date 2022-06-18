@@ -120,19 +120,24 @@ public class ProgramManager extends PersistentState {
         boolean error = true;
         try {
           program.execute();
-          error = false; // Not executed if an error is thrown by execute().
+          error = false;
         } catch (ProgramFileNotFoundException e) {
-          errorReports.add(new ProgramErrorReport(
-              program.getScope(), -1, -1, e.getTranslationKey(), e.getProgramName()));
+          errorReports.add(new ProgramErrorReport(program.getScope(),
+              new ProgramErrorReportElement(program.getScope().getProgram().getName(), -1, -1, e.getTranslationKey(), e.getProgramName())));
         } catch (SyntaxErrorException e) {
-          errorReports.add(new ProgramErrorReport(
-              program.getScope(), e.getLine(), e.getColumn(), e.getTranslationKey(), e.getArgs()));
+          errorReports.add(new ProgramErrorReport(program.getScope(),
+              new ProgramErrorReportElement(program.getScope().getProgram().getName(), e.getLine(), e.getColumn(), e.getTranslationKey(), e.getArgs())));
+        } catch (ImportException e) {
+          SyntaxErrorException cause = e.getCause();
+          errorReports.add(new ProgramErrorReport(e.getScope(),
+              new ProgramErrorReportElement(e.getScope().getProgram().getName(), e.getLine(), e.getColumn(), e.getTranslationKey(), e.getArgs()),
+              new ProgramErrorReportElement(e.getModuleName(), cause.getLine(), cause.getColumn(), cause.getTranslationKey(), cause.getArgs())));
         } catch (MCCodeRuntimeException e) {
-          errorReports.add(new ProgramErrorReport(
-              e.getScope(), e.getLine(), e.getColumn(), e.getTranslationKey(), e.getArgs()));
+          errorReports.add(new ProgramErrorReport(e.getScope(),
+              new ProgramErrorReportElement(e.getScope().getProgram().getName(), e.getLine(), e.getColumn(), e.getTranslationKey(), e.getArgs())));
         } catch (WrappedException e) {
-          errorReports.add(new ProgramErrorReport(
-              program.getScope(), e.getLine(), e.getColumn(), e.getTranslationKey(), e.getArgs()));
+          errorReports.add(new ProgramErrorReport(program.getScope(),
+              new ProgramErrorReportElement(program.getScope().getProgram().getName(), e.getLine(), e.getColumn(), e.getTranslationKey(), e.getArgs())));
         }
         // Unload programs that have terminated or failed
         if (error || program.hasTerminated() && (!this.programsSchedules.containsKey(program.getName()) || this.programsRepeats.get(program.getName()) == 0)) {
