@@ -7,6 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import net.darmo_creations.mccode.MCCode;
 import net.darmo_creations.mccode.interpreter.Program;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
@@ -318,7 +319,7 @@ public class WorldType extends TypeBase<ServerWorld> {
 
   @Method(name = "reload_datapacks", doc = "Reloads all datapacks.")
   public Void reloadDataPacks(final Scope scope, ServerWorld self) {
-    executeCommand(self, "reload");
+    executeCommand(scope, self, "reload");
     return null;
   }
 
@@ -637,7 +638,7 @@ public class WorldType extends TypeBase<ServerWorld> {
       throw new MCCodeRuntimeException(scope, name, "mccode.interpreter.error.illegal_command", name);
     }
     return executeCommand(
-        self,
+        scope, self,
         name,
         args.stream().map(o -> ProgramManager.getTypeForValue(o).toString(o)).toArray(String[]::new)
     ).orElse(null);
@@ -647,7 +648,7 @@ public class WorldType extends TypeBase<ServerWorld> {
    * Utility methods
    */
 
-  private static Optional<Long> executeCommand(ServerWorld self, final String commandName, final String... args) {
+  private static Optional<Long> executeCommand(final Scope scope, ServerWorld self, final String commandName, final String... args) {
     MinecraftServer server = self.getServer();
     String command = commandName;
     if (args.length != 0) {
@@ -656,6 +657,11 @@ public class WorldType extends TypeBase<ServerWorld> {
     CommandSourceStackWrapper commandSourceStack = new CommandSourceStackWrapper(server, self);
     long result = server.getCommandManager().execute(commandSourceStack, command);
     if (result == 0 && commandSourceStack.anyFailures) {
+      String dimension = Utils.getDimensionIdentifier(scope.getProgram().getProgramManager().getWorld());
+      commandSourceStack.errors.forEach(text -> {
+        String prefix = "[MCCode:%s][%s] world.execute: ".formatted(scope.getProgram().getName(), dimension);
+        MCCode.LOGGER.warn(prefix + text.getString());
+      });
       return Optional.empty();
     }
     return Optional.of(result);
@@ -740,8 +746,7 @@ public class WorldType extends TypeBase<ServerWorld> {
 
   @Override
   protected String __str__(final ServerWorld self) {
-    //noinspection OptionalGetWithoutIsPresent
-    return self.method_40134().getKey().get().getValue().toString();
+    return Utils.getDimensionIdentifier(self);
   }
 
   @Override
@@ -753,6 +758,10 @@ public class WorldType extends TypeBase<ServerWorld> {
    * Custom source stack wrapper.
    */
   private static class CommandSourceStackWrapper extends ServerCommandSource {
+    /**
+     * The list of all errors.
+     */
+    final List<Text> errors;
     /**
      * Whether any failures occured while executing the last command.
      */
@@ -768,11 +777,14 @@ public class WorldType extends TypeBase<ServerWorld> {
           "Server", new LiteralText("Server"), world.getServer(), null,
           true, (context, success, result) -> {
           }, EntityAnchorArgumentType.EntityAnchor.FEET);
+      this.errors = new LinkedList<>();
+      this.anyFailures = false;
     }
 
     @Override
     public void sendError(Text message) {
       super.sendError(message);
+      this.errors.add(message);
       this.anyFailures = true;
     }
   }

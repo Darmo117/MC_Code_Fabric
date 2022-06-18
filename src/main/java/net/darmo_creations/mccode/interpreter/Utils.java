@@ -240,6 +240,14 @@ public final class Utils {
     }
   }
 
+  /**
+   * Returns the identifier of the dimension type the specified world represents.
+   * Returns null if the dimension type is not registered.
+   */
+  public static String getDimensionIdentifier(final ServerWorld world) {
+    return world.method_40134().getKey().map(key -> key.getValue().toString()).orElse(null);
+  }
+
   private Utils() {
   }
 }
