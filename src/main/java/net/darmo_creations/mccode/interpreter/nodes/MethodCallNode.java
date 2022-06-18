@@ -3,7 +3,6 @@ package net.darmo_creations.mccode.interpreter.nodes;
 import net.darmo_creations.mccode.interpreter.*;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
-import net.darmo_creations.mccode.interpreter.type_wrappers.ModuleType;
 import net.darmo_creations.mccode.interpreter.type_wrappers.TypeBase;
 import net.darmo_creations.mccode.interpreter.types.Function;
 
@@ -53,7 +52,7 @@ public class MethodCallNode extends OperationNode {
     Object self = this.instance.evaluate(scope);
     TypeBase<?> selfType = ProgramManager.getTypeForValue(self);
 
-    if (selfType.getClass() == ModuleType.class) {
+    if (self instanceof Program module) {
       Object property = selfType.getPropertyValue(scope, self, this.methodName);
 
       Function function;
@@ -65,9 +64,9 @@ public class MethodCallNode extends OperationNode {
 
       int callStackSize = scope.getProgram().getScope().getCallStackSize();
       scope.getProgram().getScope().setCallStackSize(callStackSize + 1);
-      // Use global scope as user functions can only be defined in global scope
+      // Use global scope of module as user functions can only be defined in that scope
       // and it should not matter for builtin function.
-      Scope functionScope = new Scope(function.getName(), scope.getProgram().getScope());
+      Scope functionScope = new Scope(function.getName(), module.getScope());
 
       if (this.arguments.size() != function.getParameters().size()) {
         throw new EvaluationException(scope, "mccode.interpreter.error.invalid_function_arguments_number",
