@@ -9,7 +9,7 @@ import java.util.List;
  * A node that represents the call to a function or operator.
  */
 public abstract class OperationNode extends Node {
-  public static final String ARGUMENTS_KEY = "Arguments";
+  private static final String ARGUMENTS_KEY = "Arguments";
 
   protected final List<Node> arguments;
 
