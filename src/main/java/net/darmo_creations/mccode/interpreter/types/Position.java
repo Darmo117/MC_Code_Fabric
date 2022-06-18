@@ -167,10 +167,12 @@ public class Position implements Comparable<Position> {
   }
 
   private static String formatRelativePosition(final double v, final Relativity relativity) {
+    // Each value is individually cast to string as otherwise the ternary would convert the long into a double
+    String s = v == Math.floor(v) ? "" + (long) v : "" + v;
     if (relativity.isRelative()) {
-      return relativity.getSymbol() + (v != 0 ? (v == Math.floor(v) ? (long) v : v) : "");
+      return relativity.getSymbol() + (v != 0 ? s : "");
     }
-    return "" + v;
+    return s;
   }
 
   /**
