@@ -16,6 +16,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A function that prints text into the chat and formats any entity selector.
@@ -29,15 +30,18 @@ public class SayFunction extends BuiltinFunction {
   public SayFunction() {
     super("say", ProgramManager.getTypeInstance(NullType.class), false,
         new Parameter("targets", ProgramManager.getTypeInstance(StringType.class)),
-        new Parameter("message", ProgramManager.getTypeInstance(StringType.class), true));
+        new Parameter("message", ProgramManager.getTypeInstance(StringType.class)));
   }
 
   @Override
   public Object apply(final Scope scope) {
-    MinecraftServer server = scope.getProgram().getProgramManager().getWorld().getServer();
     String selector = this.getParameterValue(scope, 0);
-    String message = this.getParameterValue(scope, 1);
-    String command = "say " + message;
+    List<ServerPlayerEntity> players = Utils.getSelectedPlayers(scope.getProgram().getProgramManager().getWorld(), selector);
+    if (players == null) {
+      throw new EvaluationException(scope, "mccode.interpreter.error.invalid_player_selector", selector);
+    }
+    String command = "say " + Objects.requireNonNull(this.getParameterValue(scope, 1));
+    MinecraftServer server = scope.getProgram().getProgramManager().getWorld().getServer();
     Text text = Utils.getParsedCommandArgument(server, command, context -> {
       try {
         return MessageArgumentType.getMessage(context, "message");
@@ -45,10 +49,6 @@ public class SayFunction extends BuiltinFunction {
         throw new RuntimeException(e);
       }
     });
-    List<ServerPlayerEntity> players = Utils.getSelectedPlayers(scope.getProgram().getProgramManager().getWorld(), selector);
-    if (players == null) {
-      throw new EvaluationException(scope, "mccode.interpreter.error.invalid_entity_selector", selector);
-    }
     players.forEach(player -> player.sendMessage(text, false));
     return null;
   }

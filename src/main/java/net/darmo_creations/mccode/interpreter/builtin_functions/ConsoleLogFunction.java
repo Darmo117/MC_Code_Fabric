@@ -15,7 +15,7 @@ import net.minecraft.util.Util;
 /**
  * A function that prints raw text into the console.
  */
-@Function(parametersDoc = {"The value to print."},
+@Function(parametersDoc = {"The value to print. May be #null."},
     doc = "Prints a value in the server console.")
 public class ConsoleLogFunction extends BuiltinFunction {
   /**

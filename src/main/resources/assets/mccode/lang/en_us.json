@@ -82,5 +82,5 @@
   "mccode.interpreter.error.user_exception": "Program raised an error: %s",
   "mccode.interpreter.error.random_invalid_bounds": "Invalid bounds: %s and %s!",
   "mccode.interpreter.error.illegal_command": "/%s command cannot be executed from scripts!",
-  "mccode.interpreter.error.invalid_entity_selector": "Invalid entity selector: %s"
+  "mccode.interpreter.error.invalid_player_selector": "Invalid player selector: %s"
 }

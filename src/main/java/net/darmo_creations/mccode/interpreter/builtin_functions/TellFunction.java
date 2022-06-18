@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * A function that prints formatted text into the chat and formats any entity selector.
  */
-@Function(parametersDoc = {"An entity selector that targets the players to send the message to.", "A value that will be interpreted as JSON data."},
+@Function(parametersDoc = {"An entity selector that targets the players to send the message to.", "A value that will be interpreted as JSON data. May be #null."},
     doc = "Prints text into the chat formatted from the given value interpreted as a JSON value. Behavior is similar to /tellraw command.")
 public class TellFunction extends BuiltinFunction {
   /**
@@ -29,20 +29,19 @@ public class TellFunction extends BuiltinFunction {
   public TellFunction() {
     super("tell", ProgramManager.getTypeInstance(NullType.class), false,
         new Parameter("targets", ProgramManager.getTypeInstance(StringType.class)),
-        new Parameter("message", ProgramManager.getTypeInstance(AnyType.class)));
+        new Parameter("message", ProgramManager.getTypeInstance(AnyType.class), true));
   }
 
   @Override
   public Object apply(final Scope scope) {
-    MinecraftServer server = scope.getProgram().getProgramManager().getWorld().getServer();
     String selector = this.getParameterValue(scope, 0);
-    Object message = this.getParameterValue(scope, 1);
-    String command = "tellraw @s " + Utils.serializeJSON(message);
-    Text text = Utils.getParsedCommandArgument(server, command, context -> TextArgumentType.getTextArgument(context, "message"));
     List<ServerPlayerEntity> players = Utils.getSelectedPlayers(scope.getProgram().getProgramManager().getWorld(), selector);
     if (players == null) {
-      throw new EvaluationException(scope, "mccode.interpreter.error.invalid_entity_selector", selector);
+      throw new EvaluationException(scope, "mccode.interpreter.error.invalid_player_selector", selector);
     }
+    String command = "tellraw @s " + Utils.serializeJSON(this.getParameterValue(scope, 1));
+    MinecraftServer server = scope.getProgram().getProgramManager().getWorld().getServer();
+    Text text = Utils.getParsedCommandArgument(server, command, context -> TextArgumentType.getTextArgument(context, "message"));
     players.forEach(player -> player.sendMessage(text, false));
     return null;
   }

@@ -79,14 +79,12 @@ public class MCCode implements ModInitializer {
       MutableText message;
       if (report.line() != -1 && report.column() != -1) {
         message = new LiteralText(
-            String.format("[%s:%d:%d] ", report.scope().getProgram().getName(), report.line(), report.column()))
-            .setStyle(Style.EMPTY.withColor(Formatting.RED));
+            String.format("[%s:%d:%d] ", report.scope().getProgram().getName(), report.line(), report.column()));
       } else {
-        message = new LiteralText(String.format("[%s] ", report.scope().getProgram().getName()))
-            .setStyle(Style.EMPTY.withColor(Formatting.RED));
+        message = new LiteralText(String.format("[%s] ", report.scope().getProgram().getName()));
       }
-      message.append(new TranslatableText(report.translationKey(), report.args())
-          .setStyle(Style.EMPTY.withColor(Formatting.RED)));
+      message.append(new TranslatableText(report.translationKey(), report.args()));
+      message.setStyle(Style.EMPTY.withColor(Formatting.RED));
 
       // Only show error messages to players that can use the /program command
       if (world.getGameRules().getBoolean(GR_SHOW_ERROR_MESSAGES)) {
