@@ -63,7 +63,7 @@ public class MemberFunction extends Function {
   }
 
   @Override
-  public Object apply(Scope scope) {
+  public Object apply(Scope scope, CallStack callStack) {
     try {
       Object self = scope.getVariable(SELF_PARAM_NAME, false);
 

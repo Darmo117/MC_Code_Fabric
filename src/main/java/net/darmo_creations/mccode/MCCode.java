@@ -2,7 +2,7 @@ package net.darmo_creations.mccode;
 
 import net.darmo_creations.mccode.commands.ProgramCommand;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
-import net.darmo_creations.mccode.interpreter.StackTraceElement;
+import net.darmo_creations.mccode.interpreter.CallStackElement;
 import net.darmo_creations.mccode.interpreter.exceptions.ProgramErrorReport;
 import net.darmo_creations.mccode.interpreter.exceptions.ProgramErrorReportElement;
 import net.fabricmc.api.ModInitializer;
@@ -73,28 +73,26 @@ public class MCCode implements ModInitializer {
 
   private void onWorldTickStart(ServerWorld world) {
     ProgramManager programManager = this.PROGRAM_MANAGERS.get(world);
+    // Log errors in chat and server console
     for (ProgramErrorReport report : programManager.executePrograms()) {
       MutableText message = null;
-      // Log errors in chat and server console
+      // Add error elements
       for (ProgramErrorReportElement element : report.elements()) {
-        MutableText t;
-        if (element.line() != -1 && element.column() != -1) {
-          t = new LiteralText(
-              String.format("[%s:%d:%d] ", element.moduleName(), element.line(), element.column()));
-        } else {
-          t = new LiteralText(String.format("[%s] ", element.moduleName()));
-        }
+        MutableText t = new LiteralText(element.exception().getClass().getSimpleName() + ": ")
+            .append(new TranslatableText(element.translationKey(), element.args()));
         if (message == null) {
           message = t;
         } else {
-          message.append(t);
+          message.append(new LiteralText("\n")).append(t);
         }
-        message.append(new TranslatableText(element.translationKey(), element.args()));
-        if (element.scope() != null) {
-          for (StackTraceElement traceElement : element.scope().getStackTrace()) {
-            message.append(new LiteralText("\n at %s [%d:%d]".formatted(traceElement.scopeName(), traceElement.line(), traceElement.column())));
-          }
+        // Add call stack trace
+        for (CallStackElement traceElement : element.callStack()) {
+          // There should always be at least one ProgramErrorReportElement instance
+          message.append(new LiteralText("\n  @ %s.%s [%d:%d]".formatted(
+              traceElement.moduleName(), traceElement.scopeName(), traceElement.line(), traceElement.column())));
         }
+      }
+      if (message != null) {
         message.setStyle(Style.EMPTY.withColor(Formatting.RED));
       }
       // Only show error messages to players that can use the /program command

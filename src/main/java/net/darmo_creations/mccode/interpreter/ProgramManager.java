@@ -122,7 +122,7 @@ public class ProgramManager extends PersistentState {
           program.execute();
           error = false;
         } catch (Exception e) {
-          errorReports.add(new ProgramErrorReport(buildErrorReport(program.getScope(), e).toArray(ProgramErrorReportElement[]::new)));
+          errorReports.add(new ProgramErrorReport(buildErrorReportElements(program.getCallStack(), e).toArray(ProgramErrorReportElement[]::new)));
         }
         // Unload programs that have terminated or failed
         if (error || program.hasTerminated() && (!this.programsSchedules.containsKey(program.getName()) || this.programsRepeats.get(program.getName()) == 0)) {
@@ -157,23 +157,33 @@ public class ProgramManager extends PersistentState {
     return errorReports;
   }
 
-  private static List<ProgramErrorReportElement> buildErrorReport(final Scope scope, final Exception e) {
+  /**
+   * Recursively builds the list of {@link ProgramErrorReportElement}s. for the given exception and call stack.
+   *
+   * @param callStack The call stack associated to the exception.
+   * @param e         The exception.
+   * @return The list of {@link ProgramErrorReportElement}s.
+   */
+  private static List<ProgramErrorReportElement> buildErrorReportElements(final CallStack callStack, final Exception e) {
     List<ProgramErrorReportElement> elements = new LinkedList<>();
 
     if (e instanceof ProgramStatusException ex) {
       elements.add(
-          new ProgramErrorReportElement(scope, scope.getProgram().getName(), -1, -1, ex.getTranslationKey(), ex.getProgramName()));
+          new ProgramErrorReportElement(ex, callStack, ex.getTranslationKey(), ex.getProgramName()));
     } else if (e instanceof SyntaxErrorException ex) {
       elements.add(
-          new ProgramErrorReportElement(scope, scope.getProgram().getName(), ex.getLine(), ex.getColumn(), ex.getTranslationKey(), ex.getArgs()));
+          new ProgramErrorReportElement(ex, callStack, ex.getTranslationKey(), ex.getArgs()));
     } else if (e instanceof ImportException ex) {
-      elements.addAll(buildErrorReport(ex.getScope(), ex.getCause()));
-    } else if (e instanceof MCCodeRuntimeException ex) {
       elements.add(
-          new ProgramErrorReportElement(ex.getScope(), ex.getScope().getProgram().getName(), ex.getLine(), ex.getColumn(), ex.getTranslationKey(), ex.getArgs()));
+          new ProgramErrorReportElement(ex, callStack, ex.getTranslationKey(), ex.getArgs()));
+      elements.addAll(buildErrorReportElements(ex.getCallStack(), ex.getCause()));
     } else if (e instanceof WrappedException ex) {
       elements.add(
-          new ProgramErrorReportElement(scope, scope.getProgram().getName(), ex.getLine(), ex.getColumn(), ex.getTranslationKey(), ex.getArgs()));
+          new ProgramErrorReportElement(ex, callStack, ex.getTranslationKey(), ex.getArgs()));
+    } else {
+      MCCodeRuntimeException ex = (MCCodeRuntimeException) e;
+      elements.add(
+          new ProgramErrorReportElement(ex, callStack, ex.getTranslationKey(), ex.getArgs()));
     }
 
     return elements;
@@ -204,7 +214,7 @@ public class ProgramManager extends PersistentState {
     splitPath[splitPath.length - 1] += ".mccode";
     File programFile = Paths.get(this.programsDir.getAbsolutePath(), splitPath).toFile();
     if (!programFile.exists()) {
-      throw new ProgramFileNotFoundException(programFile.getName());
+      throw new ProgramFileNotFoundException(name + ".mccode");
     }
     StringBuilder code = new StringBuilder();
     try (BufferedReader br = new BufferedReader(new FileReader(programFile))) {
@@ -213,7 +223,7 @@ public class ProgramManager extends PersistentState {
         code.append(line).append('\n');
       }
     } catch (IOException e) {
-      throw new ProgramFileNotFoundException(programFile.getName());
+      throw new ProgramFileNotFoundException(name + ".mccode");
     }
 
     Program program = ProgramParser.parse(this, actualName, code.toString(), asModule, args);
@@ -841,7 +851,7 @@ public class ProgramManager extends PersistentState {
         String name = "to_" + typeName;
         BuiltinFunction function = new BuiltinFunction(name, type, false, new Parameter("o", ProgramManager.getTypeInstance(AnyType.class))) {
           @Override
-          public Object apply(final Scope scope) {
+          public Object apply(final Scope scope, CallStack callStack) {
             return type.explicitCast(scope, this.getParameterValue(scope, 0));
           }
         };

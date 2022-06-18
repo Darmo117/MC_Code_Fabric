@@ -1,9 +1,6 @@
 package net.darmo_creations.mccode.interpreter.builtin_functions;
 
-import net.darmo_creations.mccode.interpreter.Parameter;
-import net.darmo_creations.mccode.interpreter.ProgramManager;
-import net.darmo_creations.mccode.interpreter.Scope;
-import net.darmo_creations.mccode.interpreter.Utils;
+import net.darmo_creations.mccode.interpreter.*;
 import net.darmo_creations.mccode.interpreter.annotations.Function;
 import net.darmo_creations.mccode.interpreter.type_wrappers.StringType;
 import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
@@ -22,7 +19,7 @@ public class EscapeFunction extends BuiltinFunction {
   }
 
   @Override
-  public Object apply(final Scope scope) {
+  public Object apply(final Scope scope, CallStack callStack) {
     return Utils.escapeString(this.getParameterValue(scope, 0));
   }
 }

@@ -1,9 +1,6 @@
 package net.darmo_creations.mccode.interpreter.builtin_functions;
 
-import net.darmo_creations.mccode.interpreter.Parameter;
-import net.darmo_creations.mccode.interpreter.ProgramManager;
-import net.darmo_creations.mccode.interpreter.Scope;
-import net.darmo_creations.mccode.interpreter.Utils;
+import net.darmo_creations.mccode.interpreter.*;
 import net.darmo_creations.mccode.interpreter.annotations.Function;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.type_wrappers.AnyType;
@@ -32,7 +29,7 @@ public class PrintFunction extends BuiltinFunction {
   }
 
   @Override
-  public Object apply(final Scope scope) {
+  public Object apply(final Scope scope, CallStack callStack) {
     String selector = this.getParameterValue(scope, 0);
     List<ServerPlayerEntity> players = Utils.getSelectedPlayers(scope.getProgram().getProgramManager().getWorld(), selector);
     if (players == null) {

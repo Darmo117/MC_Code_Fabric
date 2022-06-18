@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
@@ -13,8 +14,8 @@ import java.util.Objects;
 public class PropertyCallNode extends Node {
   public static final int ID = 101;
 
-  public static final String INSTANCE_KEY = "Instance";
-  public static final String PROPERTY_NAME_KEY = "PropertyName";
+  private static final String INSTANCE_KEY = "Instance";
+  private static final String PROPERTY_NAME_KEY = "PropertyName";
 
   private final Node object;
   private final String propertyName;
@@ -45,8 +46,8 @@ public class PropertyCallNode extends Node {
   }
 
   @Override
-  protected Object evaluateWrapped(final Scope scope) {
-    Object obj = this.object.evaluate(scope);
+  protected Object evaluateWrapped(final Scope scope, CallStack callStack) {
+    Object obj = this.object.evaluate(scope, callStack);
     TypeBase<?> objectType = ProgramManager.getTypeForValue(obj);
     return objectType.getPropertyValue(scope, obj, this.propertyName);
   }

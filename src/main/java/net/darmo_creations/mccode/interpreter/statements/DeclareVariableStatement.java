@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Variable;
 import net.darmo_creations.mccode.interpreter.exceptions.MCCodeException;
@@ -15,11 +16,11 @@ import java.util.Objects;
 public class DeclareVariableStatement extends Statement {
   public static final int ID = 10;
 
-  public static final String CONSTANT_KEY = "Constant";
-  public static final String PUBLIC_KEY = "Public";
-  public static final String EDITABLE_KEY = "Editable";
-  public static final String VAR_NAME_KEY = "VariableName";
-  public static final String VALUE_KEY = "Value";
+  private static final String CONSTANT_KEY = "Constant";
+  private static final String PUBLIC_KEY = "Public";
+  private static final String EDITABLE_KEY = "Editable";
+  private static final String VAR_NAME_KEY = "VariableName";
+  private static final String VALUE_KEY = "Value";
 
   private final boolean publiclyVisible;
   private final boolean editableByCommands;
@@ -75,8 +76,8 @@ public class DeclareVariableStatement extends Statement {
   }
 
   @Override
-  protected StatementAction executeWrapped(Scope scope) {
-    Object value = this.value.evaluate(scope);
+  protected StatementAction executeWrapped(Scope scope, CallStack callStack) {
+    Object value = this.value.evaluate(scope, callStack);
     scope.declareVariable(new Variable(this.variableName, this.publiclyVisible, this.editableByCommands, this.constant, true, value));
 
     return StatementAction.PROCEED;

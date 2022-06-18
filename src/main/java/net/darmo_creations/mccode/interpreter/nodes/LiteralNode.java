@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
@@ -13,7 +14,7 @@ import java.util.function.Function;
  * @param <T> Type of the literal’s value.
  */
 public abstract class LiteralNode<T> extends Node {
-  public static final String VALUE_KEY = "Value";
+  private static final String VALUE_KEY = "Value";
 
   protected final T value;
 
@@ -41,7 +42,7 @@ public abstract class LiteralNode<T> extends Node {
   }
 
   @Override
-  protected Object evaluateWrapped(final Scope scope) {
+  protected Object evaluateWrapped(final Scope scope, CallStack callStack) {
     return this.value;
   }
 

@@ -1,9 +1,6 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
-import net.darmo_creations.mccode.interpreter.ProgramManager;
-import net.darmo_creations.mccode.interpreter.Scope;
-import net.darmo_creations.mccode.interpreter.Utils;
-import net.darmo_creations.mccode.interpreter.Variable;
+import net.darmo_creations.mccode.interpreter.*;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
 import net.darmo_creations.mccode.interpreter.nodes.NodeTagHelper;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
@@ -20,12 +17,12 @@ import java.util.Objects;
 public class ForLoopStatement extends Statement {
   public static final int ID = 42;
 
-  public static final String VARIABLE_NAME_KEY = "VariableName";
-  public static final String VALUES_KEY = "Values";
-  public static final String STATEMENTS_KEY = "Statements";
-  public static final String IP_KEY = "IP";
-  public static final String ITERATOR_INDEX_KEY = "IteratorIndex";
-  public static final String PAUSED_KEY = "Paused";
+  private static final String VARIABLE_NAME_KEY = "VariableName";
+  private static final String VALUES_KEY = "Values";
+  private static final String STATEMENTS_KEY = "Statements";
+  private static final String IP_KEY = "IP";
+  private static final String ITERATOR_INDEX_KEY = "IteratorIndex";
+  private static final String PAUSED_KEY = "Paused";
 
   private final String variableName;
   private final Node values;
@@ -84,8 +81,8 @@ public class ForLoopStatement extends Statement {
   }
 
   @Override
-  protected StatementAction executeWrapped(Scope scope) {
-    Object valuesObject = this.values.evaluate(scope);
+  protected StatementAction executeWrapped(Scope scope, CallStack callStack) {
+    Object valuesObject = this.values.evaluate(scope, callStack);
     TypeBase<?> type = ProgramManager.getTypeForValue(valuesObject);
     Iterator<?> iterator = (Iterator<?>) type.applyOperator(scope, UnaryOperator.ITERATE, valuesObject, null, null, false);
 
@@ -108,7 +105,7 @@ public class ForLoopStatement extends Statement {
 
       while (this.ip < this.statements.size()) {
         Statement statement = this.statements.get(this.ip);
-        StatementAction action = statement.execute(scope);
+        StatementAction action = statement.execute(scope, callStack);
         if (action == StatementAction.EXIT_LOOP) {
           break exit;
         } else if (action == StatementAction.CONTINUE_LOOP) {

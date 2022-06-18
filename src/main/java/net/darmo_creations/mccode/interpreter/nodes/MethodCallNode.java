@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
+import net.darmo_creations.mccode.interpreter.CallStackElement;
 import net.darmo_creations.mccode.interpreter.*;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
@@ -16,8 +17,8 @@ import java.util.stream.Collectors;
 public class MethodCallNode extends OperationNode {
   public static final int ID = 102;
 
-  public static final String INSTANCE_KEY = "Instance";
-  public static final String METHOD_NAME_KEY = "MethodName";
+  private static final String INSTANCE_KEY = "Instance";
+  private static final String METHOD_NAME_KEY = "MethodName";
 
   protected final Node instance;
   private final String methodName;
@@ -48,8 +49,8 @@ public class MethodCallNode extends OperationNode {
   }
 
   @Override
-  protected Object evaluateWrapped(final Scope scope) {
-    Object self = this.instance.evaluate(scope);
+  protected Object evaluateWrapped(final Scope scope, CallStack callStack) {
+    Object self = this.instance.evaluate(scope, callStack);
     TypeBase<?> selfType = ProgramManager.getTypeForValue(self);
 
     if (self instanceof Program module) {
@@ -62,11 +63,9 @@ public class MethodCallNode extends OperationNode {
         throw new EvaluationException(scope, "mccode.interpreter.error.calling_non_callable", selfType);
       }
 
-      int callStackSize = scope.getProgram().getScope().getCallStackSize();
-      scope.getProgram().getScope().setCallStackSize(callStackSize + 1);
       // Use global scope of module as user functions can only be defined in that scope
       // and it should not matter for builtin function.
-      Scope functionScope = new Scope(function.getName(), module.getScope(), this.getLine(), this.getColumn());
+      Scope functionScope = new Scope(function.getName(), module.getScope());
 
       if (this.arguments.size() != function.getParameters().size()) {
         throw new EvaluationException(scope, "mccode.interpreter.error.invalid_function_arguments_number",
@@ -75,11 +74,12 @@ public class MethodCallNode extends OperationNode {
 
       for (int i = 0; i < this.arguments.size(); i++) {
         Parameter parameter = function.getParameter(i);
-        functionScope.declareVariable(new Variable(parameter.getName(), false, false, false, true, this.arguments.get(i).evaluate(scope)));
+        functionScope.declareVariable(new Variable(parameter.getName(), false, false, false, true, this.arguments.get(i).evaluate(scope, callStack)));
       }
 
-      Object result = function.apply(functionScope);
-      scope.getProgram().getScope().setCallStackSize(callStackSize);
+      callStack.push(new CallStackElement(scope.getProgram().getName(), scope.getName(), this.getLine(), this.getColumn()));
+      Object result = function.apply(functionScope, callStack);
+      callStack.pop();
 
       return result;
 
@@ -88,7 +88,7 @@ public class MethodCallNode extends OperationNode {
       if (method == null) {
         throw new EvaluationException(scope, "mccode.interpreter.error.no_method_for_type", selfType.getName(), this.methodName);
       }
-      Scope functionScope = new Scope(method.getName(), scope, this.getLine(), this.getColumn());
+      Scope functionScope = new Scope(method.getName(), scope);
 
       if (this.arguments.size() != method.getParameters().size()) {
         throw new EvaluationException(scope, "mccode.interpreter.error.invalid_method_arguments_number",
@@ -98,10 +98,10 @@ public class MethodCallNode extends OperationNode {
       functionScope.declareVariable(new Variable(MemberFunction.SELF_PARAM_NAME, false, false, true, false, self));
       for (int i = 0; i < this.arguments.size(); i++) {
         Parameter parameter = method.getParameter(i);
-        functionScope.declareVariable(new Variable(parameter.getName(), false, false, false, true, this.arguments.get(i).evaluate(scope)));
+        functionScope.declareVariable(new Variable(parameter.getName(), false, false, false, true, this.arguments.get(i).evaluate(scope, callStack)));
       }
 
-      return method.apply(functionScope);
+      return method.apply(functionScope, callStack);
     }
   }
 

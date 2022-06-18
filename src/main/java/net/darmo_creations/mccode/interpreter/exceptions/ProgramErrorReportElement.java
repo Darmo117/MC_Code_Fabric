@@ -1,23 +1,19 @@
 package net.darmo_creations.mccode.interpreter.exceptions;
 
-import net.darmo_creations.mccode.interpreter.Scope;
+import net.darmo_creations.mccode.interpreter.CallStack;
 
 /**
- * A single element of a program report. It represents a single error.
+ * A single element of a program report. It represents a single error with its own call stack.
  *
- * @param scope          Scope of the program/module that threw the error.
- * @param moduleName     Name of the module that threw the error.
- * @param line           Line where the error occured on.
- * @param column         Column of the line the error occured on.
+ * @param exception      The exception this element represents.
+ * @param callStack      The program’s call stack when the error was thrown.
  * @param translationKey Error’s unlocalized translation key.
  * @param args           Report’s arguments to be used for translation of the error message.
  * @see ProgramErrorReport
  */
 public record ProgramErrorReportElement(
-    Scope scope,
-    String moduleName,
-    int line,
-    int column,
+    MCCodeException exception,
+    CallStack callStack,
     String translationKey,
     Object... args
 ) {

@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.builtin_functions;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.Parameter;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
@@ -24,7 +25,7 @@ public class ToRadiansFunction extends BuiltinFunction {
   }
 
   @Override
-  public Object apply(final Scope scope) {
+  public Object apply(final Scope scope, CallStack callStack) {
     return Math.toRadians(this.getParameterValue(scope, 0));
   }
 }

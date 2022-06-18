@@ -32,12 +32,14 @@ public class Program {
   public static final String IP_KEY = "IP";
   public static final String IS_MODULE_KEY = "IsModule";
   public static final String ARGS_KEY = "CommandArgs";
+  public static final String CALL_STACK_KEY = "CallStack";
 
   private final String name;
   private final List<Statement> statements;
   private final ProgramManager programManager;
   private final boolean isModule;
   private final Scope scope;
+  private final CallStack callStack;
   private final Long scheduleDelay;
   private final Long repeatAmount;
   private long timeToWait;
@@ -75,6 +77,7 @@ public class Program {
     if (scheduleDelay == null && repeatAmount != null) {
       throw new MCCodeRuntimeException(this.scope, null, "mccode.interpreter.error.missing_schedule_delay");
     }
+    this.callStack = new CallStack();
     this.scheduleDelay = scheduleDelay;
     this.repeatAmount = repeatAmount;
     this.timeToWait = 0;
@@ -97,6 +100,7 @@ public class Program {
     this.name = Objects.requireNonNull(name);
     this.statements = Objects.requireNonNull(statements);
     this.scope = new Scope(this);
+    this.callStack = new CallStack();
     this.scheduleDelay = null;
     this.repeatAmount = null;
     this.timeToWait = 0;
@@ -118,6 +122,8 @@ public class Program {
     this.statements = StatementTagHelper.deserializeStatementsList(tag, STATEMENTS_KEY);
     this.scope = new Scope(this);
     this.scope.readFromTag(tag.getCompound(SCOPE_KEY));
+    this.callStack = new CallStack();
+    this.callStack.readFromTag(tag.getCompound(CALL_STACK_KEY));
     this.isModule = tag.getBoolean(IS_MODULE_KEY);
     if (!this.isModule) {
       this.scheduleDelay = tag.getLong(SCHEDULE_DELAY_KEY);
@@ -188,6 +194,13 @@ public class Program {
   }
 
   /**
+   * Returns this program’s call stack.
+   */
+  public CallStack getCallStack() {
+    return this.callStack;
+  }
+
+  /**
    * Return whether this program has terminated, i.e executed its last statement and wait time is 0.
    */
   public boolean hasTerminated() {
@@ -235,18 +248,24 @@ public class Program {
     } else if (this.ip < this.statements.size()) {
       while (this.ip < this.statements.size()) {
         Statement statement = this.statements.get(this.ip);
-        StatementAction action = statement.execute(this.scope);
+        CallStackElement callStackElement = new CallStackElement(
+            this.scope.getProgram().getName(), this.scope.getName(), statement.getLine(), statement.getColumn());
+        StatementAction action = statement.execute(this.scope, this.callStack);
         if (action == StatementAction.EXIT_FUNCTION) {
+          this.callStack.push(callStackElement);
           throw new SyntaxErrorException(statement.getLine(), statement.getColumn(),
               "mccode.interpreter.error.return_outside_function");
         } else if (action == StatementAction.EXIT_LOOP) {
+          this.callStack.push(callStackElement);
           throw new SyntaxErrorException(statement.getLine(), statement.getColumn(),
               "mccode.interpreter.error.break_outside_loop");
         } else if (action == StatementAction.CONTINUE_LOOP) {
+          this.callStack.push(callStackElement);
           throw new SyntaxErrorException(statement.getLine(), statement.getColumn(),
               "mccode.interpreter.error.continue_outside_loop");
         } else if (action == StatementAction.WAIT) {
           if (this.isModule) {
+            this.callStack.push(callStackElement);
             throw new MCCodeRuntimeException(this.scope, null, statement.getLine(), statement.getColumn(),
                 "mccode.interpreter.error.wait_in_module", this.getName());
           }
@@ -282,6 +301,7 @@ public class Program {
     tag.putString(NAME_KEY, this.name);
     tag.putTag(STATEMENTS_KEY, StatementTagHelper.serializeStatementsList(this.statements));
     tag.putTag(SCOPE_KEY, this.scope.writeToTag());
+    tag.putTag(CALL_STACK_KEY, this.callStack.writeToTag());
     if (!this.isModule) {
       if (this.scheduleDelay != null) {
         tag.putLong(SCHEDULE_DELAY_KEY, this.scheduleDelay);

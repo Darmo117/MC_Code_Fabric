@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.types;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.Parameter;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.exceptions.MCCodeException;
@@ -85,11 +86,12 @@ public abstract class Function {
   /**
    * Call this function in the given scope.
    *
-   * @param scope The scope the function is called from.It contains variables named
-   *              after this function’s parameters containing the values of the arguments.
+   * @param scope     The scope the function is called from.It contains variables named
+   *                  after this function’s parameters containing the values of the arguments.
+   * @param callStack The current call stack.
    * @return A value.
    */
-  public abstract Object apply(Scope scope);
+  public abstract Object apply(Scope scope, CallStack callStack);
 
   /**
    * Generate a parameter types list from an array of types.

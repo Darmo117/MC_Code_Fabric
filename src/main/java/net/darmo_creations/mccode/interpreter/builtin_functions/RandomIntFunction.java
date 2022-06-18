@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.builtin_functions;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.Parameter;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
@@ -26,7 +27,7 @@ public class RandomIntFunction extends BuiltinFunction {
   }
 
   @Override
-  public Object apply(final Scope scope) {
+  public Object apply(final Scope scope, CallStack callStack) {
     int a = this.<Long>getParameterValue(scope, 0).intValue();
     int b = this.<Long>getParameterValue(scope, 1).intValue();
     if (a > b) {

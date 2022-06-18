@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Utils;
@@ -19,10 +20,10 @@ import java.util.Objects;
 public class IfStatement extends Statement {
   public static final int ID = 40;
 
-  public static final String CONDITIONS_KEY = "Conditions";
-  public static final String BRANCHES_KEY = "Branches";
-  public static final String BRANCH_INDEX_KEY = "BranchIndex";
-  public static final String IP_KEY = "IP";
+  private static final String CONDITIONS_KEY = "Conditions";
+  private static final String BRANCHES_KEY = "Branches";
+  private static final String BRANCH_INDEX_KEY = "BranchIndex";
+  private static final String IP_KEY = "IP";
 
   private final List<Node> conditions;
   private final List<List<Statement>> branchesStatements;
@@ -83,10 +84,10 @@ public class IfStatement extends Statement {
   }
 
   @Override
-  protected StatementAction executeWrapped(Scope scope) {
+  protected StatementAction executeWrapped(Scope scope, CallStack callStack) {
     if (this.branchIndex == -1) {
       for (int i = 0; i < this.conditions.size(); i++) { // Check every branch until a condition evaluates to true
-        Object value = this.conditions.get(i).evaluate(scope);
+        Object value = this.conditions.get(i).evaluate(scope, callStack);
         TypeBase<?> valueType = ProgramManager.getTypeForValue(value);
         if (valueType.toBoolean(value)) {
           this.branchIndex = i;
@@ -101,7 +102,7 @@ public class IfStatement extends Statement {
     List<Statement> statements = this.branchesStatements.get(this.branchIndex);
     while (this.ip < statements.size()) {
       Statement statement = statements.get(this.ip);
-      StatementAction action = statement.execute(scope);
+      StatementAction action = statement.execute(scope, callStack);
       if (action == StatementAction.EXIT_FUNCTION || action == StatementAction.WAIT
           || action == StatementAction.EXIT_LOOP || action == StatementAction.CONTINUE_LOOP) {
         if (action == StatementAction.WAIT) {

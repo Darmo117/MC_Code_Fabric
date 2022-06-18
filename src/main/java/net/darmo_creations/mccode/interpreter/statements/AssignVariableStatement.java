@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
@@ -15,9 +16,9 @@ import java.util.Objects;
 public class AssignVariableStatement extends Statement {
   public static final int ID = 12;
 
-  public static final String VAR_NAME_KEY = "VariableName";
-  public static final String OPERATOR_KEY = "Operator";
-  public static final String VALUE_KEY = "Value";
+  private static final String VAR_NAME_KEY = "VariableName";
+  private static final String OPERATOR_KEY = "Operator";
+  private static final String VALUE_KEY = "Value";
 
   private final String variableName;
   private final AssigmentOperator operator;
@@ -52,10 +53,10 @@ public class AssignVariableStatement extends Statement {
   }
 
   @Override
-  protected StatementAction executeWrapped(Scope scope) {
+  protected StatementAction executeWrapped(Scope scope, CallStack callStack) {
     Object targetObject = scope.getVariable(this.variableName, false);
     TypeBase<?> targetType = ProgramManager.getTypeForValue(targetObject);
-    Object valueObject = this.value.evaluate(scope);
+    Object valueObject = this.value.evaluate(scope, callStack);
     Object result = this.operator.getBaseOperator()
         .map(op -> targetType.applyOperator(scope, op, targetObject, valueObject, null, true))
         .orElse(ProgramManager.getTypeForValue(valueObject).copy(scope, valueObject));

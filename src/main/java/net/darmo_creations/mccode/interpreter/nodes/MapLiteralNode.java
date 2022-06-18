@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Utils;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 public class MapLiteralNode extends Node {
   public static final int ID = 6;
 
-  public static final String VALUES_KEY = "Values";
+  private static final String VALUES_KEY = "Values";
 
   private final Map<String, Node> values;
 
@@ -48,9 +49,9 @@ public class MapLiteralNode extends Node {
   }
 
   @Override
-  protected Object evaluateWrapped(Scope scope) {
+  protected Object evaluateWrapped(Scope scope, CallStack callStack) {
     return new MCMap(this.values.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> {
-      Object v = e.getValue().evaluate(scope);
+      Object v = e.getValue().evaluate(scope, callStack);
       return ProgramManager.getTypeForValue(v).copy(scope, v);
     })));
   }

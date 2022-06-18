@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.exceptions.SyntaxErrorException;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
@@ -12,7 +13,7 @@ import java.util.stream.Collectors;
  * A node that represents an operator.
  */
 public abstract class OperatorNode extends OperationNode {
-  public static final String SYMBOL_KEY = "Symbol";
+  private static final String SYMBOL_KEY = "Symbol";
 
   private final String symbol;
 
@@ -54,9 +55,9 @@ public abstract class OperatorNode extends OperationNode {
   }
 
   @Override
-  protected Object evaluateWrapped(Scope scope) {
+  protected Object evaluateWrapped(Scope scope, CallStack callStack) {
     return this.evaluateImpl(scope, this.arguments.stream()
-        .map(node -> node.evaluate(scope))
+        .map(node -> node.evaluate(scope, callStack))
         .collect(Collectors.toList()));
   }
 

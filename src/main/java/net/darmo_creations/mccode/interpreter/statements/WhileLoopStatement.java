@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Utils;
@@ -17,10 +18,10 @@ import java.util.Objects;
 public class WhileLoopStatement extends Statement {
   public static final int ID = 41;
 
-  public static final String CONDITION_KEY = "Condition";
-  public static final String STATEMENTS_KEY = "Statements";
-  public static final String IP_KEY = "IP";
-  public static final String PAUSED_KEY = "Paused";
+  private static final String CONDITION_KEY = "Condition";
+  private static final String STATEMENTS_KEY = "Statements";
+  private static final String IP_KEY = "IP";
+  private static final String PAUSED_KEY = "Paused";
 
   private final Node condition;
   private final List<Statement> statements;
@@ -63,17 +64,17 @@ public class WhileLoopStatement extends Statement {
   }
 
   @Override
-  protected StatementAction executeWrapped(Scope scope) {
+  protected StatementAction executeWrapped(Scope scope, CallStack callStack) {
     BooleanType booleanType = ProgramManager.getTypeInstance(BooleanType.class);
     exit:
     // Do not re-evaluate condition if loop was paused by "wait" a statement
-    while (this.paused || booleanType.implicitCast(scope, this.condition.evaluate(scope))) {
+    while (this.paused || booleanType.implicitCast(scope, this.condition.evaluate(scope, callStack))) {
       if (this.paused) {
         this.paused = false;
       }
       while (this.ip < this.statements.size()) {
         Statement statement = this.statements.get(this.ip);
-        StatementAction action = statement.execute(scope);
+        StatementAction action = statement.execute(scope, callStack);
         if (action == StatementAction.EXIT_LOOP) {
           this.ip = 0;
           break exit;

@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
@@ -15,7 +16,7 @@ import java.util.Objects;
 public class WaitStatement extends Statement {
   public static final int ID = 50;
 
-  public static final String TICKS_KEY = "Ticks";
+  private static final String TICKS_KEY = "Ticks";
 
   private final Node value;
 
@@ -42,8 +43,8 @@ public class WaitStatement extends Statement {
   }
 
   @Override
-  protected StatementAction executeWrapped(Scope scope) {
-    long ticks = ProgramManager.getTypeInstance(IntType.class).implicitCast(scope, this.value.evaluate(scope));
+  protected StatementAction executeWrapped(Scope scope, CallStack callStack) {
+    long ticks = ProgramManager.getTypeInstance(IntType.class).implicitCast(scope, this.value.evaluate(scope, callStack));
     scope.getProgram().wait(scope, ticks);
     return StatementAction.WAIT;
   }

@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
@@ -15,10 +16,10 @@ import java.util.Objects;
 public class SetPropertyStatement extends Statement {
   public static final int ID = 14;
 
-  public static final String TARGET_KEY = "Target";
-  public static final String PROPERTY_NAME_KEY = "PropertyName";
-  public static final String OPERATOR_KEY = "Operator";
-  public static final String VALUE_KEY = "Value";
+  private static final String TARGET_KEY = "Target";
+  private static final String PROPERTY_NAME_KEY = "PropertyName";
+  private static final String OPERATOR_KEY = "Operator";
+  private static final String VALUE_KEY = "Value";
 
   private final Node target;
   private final String propertyName;
@@ -58,12 +59,12 @@ public class SetPropertyStatement extends Statement {
   }
 
   @Override
-  protected StatementAction executeWrapped(Scope scope) {
-    Object targetObject = this.target.evaluate(scope);
+  protected StatementAction executeWrapped(Scope scope, CallStack callStack) {
+    Object targetObject = this.target.evaluate(scope, callStack);
     TypeBase<?> targetType = ProgramManager.getTypeForValue(targetObject);
     TypeBase<?> propertyType = targetType.getPropertyType(scope, targetObject, this.propertyName);
     Object propertyValue = targetType.getPropertyValue(scope, targetObject, this.propertyName);
-    Object newPropertyValue = this.value.evaluate(scope);
+    Object newPropertyValue = this.value.evaluate(scope, callStack);
     Object result = this.operator.getBaseOperator()
         .map(op -> propertyType.applyOperator(scope, op, propertyValue, newPropertyValue, null, true))
         .orElse(newPropertyValue);

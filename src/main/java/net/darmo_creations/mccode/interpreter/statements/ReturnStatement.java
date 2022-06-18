@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Variable;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
@@ -15,7 +16,7 @@ public class ReturnStatement extends Statement {
   public static final int ID = 62;
   public static final String RETURN_SPECIAL_VAR_NAME = "$return";
 
-  public static final String EXPR_KEY = "Expression";
+  private static final String EXPR_KEY = "Expression";
 
   private final Node node;
 
@@ -42,8 +43,8 @@ public class ReturnStatement extends Statement {
   }
 
   @Override
-  protected StatementAction executeWrapped(Scope scope) {
-    Object value = this.node != null ? this.node.evaluate(scope) : null;
+  protected StatementAction executeWrapped(Scope scope, CallStack callStack) {
+    Object value = this.node != null ? this.node.evaluate(scope, callStack) : null;
     scope.declareVariable(new Variable(RETURN_SPECIAL_VAR_NAME, false, false, true, false, value));
     return StatementAction.EXIT_FUNCTION;
   }

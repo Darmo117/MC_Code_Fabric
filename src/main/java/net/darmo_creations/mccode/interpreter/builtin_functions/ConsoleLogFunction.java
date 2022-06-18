@@ -1,9 +1,6 @@
 package net.darmo_creations.mccode.interpreter.builtin_functions;
 
-import net.darmo_creations.mccode.interpreter.Parameter;
-import net.darmo_creations.mccode.interpreter.Program;
-import net.darmo_creations.mccode.interpreter.ProgramManager;
-import net.darmo_creations.mccode.interpreter.Scope;
+import net.darmo_creations.mccode.interpreter.*;
 import net.darmo_creations.mccode.interpreter.annotations.Function;
 import net.darmo_creations.mccode.interpreter.type_wrappers.AnyType;
 import net.darmo_creations.mccode.interpreter.type_wrappers.NullType;
@@ -27,7 +24,7 @@ public class ConsoleLogFunction extends BuiltinFunction {
   }
 
   @Override
-  public Object apply(final Scope scope) {
+  public Object apply(final Scope scope, CallStack callStack) {
     Program program = scope.getProgram();
     MinecraftServer server = program.getProgramManager().getWorld().getServer();
     Object message = this.getParameterValue(scope, 0);

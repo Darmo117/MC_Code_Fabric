@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
@@ -31,7 +32,7 @@ public class BreakStatement extends Statement {
   }
 
   @Override
-  protected StatementAction executeWrapped(final Scope scope) {
+  protected StatementAction executeWrapped(final Scope scope, CallStack callStack) {
     return StatementAction.EXIT_LOOP;
   }
 

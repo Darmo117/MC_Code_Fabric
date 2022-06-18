@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
@@ -17,10 +18,10 @@ import java.util.Objects;
 public class SetItemStatement extends Statement {
   public static final int ID = 13;
 
-  public static final String TARGET_KEY = "Target";
-  public static final String KEY_KEY = "Key";
-  public static final String OPERATOR_KEY = "Operator";
-  public static final String VALUE_KEY = "Value";
+  private static final String TARGET_KEY = "Target";
+  private static final String KEY_KEY = "Key";
+  private static final String OPERATOR_KEY = "Operator";
+  private static final String VALUE_KEY = "Value";
 
   private final Node target;
   private final Node key;
@@ -60,11 +61,11 @@ public class SetItemStatement extends Statement {
   }
 
   @Override
-  protected StatementAction executeWrapped(Scope scope) {
-    Object targetObject = this.target.evaluate(scope);
+  protected StatementAction executeWrapped(Scope scope, CallStack callStack) {
+    Object targetObject = this.target.evaluate(scope, callStack);
     TypeBase<?> targetObjectType = ProgramManager.getTypeForValue(targetObject);
-    Object keyValue = this.key.evaluate(scope);
-    Object newValue = this.value.evaluate(scope);
+    Object keyValue = this.key.evaluate(scope, callStack);
+    Object newValue = this.value.evaluate(scope, callStack);
     Object oldValue = targetObjectType.applyOperator(scope, BinaryOperator.GET_ITEM, targetObject, keyValue, null, false);
     TypeBase<?> oldValueType = ProgramManager.getTypeForValue(oldValue);
     Object resultValue = this.operator.getBaseOperator()

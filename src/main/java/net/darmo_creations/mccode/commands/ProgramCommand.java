@@ -10,10 +10,7 @@ import net.darmo_creations.mccode.commands.argument_types.EnumArgumentType;
 import net.darmo_creations.mccode.commands.argument_types.ProgramElementNameArgumentType;
 import net.darmo_creations.mccode.commands.argument_types.ProgramNameArgumentType;
 import net.darmo_creations.mccode.commands.argument_types.ProgramVariableNameArgumentType;
-import net.darmo_creations.mccode.interpreter.MemberFunction;
-import net.darmo_creations.mccode.interpreter.ObjectProperty;
-import net.darmo_creations.mccode.interpreter.Program;
-import net.darmo_creations.mccode.interpreter.ProgramManager;
+import net.darmo_creations.mccode.interpreter.*;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.exceptions.ProgramStatusException;
 import net.darmo_creations.mccode.interpreter.exceptions.SyntaxErrorException;
@@ -247,7 +244,7 @@ public class ProgramCommand {
 
       Object value;
       try {
-        value = node.evaluate(program.get().getScope());
+        value = node.evaluate(program.get().getScope(), new CallStack());
         program.get().getScope().setVariable(variableName, value, true);
       } catch (EvaluationException e) {
         context.getSource().sendError(new TranslatableText(e.getTranslationKey(), e.getArgs()));

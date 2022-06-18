@@ -7,9 +7,7 @@ import net.darmo_creations.mccode.interpreter.tags.CompoundTagListTag;
 import net.darmo_creations.mccode.interpreter.tags.TagType;
 import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,9 +26,6 @@ public class Scope implements TagDeserializable {
   private final Scope parentScope;
   private final Program program;
   private final Map<String, Variable> variables = new HashMap<>();
-  private int callStackSize;
-  private final int line;
-  private final int column;
 
   /**
    * Create a global scope for the given program.
@@ -41,9 +36,6 @@ public class Scope implements TagDeserializable {
     this.name = MAIN_SCOPE_NAME;
     this.parentScope = null;
     this.program = program;
-    this.callStackSize = 0;
-    this.line = -1;
-    this.column = -1;
     this.defineBuiltinConstants();
     this.defineBuiltinFunctions();
   }
@@ -54,13 +46,10 @@ public class Scope implements TagDeserializable {
    * @param name        Sub-scope’s name.
    * @param parentScope Parent of this scope.
    */
-  public Scope(final String name, Scope parentScope, final int line, final int column) {
+  public Scope(final String name, Scope parentScope) {
     this.name = name;
     this.parentScope = parentScope;
     this.program = parentScope.program;
-    this.callStackSize = parentScope.callStackSize;
-    this.line = line;
-    this.column = column;
   }
 
   /**
@@ -75,14 +64,6 @@ public class Scope implements TagDeserializable {
    */
   public Program getProgram() {
     return this.program;
-  }
-
-  public int getCallStackSize() {
-    return this.callStackSize;
-  }
-
-  public void setCallStackSize(int callStackSize) {
-    this.callStackSize = callStackSize;
   }
 
   /**
@@ -187,20 +168,6 @@ public class Scope implements TagDeserializable {
     this.variables.clear();
     this.defineBuiltinConstants();
     this.defineBuiltinFunctions();
-  }
-
-  /**
-   * Return the stack trace of this scope.
-   */
-  public List<StackTraceElement> getStackTrace() {
-    List<StackTraceElement> trace;
-    if (this.parentScope != null) {
-      trace = this.parentScope.getStackTrace();
-    } else {
-      trace = new ArrayList<>();
-    }
-    trace.add(new StackTraceElement(this.getName(), this.line, this.column));
-    return trace;
   }
 
   /**

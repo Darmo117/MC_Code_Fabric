@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.builtin_functions;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.Parameter;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
@@ -28,7 +29,7 @@ public class ReversedFunction extends BuiltinFunction {
   }
 
   @Override
-  public Object apply(final Scope scope) {
+  public Object apply(final Scope scope, CallStack callStack) {
     Object p = this.getParameterValue(scope, 0);
     if (p instanceof List<?> list) {
       MCList res = new MCList();

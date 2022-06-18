@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.builtin_functions;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.Parameter;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
@@ -33,7 +34,7 @@ public class ToRelativePosFunction extends BuiltinFunction {
   }
 
   @Override
-  public Object apply(final Scope scope) {
+  public Object apply(final Scope scope, CallStack callStack) {
     Object posObject = this.getParameterValue(scope, 0);
     Position.Relativity xRelativity = Position.Relativity.fromString(this.getParameterValue(scope, 1));
     Position.Relativity yRelativity = Position.Relativity.fromString(this.getParameterValue(scope, 2));

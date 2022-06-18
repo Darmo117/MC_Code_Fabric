@@ -1,6 +1,6 @@
 package net.darmo_creations.mccode.interpreter.types;
 
-import net.darmo_creations.mccode.interpreter.StackTraceElement;
+import net.darmo_creations.mccode.interpreter.CallStackElement;
 import net.darmo_creations.mccode.interpreter.*;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.exceptions.SyntaxErrorException;
@@ -62,27 +62,33 @@ public class UserFunction extends Function {
   }
 
   @Override
-  public Object apply(Scope scope) {
-    List<StackTraceElement> callStack = scope.getStackTrace();
-    if (callStack.size() == MAX_CALL_DEPTH || scope.getCallStackSize() == MAX_CALL_DEPTH) {
+  public Object apply(Scope scope, CallStack callStack) {
+    if (callStack.size() == MAX_CALL_DEPTH) {
       throw new EvaluationException(scope, "mccode.interpreter.error.stack_overflow");
     }
 
     List<Statement> statementList = this.statements;
     while (this.ip < statementList.size()) {
       Statement statement = statementList.get(this.ip);
-      StatementAction action = statement.execute(scope);
+      StatementAction action = statement.execute(scope, callStack);
       if (action == StatementAction.EXIT_FUNCTION) {
         break;
-      } else if (action == StatementAction.EXIT_LOOP) {
-        throw new SyntaxErrorException(statement.getLine(), statement.getColumn(),
-            "mccode.interpreter.error.break_outside_loop");
-      } else if (action == StatementAction.CONTINUE_LOOP) {
-        throw new SyntaxErrorException(statement.getLine(), statement.getColumn(),
-            "mccode.interpreter.error.continue_outside_loop");
-      } else if (action == StatementAction.WAIT) {
-        throw new SyntaxErrorException(statement.getLine(), statement.getColumn(),
-            "mccode.interpreter.error.wait_in_function");
+      } else {
+        CallStackElement callStackElement = new CallStackElement(
+            scope.getProgram().getName(), scope.getName(), statement.getLine(), statement.getColumn());
+        if (action == StatementAction.EXIT_LOOP) {
+          callStack.push(callStackElement);
+          throw new SyntaxErrorException(statement.getLine(), statement.getColumn(),
+              "mccode.interpreter.error.break_outside_loop");
+        } else if (action == StatementAction.CONTINUE_LOOP) {
+          callStack.push(callStackElement);
+          throw new SyntaxErrorException(statement.getLine(), statement.getColumn(),
+              "mccode.interpreter.error.continue_outside_loop");
+        } else if (action == StatementAction.WAIT) {
+          callStack.push(callStackElement);
+          throw new SyntaxErrorException(statement.getLine(), statement.getColumn(),
+              "mccode.interpreter.error.wait_in_function");
+        }
       }
       this.ip++;
     }

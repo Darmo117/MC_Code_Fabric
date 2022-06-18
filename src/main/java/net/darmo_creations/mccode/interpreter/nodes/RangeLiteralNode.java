@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
@@ -77,18 +78,18 @@ public class RangeLiteralNode extends Node {
   }
 
   @Override
-  protected Object evaluateWrapped(Scope scope) throws EvaluationException, ArithmeticException {
+  protected Object evaluateWrapped(Scope scope, CallStack callStack) throws EvaluationException, ArithmeticException {
     IntType intType = ProgramManager.getTypeInstance(IntType.class);
     if (this.step != null) {
       return new Range(
-          intType.implicitCast(scope, this.start.evaluate(scope)),
-          intType.implicitCast(scope, this.end.evaluate(scope)),
-          intType.implicitCast(scope, this.step.evaluate(scope))
+          intType.implicitCast(scope, this.start.evaluate(scope, callStack)),
+          intType.implicitCast(scope, this.end.evaluate(scope, callStack)),
+          intType.implicitCast(scope, this.step.evaluate(scope, callStack))
       );
     }
     return new Range(
-        intType.implicitCast(scope, this.start.evaluate(scope)),
-        intType.implicitCast(scope, this.end.evaluate(scope)),
+        intType.implicitCast(scope, this.start.evaluate(scope, callStack)),
+        intType.implicitCast(scope, this.end.evaluate(scope, callStack)),
         1
     );
   }

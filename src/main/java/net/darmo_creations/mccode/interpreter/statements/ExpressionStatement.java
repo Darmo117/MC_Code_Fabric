@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
 import net.darmo_creations.mccode.interpreter.nodes.NodeTagHelper;
@@ -13,7 +14,7 @@ import java.util.Objects;
 public class ExpressionStatement extends Statement {
   public static final int ID = 30;
 
-  public static final String EXPRESSION_KEY = "Expression";
+  private static final String EXPRESSION_KEY = "Expression";
 
   private final Node expression;
 
@@ -40,8 +41,8 @@ public class ExpressionStatement extends Statement {
   }
 
   @Override
-  protected StatementAction executeWrapped(Scope scope) {
-    this.expression.evaluate(scope);
+  protected StatementAction executeWrapped(Scope scope, CallStack callStack) {
+    this.expression.evaluate(scope, callStack);
     return StatementAction.PROCEED;
   }
 

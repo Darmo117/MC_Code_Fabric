@@ -18,8 +18,8 @@ public abstract class ProgramElement implements TagSerializable {
    * Tag key of ID property.
    */
   public static final String ID_KEY = "ElementID";
-  public static final String LINE_KEY = "Line";
-  public static final String COLUMN_KEY = "Column";
+  private static final String LINE_KEY = "Line";
+  private static final String COLUMN_KEY = "Column";
 
   private final int line;
   private final int column;
@@ -87,31 +87,38 @@ public abstract class ProgramElement implements TagSerializable {
    * Wraps any error in a {@link MCCodeRuntimeException} or {@link SyntaxErrorException},
    * adding the line and column number of this element if missing.
    *
-   * @param scope    The current scope.
-   * @param supplier Code to catch any error from.
+   * @param scope     The current scope.
+   * @param callStack The current call stack.
+   * @param supplier  Code to catch any error from.
    * @return A value.
    */
-  protected <T> T wrapErrors(final Scope scope, final Supplier<T> supplier)
+  protected <T> T wrapErrors(final Scope scope, CallStack callStack, final Supplier<T> supplier)
       throws MCCodeRuntimeException, SyntaxErrorException {
+    CallStackElement element = new CallStackElement(scope.getProgram().getName(), scope.getName(), this.getLine(), this.getColumn());
     try {
       return supplier.get();
     } catch (SyntaxErrorException | WrappedException e) {
       throw e; // Explicit rethrow to not get caught by last catch clause
     } catch (MCCodeRuntimeException e) {
       if (e.getLine() == -1 || e.getColumn() == -1) {
+        // Newly created MCCodeRuntimeExceptions have line and column equal to -1
+        // -> set them to the correct values and add an element to the call stack
         e.setLine(this.getLine());
         e.setColumn(this.getColumn());
+        callStack.push(element);
       }
       throw e;
     } catch (ArithmeticException e) {
+      // Custom exception wrapper for math errors
+      callStack.push(element);
       throw new MathException(scope, this.getLine(), this.getColumn(), e.getMessage());
     } catch (NullPointerException e) {
-      e.printStackTrace();
-      // Custom message for NPEs
+      callStack.push(element);
+      // Custom exception wrapper for NPEs
       throw new WrappedException(e, this.getLine(), this.getColumn(),
           "mccode.interpreter.error.null_pointer_exception");
     } catch (Throwable e) {
-      e.printStackTrace();
+      callStack.push(element);
       // Wrap any other exception to prevent them from being caught by try-except statements
       throw new WrappedException(e, this.getLine(), this.getColumn(),
           "mccode.interpreter.error.exception", e.getClass().getSimpleName(), e.getMessage());

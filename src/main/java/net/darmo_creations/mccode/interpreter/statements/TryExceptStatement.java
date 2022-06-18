@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Utils;
 import net.darmo_creations.mccode.interpreter.Variable;
@@ -16,11 +17,11 @@ import java.util.Objects;
 public class TryExceptStatement extends Statement {
   public static final int ID = 43;
 
-  public static final String TRY_STATEMENTS_KEY = "TryStatements";
-  public static final String EXCEPT_STATEMENTS_KEY = "ExceptStatements";
-  public static final String ERROR_VAR_NAME_KEY = "ErrorVariableName";
-  public static final String IN_EXCEPT_KEY = "InExceptClause";
-  public static final String IP_KEY = "IP";
+  private static final String TRY_STATEMENTS_KEY = "TryStatements";
+  private static final String EXCEPT_STATEMENTS_KEY = "ExceptStatements";
+  private static final String ERROR_VAR_NAME_KEY = "ErrorVariableName";
+  private static final String IN_EXCEPT_KEY = "InExceptClause";
+  private static final String IP_KEY = "IP";
 
   private final List<Statement> tryStatements;
   private final List<Statement> exceptStatements;
@@ -67,14 +68,19 @@ public class TryExceptStatement extends Statement {
   }
 
   @Override
-  protected StatementAction executeWrapped(Scope scope) {
+  protected StatementAction executeWrapped(Scope scope, CallStack callStack) {
     if (!this.inExcept) {
+      int intialStackSize = callStack.size();
       try {
-        StatementAction action = this.executeStatements(scope, this.tryStatements);
+        StatementAction action = this.executeStatements(scope, this.tryStatements, callStack);
         if (action != StatementAction.PROCEED) {
           return action;
         }
       } catch (MCCodeRuntimeException e) {
+        // Remove all stack elements that may have been added by statements in the "try" block
+        while (callStack.size() != intialStackSize) {
+          callStack.pop();
+        }
         this.inExcept = true;
         this.ip = 0;
         MCMap errorMap = new MCMap();
@@ -85,7 +91,7 @@ public class TryExceptStatement extends Statement {
     }
 
     if (this.inExcept) {
-      StatementAction action = this.executeStatements(scope, this.exceptStatements);
+      StatementAction action = this.executeStatements(scope, this.exceptStatements, callStack);
       if (action != StatementAction.WAIT) {
         scope.deleteVariable(this.errorVariableName, false);
       }
@@ -100,10 +106,10 @@ public class TryExceptStatement extends Statement {
     return StatementAction.PROCEED;
   }
 
-  private StatementAction executeStatements(Scope scope, final List<Statement> statements) {
+  private StatementAction executeStatements(Scope scope, final List<Statement> statements, CallStack callStack) {
     while (this.ip < statements.size()) {
       Statement statement = statements.get(this.ip);
-      StatementAction action = statement.execute(scope);
+      StatementAction action = statement.execute(scope, callStack);
       if (action == StatementAction.EXIT_FUNCTION || action == StatementAction.WAIT
           || action == StatementAction.EXIT_LOOP || action == StatementAction.CONTINUE_LOOP) {
         if (action == StatementAction.WAIT) {

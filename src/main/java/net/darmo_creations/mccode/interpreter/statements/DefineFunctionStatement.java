@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Utils;
 import net.darmo_creations.mccode.interpreter.Variable;
@@ -18,10 +19,10 @@ import java.util.Objects;
 public class DefineFunctionStatement extends Statement {
   public static final int ID = 11;
 
-  public static final String NAME_KEY = "Name";
-  public static final String PARAMS_LIST_KEY = "Parameters";
-  public static final String STATEMENTS_LIST_KEY = "Statements";
-  public static final String PUBLIC_KEY = "Public";
+  private static final String NAME_KEY = "Name";
+  private static final String PARAMS_LIST_KEY = "Parameters";
+  private static final String STATEMENTS_LIST_KEY = "Statements";
+  private static final String PUBLIC_KEY = "Public";
 
   private final String name;
   private final List<String> parametersNames;
@@ -62,7 +63,7 @@ public class DefineFunctionStatement extends Statement {
   }
 
   @Override
-  protected StatementAction executeWrapped(Scope scope) {
+  protected StatementAction executeWrapped(Scope scope, CallStack callStack) {
     UserFunction function = new UserFunction(this.name, this.parametersNames, this.statements);
     scope.declareVariable(new Variable(this.name, this.publiclyVisible, false, true, true, function));
     return StatementAction.PROCEED;

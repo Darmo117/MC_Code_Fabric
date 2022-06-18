@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
@@ -14,7 +15,7 @@ import java.util.Objects;
 public class VariableNode extends Node {
   public static final int ID = 100;
 
-  public static final String NAME_KEY = "Name";
+  private static final String NAME_KEY = "Name";
 
   private final String name;
 
@@ -41,7 +42,7 @@ public class VariableNode extends Node {
   }
 
   @Override
-  protected Object evaluateWrapped(final Scope scope) {
+  protected Object evaluateWrapped(final Scope scope, CallStack callStack) {
     return scope.getVariable(this.name, false);
   }
 

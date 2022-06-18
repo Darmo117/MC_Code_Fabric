@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.ProgramElement;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
@@ -35,20 +36,22 @@ public abstract class Statement extends ProgramElement {
   /**
    * Execute this statement.
    *
-   * @param scope Current scope.
+   * @param scope     Current scope.
+   * @param callStack The current call stack.
    * @return The action to take after this statement has been executed.
    * @throws MCCodeRuntimeException If an error occured during execution.
    */
-  public StatementAction execute(Scope scope) throws MCCodeRuntimeException {
-    return this.wrapErrors(scope, () -> this.executeWrapped(scope));
+  public StatementAction execute(Scope scope, CallStack callStack) throws MCCodeRuntimeException {
+    return this.wrapErrors(scope, callStack, () -> this.executeWrapped(scope, callStack));
   }
 
   /**
    * Execute this statement. Any thrown exception will be wrapped into a {@link MCCodeRuntimeException}
    * with line and column number added if missing.
    *
-   * @param scope Current scope.
+   * @param scope     Current scope.
+   * @param callStack The current call stack.
    * @return The action to take after this statement has been executed.
    */
-  protected abstract StatementAction executeWrapped(Scope scope) throws EvaluationException, ArithmeticException;
+  protected abstract StatementAction executeWrapped(Scope scope, CallStack callStack) throws EvaluationException, ArithmeticException;
 }

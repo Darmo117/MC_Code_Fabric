@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 
@@ -11,7 +12,7 @@ import java.util.Objects;
 public class DeleteVariableStatement extends Statement {
   public static final int ID = 20;
 
-  public static final String VAR_NAME_KEY = "VariableName";
+  private static final String VAR_NAME_KEY = "VariableName";
 
   private final String variableName;
 
@@ -38,7 +39,7 @@ public class DeleteVariableStatement extends Statement {
   }
 
   @Override
-  protected StatementAction executeWrapped(Scope scope) {
+  protected StatementAction executeWrapped(Scope scope, CallStack callStack) {
     scope.deleteVariable(this.variableName, false);
     return StatementAction.PROCEED;
   }

@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
@@ -16,8 +17,8 @@ import java.util.Objects;
 public class DeleteItemStatement extends Statement {
   public static final int ID = 21;
 
-  public static final String TARGET_KEY = "Target";
-  public static final String KEY_KEY = "Key";
+  private static final String TARGET_KEY = "Target";
+  private static final String KEY_KEY = "Key";
 
   private final Node target;
   private final Node key;
@@ -48,10 +49,10 @@ public class DeleteItemStatement extends Statement {
   }
 
   @Override
-  protected StatementAction executeWrapped(final Scope scope) {
-    Object targetValue = this.target.evaluate(scope);
+  protected StatementAction executeWrapped(final Scope scope, CallStack callStack) {
+    Object targetValue = this.target.evaluate(scope, callStack);
     TypeBase<?> targetType = ProgramManager.getTypeForValue(targetValue);
-    targetType.applyOperator(scope, BinaryOperator.DEL_ITEM, targetValue, this.key.evaluate(scope), null, true);
+    targetType.applyOperator(scope, BinaryOperator.DEL_ITEM, targetValue, this.key.evaluate(scope, callStack), null, true);
     return StatementAction.PROCEED;
   }
 

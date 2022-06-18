@@ -1,12 +1,8 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
-import net.darmo_creations.mccode.interpreter.Program;
-import net.darmo_creations.mccode.interpreter.Scope;
-import net.darmo_creations.mccode.interpreter.Variable;
-import net.darmo_creations.mccode.interpreter.exceptions.ImportException;
-import net.darmo_creations.mccode.interpreter.exceptions.MCCodeRuntimeException;
-import net.darmo_creations.mccode.interpreter.exceptions.ProgramStatusException;
-import net.darmo_creations.mccode.interpreter.exceptions.SyntaxErrorException;
+import net.darmo_creations.mccode.interpreter.CallStackElement;
+import net.darmo_creations.mccode.interpreter.*;
+import net.darmo_creations.mccode.interpreter.exceptions.*;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.tags.StringListTag;
 import net.darmo_creations.mccode.interpreter.tags.TagType;
@@ -21,8 +17,8 @@ import java.util.Objects;
 public class ImportStatement extends Statement {
   public static final int ID = 0;
 
-  public static final String NAME_KEY = "ModuleName";
-  public static final String ALIAS_KEY = "Alias";
+  private static final String NAME_KEY = "ModuleName";
+  private static final String ALIAS_KEY = "Alias";
 
   private final List<String> moduleNamePath;
   private final String alias;
@@ -53,18 +49,23 @@ public class ImportStatement extends Statement {
   }
 
   @Override
-  protected StatementAction executeWrapped(Scope scope) {
+  protected StatementAction executeWrapped(Scope scope, CallStack callStack) {
     String name = this.getModulePath();
     Program module;
     try {
       module = scope.getProgram().getProgramManager().loadProgram(name, null, true);
-    } catch (SyntaxErrorException | ProgramStatusException e) {
-      throw new ImportException(scope, name, e);
+    } catch (SyntaxErrorException e) {
+      CallStack c = new CallStack();
+      c.push(new CallStackElement(name, scope.getName(), e.getLine(), e.getColumn()));
+      throw new ImportException(scope, name, c, e);
+    } catch (ProgramStatusException e) {
+      callStack.push(new CallStackElement(scope.getProgram().getName(), scope.getName(), this.getLine(), this.getColumn()));
+      throw new MCCodeRuntimeException(scope, null, this.getLine(), this.getColumn(), e.getTranslationKey(), e.getProgramName());
     }
     try {
       module.execute();
-    } catch (MCCodeRuntimeException | SyntaxErrorException e) {
-      throw new ImportException(scope, name, e);
+    } catch (MCCodeException e) {
+      throw new ImportException(scope, name, module.getCallStack(), e);
     }
     scope.declareVariable(new Variable(this.alias != null ? this.alias : name.replace('.', '_'),
         false, false, false, true, module));

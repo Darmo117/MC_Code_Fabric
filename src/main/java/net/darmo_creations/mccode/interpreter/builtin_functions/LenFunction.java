@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.builtin_functions;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.Parameter;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
@@ -27,7 +28,7 @@ public class LenFunction extends BuiltinFunction {
   }
 
   @Override
-  public Object apply(Scope scope) {
+  public Object apply(Scope scope, CallStack callStack) {
     Object parameter = this.getParameterValue(scope, 0);
     return ProgramManager.getTypeForValue(parameter).applyOperator(scope, UnaryOperator.LENGTH, parameter, null, null, false);
   }

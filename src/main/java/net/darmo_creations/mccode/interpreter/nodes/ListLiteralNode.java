@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 public class ListLiteralNode extends Node {
   public static final int ID = 5;
 
-  public static final String VALUES_KEY = "Values";
+  private static final String VALUES_KEY = "Values";
 
   private final List<Node> values;
 
@@ -44,9 +45,9 @@ public class ListLiteralNode extends Node {
   }
 
   @Override
-  protected Object evaluateWrapped(Scope scope) {
+  protected Object evaluateWrapped(Scope scope, CallStack callStack) {
     return new MCList(this.values.stream().map(node -> {
-      Object v = node.evaluate(scope);
+      Object v = node.evaluate(scope, callStack);
       return ProgramManager.getTypeForValue(v).copy(scope, v);
     }).collect(Collectors.toList()));
   }

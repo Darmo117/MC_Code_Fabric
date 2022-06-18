@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.builtin_functions;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.Parameter;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
@@ -26,7 +27,7 @@ public class IsInstanceFunction extends BuiltinFunction {
   }
 
   @Override
-  public Object apply(final Scope scope) {
+  public Object apply(final Scope scope, CallStack callStack) {
     Class<?> targetType = ProgramManager.getTypeForName(this.getParameterValue(scope, 0)).getWrappedType();
     Class<?> valueType = ProgramManager.getTypeForValue(this.getParameterValue(scope, 1)).getWrappedType();
     return targetType.isAssignableFrom(valueType);

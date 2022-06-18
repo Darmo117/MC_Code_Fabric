@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.builtin_functions;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.Parameter;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
@@ -32,7 +33,7 @@ public class MaxFunction extends BuiltinFunction {
   }
 
   @Override
-  public Object apply(Scope scope) {
+  public Object apply(Scope scope, CallStack callStack) {
     Object p = this.getParameterValue(scope, 0);
     if (p instanceof MCList || p instanceof MCSet || p instanceof String) {
       MCList list = new MCList(ProgramManager.getTypeInstance(ListType.class).explicitCast(scope, p));
