@@ -70,19 +70,22 @@ public class ScopeStackElement implements TagSerializable {
   }
 
   /**
-   * Locks all scopes in this stack except from the top and bottom ones.
+   * Locks all scopes in this stack except the top and bottom ones.
    * This acts as if the intermediary scopes do not exist.
    */
   public void lockAllButTopAndBottom() {
     if (this.parentElement != null) {
-      this.parentElement.lockAllButTop();
+      this.parentElement.lockAllButBottom();
     }
   }
 
-  private void lockAllButTop() {
+  /**
+   * Locks all stack elements except the bottom one.
+   */
+  private void lockAllButBottom() {
     if (this.parentElement != null) {
       this.locked = true;
-      this.parentElement.lockAllButTop();
+      this.parentElement.lockAllButBottom();
     }
   }
 

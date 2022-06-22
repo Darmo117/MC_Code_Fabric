@@ -45,7 +45,7 @@ public class Scope implements TagSerializable {
   }
 
   /**
-   * Locks all scopes in the stack except for the top and bottom ones.
+   * Locks all scopes in the stack except the top and bottom ones.
    * This acts as if the intermediary scopes do not exist.
    * <p>
    * Stack is unlocked when {@link #pop()} is called.
