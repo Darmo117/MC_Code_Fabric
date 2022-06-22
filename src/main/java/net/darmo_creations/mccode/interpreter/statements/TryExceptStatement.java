@@ -22,6 +22,8 @@ public class TryExceptStatement extends Statement {
   private static final String ERROR_VAR_NAME_KEY = "ErrorVariableName";
   private static final String IN_EXCEPT_KEY = "InExceptClause";
   private static final String IP_KEY = "IP";
+  private static final String INIT_SCOPE_STACK_SIZE_KEY = "InitialScopeStackSize";
+  private static final String INIT_CALL_STACK_SIZE_KEY = "InitialCallStackSize";
 
   private final List<Statement> tryStatements;
   private final List<Statement> exceptStatements;
@@ -34,6 +36,8 @@ public class TryExceptStatement extends Statement {
    * Instruction pointer.
    */
   private int ip;
+  private int initialScopeStackSize;
+  private int initialCallStackSize;
 
   /**
    * Create a statement that represents a try-except statement that can catch any error.
@@ -65,24 +69,39 @@ public class TryExceptStatement extends Statement {
     this.errorVariableName = tag.getString(ERROR_VAR_NAME_KEY);
     this.inExcept = tag.getBoolean(IN_EXCEPT_KEY);
     this.ip = tag.getInt(IP_KEY);
+    this.initialScopeStackSize = tag.getInt(INIT_SCOPE_STACK_SIZE_KEY);
+    this.initialCallStackSize = tag.getInt(INIT_CALL_STACK_SIZE_KEY);
   }
 
   @Override
   protected StatementAction executeWrapped(Scope scope, CallStack callStack) {
     if (!this.inExcept) {
-      int intialStackSize = callStack.size();
+      if (this.ip == 0) {
+        this.initialScopeStackSize = scope.size();
+        this.initialCallStackSize = callStack.size();
+        scope.push("<try-block>");
+      }
       try {
         StatementAction action = this.executeStatements(scope, this.tryStatements, callStack);
         if (action != StatementAction.PROCEED) {
+          if (action != StatementAction.WAIT) {
+            scope.pop();
+          }
           return action;
         }
+        scope.pop();
       } catch (MCCodeRuntimeException e) {
+        // Pop any scopes that may have been added by statements in the "try" block
+        while (scope.size() != this.initialScopeStackSize) {
+          scope.pop();
+        }
         // Remove all stack elements that may have been added by statements in the "try" block
-        while (callStack.size() != intialStackSize) {
+        while (callStack.size() != this.initialCallStackSize) {
           callStack.pop();
         }
+        this.reset();
+        scope.push("<catch-block>");
         this.inExcept = true;
-        this.ip = 0;
         MCMap errorMap = new MCMap();
         errorMap.put("error_type", e.getName());
         errorMap.put("data", e.getData());
@@ -93,17 +112,26 @@ public class TryExceptStatement extends Statement {
     if (this.inExcept) {
       StatementAction action = this.executeStatements(scope, this.exceptStatements, callStack);
       if (action != StatementAction.WAIT) {
-        scope.deleteVariable(this.errorVariableName, false);
+        scope.pop();
       }
       if (action != StatementAction.PROCEED) {
+        if (action == StatementAction.EXIT_FUNCTION) {
+          this.reset();
+        }
         return action;
       }
     }
 
-    this.inExcept = false;
-    this.ip = 0;
+    this.reset();
 
     return StatementAction.PROCEED;
+  }
+
+  private void reset() {
+    this.initialScopeStackSize = -1;
+    this.initialCallStackSize = -1;
+    this.inExcept = false;
+    this.ip = 0;
   }
 
   private StatementAction executeStatements(Scope scope, final List<Statement> statements, CallStack callStack) {
@@ -117,8 +145,7 @@ public class TryExceptStatement extends Statement {
             this.ip++;
           }
         } else {
-          this.inExcept = false;
-          this.ip = 0;
+          this.reset();
         }
         return action;
       } else {
@@ -142,6 +169,8 @@ public class TryExceptStatement extends Statement {
     tag.putString(ERROR_VAR_NAME_KEY, this.errorVariableName);
     tag.putBoolean(IN_EXCEPT_KEY, this.inExcept);
     tag.putInt(IP_KEY, this.ip);
+    tag.putInt(INIT_SCOPE_STACK_SIZE_KEY, this.initialScopeStackSize);
+    tag.putInt(INIT_CALL_STACK_SIZE_KEY, this.initialCallStackSize);
     return tag;
   }
 

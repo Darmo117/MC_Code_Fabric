@@ -51,6 +51,9 @@ public abstract class LoopStatement extends Statement {
       Statement statement = this.statements.get(this.ip);
       StatementAction action = statement.execute(scope, callStack);
       if (action == StatementAction.EXIT_LOOP || action == StatementAction.CONTINUE_LOOP) {
+        if (action == StatementAction.EXIT_LOOP) {
+          this.reset(scope);
+        }
         return action;
       } else if (action == StatementAction.EXIT_FUNCTION || action == StatementAction.WAIT) {
         if (action == StatementAction.WAIT) {

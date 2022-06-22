@@ -76,7 +76,8 @@ public class ForLoopStatement extends LoopStatement {
     // Do not test again if loop was paused by a "wait" statement
     while (this.paused || this.resumeAfterLoad || iterator.hasNext()) {
       // If first statement returns WAIT, "ip" is not yet updated -> do not recreate variable
-      if (this.ip == 0 && !scope.isVariableDefined(this.variableName)) {
+      if (!this.paused && this.ip == 0) {
+        scope.push("<for-loop>");
         // Variable is deleted and recreated on each iteration
         scope.declareVariable(new Variable(this.variableName, false, false, false, true, iterator.next()));
         this.iteratorIndex++;
@@ -90,12 +91,11 @@ public class ForLoopStatement extends LoopStatement {
       } else if (action == StatementAction.WAIT || action == StatementAction.EXIT_FUNCTION) {
         return action;
       }
-      if (scope.isVariableDefined(this.variableName)) {
-        scope.deleteVariable(this.variableName, false);
-      }
       this.ip = 0;
+      scope.pop();
     }
-    this.reset(scope);
+    this.ip = 0;
+    this.iteratorIndex = 0;
 
     return StatementAction.PROCEED;
   }
@@ -104,9 +104,7 @@ public class ForLoopStatement extends LoopStatement {
   protected void reset(Scope scope) {
     this.ip = 0;
     this.iteratorIndex = 0;
-    if (scope.isVariableDefined(this.variableName)) {
-      scope.deleteVariable(this.variableName, false);
-    }
+    scope.pop();
   }
 
   @Override

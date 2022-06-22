@@ -52,6 +52,8 @@ public class WhileLoopStatement extends LoopStatement {
     while (this.paused || booleanType.implicitCast(scope, this.condition.evaluate(scope, callStack))) {
       if (this.paused) {
         this.paused = false;
+      } else {
+        scope.push("<while-loop>");
       }
       StatementAction action = this.executeStatements(scope, callStack);
       if (action == StatementAction.EXIT_LOOP) {
@@ -60,8 +62,9 @@ public class WhileLoopStatement extends LoopStatement {
         return action;
       }
       this.ip = 0;
+      scope.pop();
     }
-    this.reset(scope);
+    this.ip = 0;
 
     return StatementAction.PROCEED;
   }
@@ -69,6 +72,7 @@ public class WhileLoopStatement extends LoopStatement {
   @Override
   protected void reset(Scope scope) {
     this.ip = 0;
+    scope.pop();
   }
 
   @Override

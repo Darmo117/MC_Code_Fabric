@@ -125,6 +125,16 @@ public class ScopeStackElement implements TagSerializable {
   }
 
   /**
+   * Returns the size of this stack.
+   */
+  public int size() {
+    if (this.parentElement == null) {
+      return 1;
+    }
+    return 1 + this.parentElement.size();
+  }
+
+  /**
    * Return the value of each variable.
    */
   public Map<String, Variable> getVariables() {

@@ -100,31 +100,34 @@ public class IfStatement extends Statement {
     }
 
     List<Statement> statements = this.branchesStatements.get(this.branchIndex);
+    if (this.ip == 0) {
+      scope.push("<if-block>");
+    }
     while (this.ip < statements.size()) {
       Statement statement = statements.get(this.ip);
       StatementAction action = statement.execute(scope, callStack);
-      if (action == StatementAction.EXIT_FUNCTION || action == StatementAction.WAIT
-          || action == StatementAction.EXIT_LOOP || action == StatementAction.CONTINUE_LOOP) {
+      if (action != StatementAction.PROCEED) {
         if (action == StatementAction.WAIT) {
           if (statement instanceof WaitStatement) {
             this.ip++;
           }
         } else {
-          this.reset();
+          this.reset(scope);
         }
         return action;
       } else {
         this.ip++;
       }
     }
-    this.reset();
+    this.reset(scope);
 
     return StatementAction.PROCEED;
   }
 
-  private void reset() {
+  private void reset(Scope scope) {
     this.branchIndex = -1;
     this.ip = 0;
+    scope.pop();
   }
 
   @Override

@@ -15,7 +15,7 @@ public class Scope implements TagSerializable {
   /**
    * Name of the main scope.
    */
-  public static final String MAIN_SCOPE_NAME = "$main";
+  public static final String MAIN_SCOPE_NAME = "<main>";
 
   private static final String STACK_KEY = "Stack";
 
@@ -86,6 +86,13 @@ public class Scope implements TagSerializable {
    */
   public Program getProgram() {
     return this.program;
+  }
+
+  /**
+   * Returns the size of this scope’s stack.
+   */
+  public int size() {
+    return this.stack.size();
   }
 
   /**
