@@ -120,8 +120,7 @@ public class Program {
     this.programManager = Objects.requireNonNull(programManager);
     this.name = tag.getString(NAME_KEY);
     this.statements = StatementTagHelper.deserializeStatementsList(tag, STATEMENTS_KEY);
-    this.scope = new Scope(this);
-    this.scope.readFromTag(tag.getCompound(SCOPE_KEY));
+    this.scope = new Scope(this, tag.getCompound(SCOPE_KEY));
     this.callStack = new CallStack();
     this.callStack.readFromTag(tag.getCompound(CALL_STACK_KEY));
     this.isModule = tag.getBoolean(IS_MODULE_KEY);
@@ -249,7 +248,7 @@ public class Program {
       while (this.ip < this.statements.size()) {
         Statement statement = this.statements.get(this.ip);
         CallStackElement callStackElement = new CallStackElement(
-            this.scope.getProgram().getName(), this.scope.getName(), statement.getLine(), statement.getColumn());
+            this.scope.getProgram().getName(), this.scope.getTopName(), statement.getLine(), statement.getColumn());
         StatementAction action = statement.execute(this.scope, this.callStack);
         if (action == StatementAction.EXIT_FUNCTION) {
           this.callStack.push(callStackElement);

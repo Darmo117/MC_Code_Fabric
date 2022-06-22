@@ -75,7 +75,7 @@ public class UserFunction extends Function {
         break;
       } else {
         CallStackElement callStackElement = new CallStackElement(
-            scope.getProgram().getName(), scope.getName(), statement.getLine(), statement.getColumn());
+            scope.getProgram().getName(), scope.getTopName(), statement.getLine(), statement.getColumn());
         if (action == StatementAction.EXIT_LOOP) {
           callStack.push(callStackElement);
           throw new SyntaxErrorException(statement.getLine(), statement.getColumn(),

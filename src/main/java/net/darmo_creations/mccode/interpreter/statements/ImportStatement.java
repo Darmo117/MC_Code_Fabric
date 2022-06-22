@@ -56,10 +56,10 @@ public class ImportStatement extends Statement {
       module = scope.getProgram().getProgramManager().loadProgram(name, null, true);
     } catch (SyntaxErrorException e) {
       CallStack c = new CallStack();
-      c.push(new CallStackElement(name, scope.getName(), e.getLine(), e.getColumn()));
+      c.push(new CallStackElement(name, scope.getTopName(), e.getLine(), e.getColumn()));
       throw new ImportException(scope, name, c, e);
     } catch (ProgramStatusException e) {
-      callStack.push(new CallStackElement(scope.getProgram().getName(), scope.getName(), this.getLine(), this.getColumn()));
+      callStack.push(new CallStackElement(scope.getProgram().getName(), scope.getTopName(), this.getLine(), this.getColumn()));
       throw new MCCodeRuntimeException(scope, null, this.getLine(), this.getColumn(), e.getTranslationKey(), e.getProgramName());
     }
     try {

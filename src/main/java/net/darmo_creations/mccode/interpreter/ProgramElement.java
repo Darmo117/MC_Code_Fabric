@@ -94,7 +94,7 @@ public abstract class ProgramElement implements TagSerializable {
    */
   protected <T> T wrapErrors(final Scope scope, CallStack callStack, final Supplier<T> supplier)
       throws MCCodeRuntimeException, SyntaxErrorException {
-    CallStackElement element = new CallStackElement(scope.getProgram().getName(), scope.getName(), this.getLine(), this.getColumn());
+    CallStackElement element = new CallStackElement(scope.getProgram().getName(), scope.getTopName(), this.getLine(), this.getColumn());
     try {
       return supplier.get();
     } catch (SyntaxErrorException | WrappedException e) {

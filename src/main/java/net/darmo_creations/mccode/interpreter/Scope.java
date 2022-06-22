@@ -1,62 +1,84 @@
 package net.darmo_creations.mccode.interpreter;
 
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
-import net.darmo_creations.mccode.interpreter.exceptions.MCCodeException;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
-import net.darmo_creations.mccode.interpreter.tags.CompoundTagListTag;
-import net.darmo_creations.mccode.interpreter.tags.TagType;
 import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
 
-import java.util.HashMap;
+import java.util.EmptyStackException;
 import java.util.Map;
 
 /**
  * A scope is an object that represents the context of a program during execution.
  * It holds all declared variables and functions.
  */
-public class Scope implements TagDeserializable {
+public class Scope implements TagSerializable {
   /**
    * Name of the main scope.
    */
   public static final String MAIN_SCOPE_NAME = "$main";
 
-  public static final String VARIABLES_KEY = "Variables";
+  private static final String STACK_KEY = "Stack";
 
-  private final String name;
-  private final Scope parentScope;
   private final Program program;
-  private final Map<String, Variable> variables = new HashMap<>();
+  private ScopeStackElement stack;
 
   /**
-   * Create a global scope for the given program.
+   * Creates a global scope for the given program.
    *
    * @param program The program this scope belongs to.
    */
   public Scope(Program program) {
-    this.name = MAIN_SCOPE_NAME;
-    this.parentScope = null;
+    this.stack = new ScopeStackElement(this);
     this.program = program;
     this.defineBuiltinConstants();
     this.defineBuiltinFunctions();
   }
 
   /**
-   * Create a sub-scope of another scope.
+   * Creates a scope from a tag.
    *
-   * @param name        Sub-scope’s name.
-   * @param parentScope Parent of this scope.
+   * @param tag The tag to deserialize.
    */
-  public Scope(final String name, Scope parentScope) {
-    this.name = name;
-    this.parentScope = parentScope;
-    this.program = parentScope.program;
+  public Scope(Program program, final CompoundTag tag) {
+    this.program = program;
+    this.stack = new ScopeStackElement(this, tag.getCompound(STACK_KEY));
   }
 
   /**
-   * Return this scope’s name.
+   * Locks all scopes in the stack except for the top and bottom ones.
+   * This acts as if the intermediary scopes do not exist.
+   * <p>
+   * Stack is unlocked when {@link #pop()} is called.
    */
-  public String getName() {
-    return this.name;
+  public void lockAllButTopAndBottom() {
+    this.stack.lockAllButTopAndBottom();
+  }
+
+  /**
+   * Pushes a new scope on top of this scope.
+   *
+   * @param name New scope’s name.
+   */
+  public void push(final String name) {
+    this.stack = this.stack.push(name);
+  }
+
+  /**
+   * Pops the top scope from the stack.
+   *
+   * @throws EmptyStackException If this stack has no parent.
+   */
+  public void pop() {
+    // Unlock stack in case it has been locked prior
+    this.stack.unlockStack();
+    this.stack = this.stack.pop();
+  }
+
+  /**
+   * Return the name of the top scope.
+   */
+  public String getTopName() {
+    return this.stack.getName();
   }
 
   /**
@@ -70,7 +92,7 @@ public class Scope implements TagDeserializable {
    * Return the value of each variable.
    */
   public Map<String, Variable> getVariables() {
-    return new HashMap<>(this.variables);
+    return this.stack.getVariables();
   }
 
   /**
@@ -80,7 +102,7 @@ public class Scope implements TagDeserializable {
    * @return True if a variable with this name exists, false otherwise.
    */
   public boolean isVariableDefined(final String name) {
-    return this.variables.containsKey(name) || (this.parentScope != null && this.parentScope.isVariableDefined(name));
+    return this.stack.isVariableDefined(name);
   }
 
   /**
@@ -93,15 +115,7 @@ public class Scope implements TagDeserializable {
    *                             from outside the program but fromOutside is true.
    */
   public Object getVariable(final String name, final boolean fromOutside) throws EvaluationException {
-    if (!this.variables.containsKey(name)) {
-      if (this.parentScope != null) {
-        return this.parentScope.getVariable(name, fromOutside);
-      } else {
-        throw new EvaluationException(this, "mccode.interpreter.error.undefined_variable", name);
-      }
-    } else {
-      return this.variables.get(name).getValue(this, fromOutside);
-    }
+    return this.stack.getVariable(name, fromOutside);
   }
 
   /**
@@ -114,15 +128,7 @@ public class Scope implements TagDeserializable {
    *                             be set from outside the program and fromOutside is true.
    */
   public void setVariable(final String name, Object value, final boolean fromOutside) throws EvaluationException {
-    if (!this.variables.containsKey(name)) {
-      if (this.parentScope != null) {
-        this.parentScope.setVariable(name, value, fromOutside);
-      } else {
-        throw new EvaluationException(this, "mccode.interpreter.error.undefined_variable", name);
-      }
-    } else {
-      this.variables.get(name).setValue(this, value, fromOutside);
-    }
+    this.stack.setVariable(name, value, fromOutside);
   }
 
   /**
@@ -132,10 +138,7 @@ public class Scope implements TagDeserializable {
    * @throws EvaluationException If a variable with the same name already exists.
    */
   public void declareVariable(Variable variable) throws EvaluationException {
-    if (this.variables.containsKey(variable.getName())) {
-      throw new EvaluationException(this, "mccode.interpreter.error.variable_already_declared", variable.getName());
-    }
-    this.variables.put(variable.getName(), variable);
+    this.stack.declareVariable(variable);
   }
 
   /**
@@ -146,26 +149,14 @@ public class Scope implements TagDeserializable {
    * @throws EvaluationException If the variable doesn’t exist or is not deletable.
    */
   public void deleteVariable(final String name, final boolean fromOutside) throws EvaluationException {
-    if (!this.variables.containsKey(name)) {
-      if (this.parentScope != null) {
-        this.parentScope.deleteVariable(name, fromOutside);
-      } else {
-        throw new EvaluationException(this, "mccode.interpreter.error.undefined_variable", name);
-      }
-    } else {
-      Variable variable = this.variables.get(name);
-      if (!variable.isDeletable() || fromOutside && !variable.isEditableFromOutside()) {
-        throw new EvaluationException(this, "mccode.interpreter.error.cannot_delete_variable", name);
-      }
-      this.variables.remove(name);
-    }
+    this.stack.deleteVariable(name, fromOutside);
   }
 
   /**
    * Delete all declared variables of this scope.
    */
   public void reset() {
-    this.variables.clear();
+    this.stack = new ScopeStackElement(this);
     this.defineBuiltinConstants();
     this.defineBuiltinFunctions();
   }
@@ -174,21 +165,21 @@ public class Scope implements TagDeserializable {
    * Declare builtin constants.
    */
   private void defineBuiltinConstants() {
-    this.declareVariable(new Variable("INF", true, false, true, false, Double.POSITIVE_INFINITY));
-    this.declareVariable(new Variable("PI", true, false, true, false, Math.PI));
-    this.declareVariable(new Variable("E", true, false, true, false, Math.E));
+    this.stack.declareVariable(new Variable("INF", true, false, true, false, Double.POSITIVE_INFINITY));
+    this.stack.declareVariable(new Variable("PI", true, false, true, false, Math.PI));
+    this.stack.declareVariable(new Variable("E", true, false, true, false, Math.E));
 
-    this.declareVariable(new Variable("DIFF_PEACEFUL", true, false, true, false, 0));
-    this.declareVariable(new Variable("DIFF_EASY", true, false, true, false, 1));
-    this.declareVariable(new Variable("DIFF_NORMAL", true, false, true, false, 2));
-    this.declareVariable(new Variable("DIFF_HARD", true, false, true, false, 3));
+    this.stack.declareVariable(new Variable("DIFF_PEACEFUL", true, false, true, false, 0));
+    this.stack.declareVariable(new Variable("DIFF_EASY", true, false, true, false, 1));
+    this.stack.declareVariable(new Variable("DIFF_NORMAL", true, false, true, false, 2));
+    this.stack.declareVariable(new Variable("DIFF_HARD", true, false, true, false, 3));
 
-    this.declareVariable(new Variable("TIME_DAY", true, false, true, false, 1000L));
-    this.declareVariable(new Variable("TIME_NIGHT", true, false, true, false, 13000L));
-    this.declareVariable(new Variable("TIME_NOON", true, false, true, false, 6000L));
-    this.declareVariable(new Variable("TIME_MIDNIGHT", true, false, true, false, 18000L));
-    this.declareVariable(new Variable("TIME_SUNRISE", true, false, true, false, 23000L));
-    this.declareVariable(new Variable("TIME_SUNSET", true, false, true, false, 12000L));
+    this.stack.declareVariable(new Variable("TIME_DAY", true, false, true, false, 1000L));
+    this.stack.declareVariable(new Variable("TIME_NIGHT", true, false, true, false, 13000L));
+    this.stack.declareVariable(new Variable("TIME_NOON", true, false, true, false, 6000L));
+    this.stack.declareVariable(new Variable("TIME_MIDNIGHT", true, false, true, false, 18000L));
+    this.stack.declareVariable(new Variable("TIME_SUNRISE", true, false, true, false, 23000L));
+    this.stack.declareVariable(new Variable("TIME_SUNSET", true, false, true, false, 12000L));
   }
 
   /**
@@ -202,27 +193,8 @@ public class Scope implements TagDeserializable {
 
   @Override
   public CompoundTag writeToTag() {
-    if (this.parentScope != null) {
-      throw new MCCodeException("cannot save non-global scope");
-    }
     CompoundTag tag = new CompoundTag();
-    CompoundTagListTag variablesList = new CompoundTagListTag();
-    this.variables.values().stream()
-        .filter(Variable::isDeletable) // Don’t serialize builtin functions and variables
-        .forEach(v -> variablesList.add(v.writeToTag()));
-    tag.putTag(VARIABLES_KEY, variablesList);
+    tag.putTag(STACK_KEY, this.stack.writeToTag());
     return tag;
-  }
-
-  @Override
-  public void readFromTag(final CompoundTag tag) {
-    if (this.parentScope != null) {
-      throw new MCCodeException("cannot load non-global scope");
-    }
-    CompoundTagListTag list = tag.getList(VARIABLES_KEY, TagType.COMPOUND_TAG_TYPE);
-    for (CompoundTag t : list) {
-      Variable variable = new Variable(t, this);
-      this.variables.put(variable.getName(), variable);
-    }
   }
 }

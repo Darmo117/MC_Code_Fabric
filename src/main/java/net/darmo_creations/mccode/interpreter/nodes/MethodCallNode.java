@@ -1,6 +1,5 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
-import net.darmo_creations.mccode.interpreter.CallStackElement;
 import net.darmo_creations.mccode.interpreter.*;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
@@ -63,9 +62,10 @@ public class MethodCallNode extends OperationNode {
         throw new EvaluationException(scope, "mccode.interpreter.error.calling_non_callable", selfType);
       }
 
-      // Use global scope of module as user functions can only be defined in that scope
-      // and it should not matter for builtin function.
-      Scope functionScope = new Scope(function.getName(), module.getScope());
+      Scope moduleScope = module.getScope();
+      moduleScope.push(function.getName());
+      // Prevent method from accessing any non-global variables
+      moduleScope.lockAllButTopAndBottom();
 
       if (this.arguments.size() != function.getParameters().size()) {
         throw new EvaluationException(scope, "mccode.interpreter.error.invalid_function_arguments_number",
@@ -74,12 +74,13 @@ public class MethodCallNode extends OperationNode {
 
       for (int i = 0; i < this.arguments.size(); i++) {
         Parameter parameter = function.getParameter(i);
-        functionScope.declareVariable(new Variable(parameter.getName(), false, false, false, true, this.arguments.get(i).evaluate(scope, callStack)));
+        moduleScope.declareVariable(new Variable(parameter.getName(), false, false, false, true, this.arguments.get(i).evaluate(scope, callStack)));
       }
 
-      callStack.push(new CallStackElement(scope.getProgram().getName(), scope.getName(), this.getLine(), this.getColumn()));
-      Object result = function.apply(functionScope, callStack);
+      callStack.push(new CallStackElement(scope.getProgram().getName(), scope.getTopName(), this.getLine(), this.getColumn()));
+      Object result = function.apply(moduleScope, callStack);
       callStack.pop();
+      moduleScope.pop();
 
       return result;
 
@@ -88,20 +89,21 @@ public class MethodCallNode extends OperationNode {
       if (method == null) {
         throw new EvaluationException(scope, "mccode.interpreter.error.no_method_for_type", selfType.getName(), this.methodName);
       }
-      Scope functionScope = new Scope(method.getName(), scope);
+      // Create new scope to prevent built-in methods from accessing program’s variables
+      Scope methodScope = new Scope(scope.getProgram());
 
       if (this.arguments.size() != method.getParameters().size()) {
         throw new EvaluationException(scope, "mccode.interpreter.error.invalid_method_arguments_number",
             method.getHostType(), method.getName(), method.getParameters().size(), this.arguments.size());
       }
 
-      functionScope.declareVariable(new Variable(MemberFunction.SELF_PARAM_NAME, false, false, true, false, self));
+      methodScope.declareVariable(new Variable(MemberFunction.SELF_PARAM_NAME, false, false, true, false, self));
       for (int i = 0; i < this.arguments.size(); i++) {
         Parameter parameter = method.getParameter(i);
-        functionScope.declareVariable(new Variable(parameter.getName(), false, false, false, true, this.arguments.get(i).evaluate(scope, callStack)));
+        methodScope.declareVariable(new Variable(parameter.getName(), false, false, false, true, this.arguments.get(i).evaluate(scope, callStack)));
       }
 
-      return method.apply(functionScope, callStack);
+      return method.apply(methodScope, callStack);
     }
   }
 

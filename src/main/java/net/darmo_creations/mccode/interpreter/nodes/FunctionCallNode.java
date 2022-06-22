@@ -1,12 +1,12 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
-import net.darmo_creations.mccode.interpreter.CallStackElement;
 import net.darmo_creations.mccode.interpreter.*;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.types.Function;
 import net.darmo_creations.mccode.interpreter.types.UserFunction;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -56,27 +56,39 @@ public class FunctionCallNode extends OperationNode {
           ProgramManager.getTypeForValue(o));
     }
 
-    // Use global scope as user functions can only be defined in global scope
-    // and it should not matter for builtin function.
-    Scope functionScope = new Scope(function.getName(), scope.getProgram().getScope());
-
     if (this.arguments.size() != function.getParameters().size()) {
       throw new EvaluationException(scope, "mccode.interpreter.error.invalid_function_arguments_number",
           function.getName(), function.getParameters().size(), this.arguments.size());
     }
 
+    List<Variable> values = new LinkedList<>();
     for (int i = 0; i < this.arguments.size(); i++) {
       Parameter parameter = function.getParameter(i);
-      functionScope.declareVariable(new Variable(parameter.getName(), false, false, false, true, this.arguments.get(i).evaluate(scope, callStack)));
+      values.add(new Variable(parameter.getName(), false, false, false, true, this.arguments.get(i).evaluate(scope, callStack)));
     }
 
+    Scope s;
     if (function instanceof UserFunction) {
-      callStack.push(new CallStackElement(scope.getProgram().getName(), scope.getName(), this.getLine(), this.getColumn()));
+      s = scope;
+      s.push(function.getName());
+      // Prevent function from accessing any non-global variables
+      s.lockAllButTopAndBottom();
+    } else {
+      // Create new scope to prevent built-in functions from accessing program’s variables
+      s = new Scope(scope.getProgram());
     }
-    Object result = function.apply(functionScope, callStack);
+
+    values.forEach(s::declareVariable);
+
+    if (function instanceof UserFunction) {
+      callStack.push(new CallStackElement(scope.getProgram().getName(), scope.getTopName(), this.getLine(), this.getColumn()));
+    }
+    Object result = function.apply(s, callStack);
     if (function instanceof UserFunction) {
       callStack.pop();
+      scope.pop();
     }
+    // No scope to pop if built-in function, as it used a new scope
     return result;
   }
 
