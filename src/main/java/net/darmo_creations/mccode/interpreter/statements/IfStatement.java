@@ -141,7 +141,6 @@ public class IfStatement extends Statement {
     tag.putTag(CONDITIONS_KEY, NodeTagHelper.serializeNodesList(this.conditions));
     ListTagListTag branchesList = new ListTagListTag();
     this.branchesStatements.forEach(l -> branchesList.add(StatementTagHelper.serializeStatementsList(l)));
-    System.out.println(branchesList.toNBT()); // DEBUG
     tag.putTag(BRANCHES_KEY, branchesList);
     tag.putInt(BRANCH_INDEX_KEY, this.branchIndex);
     tag.putInt(IP_KEY, this.ip);

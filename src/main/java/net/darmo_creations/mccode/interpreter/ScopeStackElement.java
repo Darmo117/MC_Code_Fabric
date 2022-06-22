@@ -210,9 +210,13 @@ public class ScopeStackElement implements TagSerializable {
    * Declare a variable.
    *
    * @param variable The variable.
+   * @param globally If true, the variable will be declared in the global (bottom) scope.
    * @throws EvaluationException If a variable with the same name already exists.
    */
-  public void declareVariable(Variable variable) throws EvaluationException {
+  public void declareVariable(Variable variable, boolean globally) throws EvaluationException {
+    if (globally && this.parentElement != null) {
+      this.parentElement.declareVariable(variable, true);
+    }
     if (this.locked) {
       throw new EvaluationException(this.scope, "mccode.interpreter.error.locked_scope", this.name);
     }

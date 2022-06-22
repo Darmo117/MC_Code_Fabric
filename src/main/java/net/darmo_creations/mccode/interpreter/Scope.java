@@ -42,6 +42,8 @@ public class Scope implements TagSerializable {
   public Scope(Program program, final CompoundTag tag) {
     this.program = program;
     this.stack = new ScopeStackElement(this, tag.getCompound(STACK_KEY));
+    this.defineBuiltinConstants();
+    this.defineBuiltinFunctions();
   }
 
   /**
@@ -139,13 +141,23 @@ public class Scope implements TagSerializable {
   }
 
   /**
-   * Declare a variable.
+   * Declares a variable in the top scope.
    *
    * @param variable The variable.
    * @throws EvaluationException If a variable with the same name already exists.
    */
   public void declareVariable(Variable variable) throws EvaluationException {
-    this.stack.declareVariable(variable);
+    this.stack.declareVariable(variable, false);
+  }
+
+  /**
+   * Declares a variable in the global scope.
+   *
+   * @param variable The variable.
+   * @throws EvaluationException If a variable with the same name already exists.
+   */
+  public void declareVariableGlobally(Variable variable) throws EvaluationException {
+    this.stack.declareVariable(variable, true);
   }
 
   /**
@@ -172,21 +184,21 @@ public class Scope implements TagSerializable {
    * Declare builtin constants.
    */
   private void defineBuiltinConstants() {
-    this.stack.declareVariable(new Variable("INF", true, false, true, false, Double.POSITIVE_INFINITY));
-    this.stack.declareVariable(new Variable("PI", true, false, true, false, Math.PI));
-    this.stack.declareVariable(new Variable("E", true, false, true, false, Math.E));
+    this.stack.declareVariable(new Variable("INF", true, false, true, false, Double.POSITIVE_INFINITY), true);
+    this.stack.declareVariable(new Variable("PI", true, false, true, false, Math.PI), true);
+    this.stack.declareVariable(new Variable("E", true, false, true, false, Math.E), true);
 
-    this.stack.declareVariable(new Variable("DIFF_PEACEFUL", true, false, true, false, 0));
-    this.stack.declareVariable(new Variable("DIFF_EASY", true, false, true, false, 1));
-    this.stack.declareVariable(new Variable("DIFF_NORMAL", true, false, true, false, 2));
-    this.stack.declareVariable(new Variable("DIFF_HARD", true, false, true, false, 3));
+    this.stack.declareVariable(new Variable("DIFF_PEACEFUL", true, false, true, false, 0), true);
+    this.stack.declareVariable(new Variable("DIFF_EASY", true, false, true, false, 1), true);
+    this.stack.declareVariable(new Variable("DIFF_NORMAL", true, false, true, false, 2), true);
+    this.stack.declareVariable(new Variable("DIFF_HARD", true, false, true, false, 3), true);
 
-    this.stack.declareVariable(new Variable("TIME_DAY", true, false, true, false, 1000L));
-    this.stack.declareVariable(new Variable("TIME_NIGHT", true, false, true, false, 13000L));
-    this.stack.declareVariable(new Variable("TIME_NOON", true, false, true, false, 6000L));
-    this.stack.declareVariable(new Variable("TIME_MIDNIGHT", true, false, true, false, 18000L));
-    this.stack.declareVariable(new Variable("TIME_SUNRISE", true, false, true, false, 23000L));
-    this.stack.declareVariable(new Variable("TIME_SUNSET", true, false, true, false, 12000L));
+    this.stack.declareVariable(new Variable("TIME_DAY", true, false, true, false, 1000L), true);
+    this.stack.declareVariable(new Variable("TIME_NIGHT", true, false, true, false, 13000L), true);
+    this.stack.declareVariable(new Variable("TIME_NOON", true, false, true, false, 6000L), true);
+    this.stack.declareVariable(new Variable("TIME_MIDNIGHT", true, false, true, false, 18000L), true);
+    this.stack.declareVariable(new Variable("TIME_SUNRISE", true, false, true, false, 23000L), true);
+    this.stack.declareVariable(new Variable("TIME_SUNSET", true, false, true, false, 12000L), true);
   }
 
   /**
@@ -194,7 +206,7 @@ public class Scope implements TagSerializable {
    */
   private void defineBuiltinFunctions() {
     for (BuiltinFunction function : ProgramManager.getBuiltinFunctions()) {
-      this.declareVariable(new Variable(function.getName(), true, false, true, false, function));
+      this.stack.declareVariable(new Variable(function.getName(), true, false, true, false, function), true);
     }
   }
 

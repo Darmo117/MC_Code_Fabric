@@ -142,14 +142,14 @@ public class Program {
    * Declare global variables.
    */
   private void setup() {
-    this.scope.declareVariable(new Variable(WORLD_VAR_NAME, false, false, true,
+    this.scope.declareVariableGlobally(new Variable(WORLD_VAR_NAME, false, false, true,
         false, this.programManager.getWorld()));
-    this.scope.declareVariable(new Variable("$$", false, false, true, false, (long) this.args.size()));
+    this.scope.declareVariableGlobally(new Variable("$$", false, false, true, false, (long) this.args.size()));
     for (int i = 0; i < this.args.size(); i++) {
-      this.scope.declareVariable(new Variable("$" + i, false, false, true, false, this.args.get(i)));
+      this.scope.declareVariableGlobally(new Variable("$" + i, false, false, true, false, this.args.get(i)));
     }
     if (!this.scope.isVariableDefined(NAME_SPECIAL_VARIABLE)) { // May have been overriden by program
-      this.scope.declareVariable(new Variable(NAME_SPECIAL_VARIABLE, true, false, false,
+      this.scope.declareVariableGlobally(new Variable(NAME_SPECIAL_VARIABLE, true, false, false,
           false, this.getName()));
     }
   }
