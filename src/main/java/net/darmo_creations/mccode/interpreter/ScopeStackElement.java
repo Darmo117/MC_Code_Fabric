@@ -16,6 +16,7 @@ public class ScopeStackElement implements TagSerializable {
   private static final String NAME_KEY = "Name";
   private static final String PARENT_KEY = "Parent";
   private static final String VARIABLES_KEY = "Variables";
+  private static final String LOCKED_KEY = "Locked";
 
   private final Scope scope;
   private final String name;
@@ -53,6 +54,7 @@ public class ScopeStackElement implements TagSerializable {
       Variable variable = new Variable(t, scope);
       this.variables.put(variable.getName(), variable);
     }
+    this.locked = tag.getBoolean(LOCKED_KEY);
   }
 
   /**
@@ -252,6 +254,7 @@ public class ScopeStackElement implements TagSerializable {
         .filter(Variable::isDeletable) // Don’t serialize builtin functions and variables
         .forEach(v -> variablesList.add(v.writeToTag()));
     tag.putTag(VARIABLES_KEY, variablesList);
+    tag.putBoolean(LOCKED_KEY, this.locked);
     return tag;
   }
 }
