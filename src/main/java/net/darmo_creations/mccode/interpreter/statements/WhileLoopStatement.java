@@ -55,6 +55,7 @@ public class WhileLoopStatement extends LoopStatement {
       } else {
         scope.push("<while-loop>");
       }
+
       StatementAction action = this.executeStatements(scope, callStack);
       if (action == StatementAction.EXIT_LOOP) {
         break;
@@ -64,15 +65,9 @@ public class WhileLoopStatement extends LoopStatement {
       this.ip = 0;
       scope.pop();
     }
-    this.ip = 0;
+    this.onLoopEnd();
 
     return StatementAction.PROCEED;
-  }
-
-  @Override
-  protected void reset(Scope scope) {
-    this.ip = 0;
-    scope.pop();
   }
 
   @Override

@@ -72,7 +72,14 @@ public abstract class LoopStatement extends Statement {
     return StatementAction.PROCEED;
   }
 
-  protected abstract void reset(Scope scope);
+  protected void onLoopEnd() {
+    this.ip = 0;
+  }
+
+  protected void reset(Scope scope) {
+    this.onLoopEnd();
+    scope.pop();
+  }
 
   @Override
   public CompoundTag writeToTag() {

@@ -94,17 +94,15 @@ public class ForLoopStatement extends LoopStatement {
       this.ip = 0;
       scope.pop();
     }
-    this.ip = 0;
-    this.iteratorIndex = 0;
+    this.onLoopEnd();
 
     return StatementAction.PROCEED;
   }
 
   @Override
-  protected void reset(Scope scope) {
-    this.ip = 0;
+  protected void onLoopEnd() {
+    super.onLoopEnd();
     this.iteratorIndex = 0;
-    scope.pop();
   }
 
   @Override
