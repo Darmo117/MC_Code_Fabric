@@ -5,6 +5,7 @@ import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
+import net.darmo_creations.mccode.interpreter.tags.TagType;
 import net.darmo_creations.mccode.interpreter.type_wrappers.IntType;
 import net.darmo_creations.mccode.interpreter.types.Range;
 
@@ -64,7 +65,11 @@ public class RangeLiteralNode extends Node {
     super(tag);
     this.start = NodeTagHelper.getNodeForTag(tag.getCompound(START_KEY));
     this.end = NodeTagHelper.getNodeForTag(tag.getCompound(END_KEY));
-    this.step = NodeTagHelper.getNodeForTag(tag.getCompound(STEP_KEY));
+    if (tag.contains(STEP_KEY, TagType.COMPOUND_TAG_TYPE)) {
+      this.step = NodeTagHelper.getNodeForTag(tag.getCompound(STEP_KEY));
+    } else {
+      this.step = null;
+    }
   }
 
   @Override
@@ -99,7 +104,9 @@ public class RangeLiteralNode extends Node {
     CompoundTag nbt = super.writeToTag();
     nbt.putTag(START_KEY, this.start.writeToTag());
     nbt.putTag(END_KEY, this.end.writeToTag());
-    nbt.putTag(STEP_KEY, this.step.writeToTag());
+    if (this.step != null) {
+      nbt.putTag(STEP_KEY, this.step.writeToTag());
+    }
     return nbt;
   }
 

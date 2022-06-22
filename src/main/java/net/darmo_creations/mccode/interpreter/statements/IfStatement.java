@@ -71,8 +71,8 @@ public class IfStatement extends Statement {
     ListTagListTag list = tag.getList(BRANCHES_KEY, TagType.LIST_TAG_TYPE);
     for (ListTag<?> subList : list) {
       List<Statement> statements = new ArrayList<>();
-      for (CompoundTag t : (CompoundTagListTag) subList) {
-        statements.add(StatementTagHelper.getStatementForTag(t));
+      for (Object t : subList) {
+        statements.add(StatementTagHelper.getStatementForTag((CompoundTag) t));
       }
       this.branchesStatements.add(statements);
     }
@@ -141,6 +141,7 @@ public class IfStatement extends Statement {
     tag.putTag(CONDITIONS_KEY, NodeTagHelper.serializeNodesList(this.conditions));
     ListTagListTag branchesList = new ListTagListTag();
     this.branchesStatements.forEach(l -> branchesList.add(StatementTagHelper.serializeStatementsList(l)));
+    System.out.println(branchesList.toNBT()); // DEBUG
     tag.putTag(BRANCHES_KEY, branchesList);
     tag.putInt(BRANCH_INDEX_KEY, this.branchIndex);
     tag.putInt(IP_KEY, this.ip);

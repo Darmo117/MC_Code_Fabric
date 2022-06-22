@@ -27,7 +27,7 @@ public class ListTagListTag extends ListTag<ListTag<?>> {
   @Override
   public ListTag<?> get(final int i) {
     NbtList list = this.nbt.getList(i);
-    return TagType.fromID(list.getType()).getListTag(list);
+    return TagType.fromID(list.getHeldType()).getListTag(list);
   }
 
   @Override
@@ -57,7 +57,53 @@ public class ListTagListTag extends ListTag<ListTag<?>> {
   public Iterator<ListTag<?>> iterator() {
     return this.nbt.stream().<ListTag<?>>map(nbt -> {
       NbtList list = (NbtList) nbt;
-      return TagType.fromID(list.getType()).getListTag(list);
+      byte heldType = list.getHeldType();
+      if (heldType == 0) {
+        return new EmptyList();
+      }
+      return TagType.fromID(heldType).getListTag(list);
     }).iterator();
+  }
+
+  private static class EmptyList extends ListTag<Void> {
+    @Override
+    public Void get(int i) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ListTag<Void> set(int i, Void v) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ListTag<Void> add(Void v) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ListTag<Void> add(int i, Void v) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public TagType<Void> getTagType() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Iterator<Void> iterator() {
+      return new Iterator<>() {
+        @Override
+        public boolean hasNext() {
+          return false;
+        }
+
+        @Override
+        public Void next() {
+          return null;
+        }
+      };
+    }
   }
 }
