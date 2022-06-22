@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
  */
 public class Program {
   public static final String WORLD_VAR_NAME = "WORLD";
-  public static final String NAME_SPECIAL_VARIABLE = "__name__";
 
   public static final String NAME_KEY = "Name";
   public static final String STATEMENTS_KEY = "Statements";
@@ -147,10 +146,6 @@ public class Program {
     this.scope.declareVariableGlobally(new Variable("$$", false, false, true, false, (long) this.args.size()));
     for (int i = 0; i < this.args.size(); i++) {
       this.scope.declareVariableGlobally(new Variable("$" + i, false, false, true, false, this.args.get(i)));
-    }
-    if (!this.scope.isVariableDefined(NAME_SPECIAL_VARIABLE)) { // May have been overriden by program
-      this.scope.declareVariableGlobally(new Variable(NAME_SPECIAL_VARIABLE, true, false, false,
-          false, this.getName()));
     }
   }
 
