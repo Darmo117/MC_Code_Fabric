@@ -658,8 +658,9 @@ public class WorldType extends TypeBase<ServerWorld> {
     long result = server.getCommandManager().execute(commandSourceStack, command);
     if (result == 0 && commandSourceStack.anyFailures) {
       String dimension = Utils.getDimensionIdentifier(scope.getProgram().getProgramManager().getWorld());
+      final String cmd = command;
       commandSourceStack.errors.forEach(text -> {
-        String prefix = "[MCCode:%s][%s] world.execute: ".formatted(scope.getProgram().getName(), dimension);
+        String prefix = "[MCCode:%s][%s] world.execute(\"/%s\"): ".formatted(scope.getProgram().getName(), dimension, cmd);
         MCCode.LOGGER.warn(prefix + text.getString());
       });
       return Optional.empty();
