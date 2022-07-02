@@ -42,18 +42,18 @@ public class MCCode implements ModInitializer {
 
   @Override
   public void onInitialize() {
-    MCCode.LOGGER.info("[MC Code] Setting up…");
-    MCCode.LOGGER.info("[MC Code] Setting up program manager");
+    LOGGER.info("[MC Code] Setting up…");
+    LOGGER.info("[MC Code] Setting up program manager");
     ProgramManager.declareDefaultBuiltinTypes();
     ProgramManager.declareDefaultBuiltinFunctions();
     ProgramManager.initialize();
-    MCCode.LOGGER.info("[MC Code] Program manager setup done");
+    LOGGER.info("[MC Code] Program manager setup done");
     ServerTickEvents.START_WORLD_TICK.register(this::onWorldTickStart);
     ServerWorldEvents.LOAD.register(this::onWorldLoad);
     this.registerCommands();
     // Nasty hack, but don’t know how to do it any other way…
     INSTANCE = this;
-    MCCode.LOGGER.info("[MC Code] Setup done");
+    LOGGER.info("[MC Code] Setup done");
   }
 
   /**
