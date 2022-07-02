@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-// TODO mod icon
 public class MCCode implements ModInitializer {
   public static final String MOD_ID = "mccode";
   public static final Logger LOGGER = LoggerFactory.getLogger("MC Code");
