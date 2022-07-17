@@ -76,11 +76,11 @@ INT   : [0-9]+;
 FLOAT : ([0-9]+'.'[0-9]*|'.'?[0-9]+)([eE]'-'?[0-9]+)?;
 STRING: '"'('\\'["\\n]|~["\\\n\r])*?'"';
 IDENT : [a-zA-Z_][a-zA-Z0-9_]*;
-CMDARG: '$'('$'|[0-9]+);
+CMDARG: '$'([$_]|[0-9]+);
 
 module:
   (SCHED ticks=INT (REPEAT times=(INT | FOREVER))? SEMIC)?
-  (import_statement)*
+  import_statement*
   global_statement* EOF;
 
 expression: expr EOF;

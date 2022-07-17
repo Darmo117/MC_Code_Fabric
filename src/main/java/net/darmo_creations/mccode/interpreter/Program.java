@@ -10,6 +10,7 @@ import net.darmo_creations.mccode.interpreter.statements.WaitStatement;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.tags.StringListTag;
 import net.darmo_creations.mccode.interpreter.tags.TagType;
+import net.darmo_creations.mccode.interpreter.types.MCList;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -144,6 +145,7 @@ public class Program {
     this.scope.declareVariableGlobally(new Variable(WORLD_VAR_NAME, false, false, true,
         false, this.programManager.getWorld()));
     this.scope.declareVariableGlobally(new Variable("$$", false, false, true, false, (long) this.args.size()));
+    this.scope.declareVariableGlobally(new Variable("$_", false, false, true, false, new MCList(this.args)));
     for (int i = 0; i < this.args.size(); i++) {
       this.scope.declareVariableGlobally(new Variable("$" + i, false, false, true, false, this.args.get(i)));
     }

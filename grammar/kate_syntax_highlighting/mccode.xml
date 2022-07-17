@@ -128,7 +128,7 @@
         <keyword attribute="Builtin Constant" context="#stay" String="builtin_constants"/>
         <keyword attribute="Builtin Function" context="#stay" String="builtin_functions"/>
         <DetectChar attribute="String" context="string" char="&quot;"/>
-        <RegExpr attribute="Command Argument" context="#stay" String="\$(?:\$|\d+)(?=[^$\w])"/>
+        <RegExpr attribute="Command Argument" context="#stay" String="\$(?:[$_]|\d+)(?=[^$\w])"/>
         <keyword attribute="Literal" context="#stay" String="literals"/>
         <DetectIdentifier attribute="Identifier"/>
         <DetectChar attribute="Comment" context="comment" char="#"/>
