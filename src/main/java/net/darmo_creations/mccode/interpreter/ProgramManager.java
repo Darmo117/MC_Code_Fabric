@@ -818,6 +818,7 @@ public class ProgramManager extends PersistentState {
     declareBuiltinFunction(FormatBlockFunction.class);
     declareBuiltinFunction(FormatItemFunction.class);
     declareBuiltinFunction(HypotFunction.class);
+    declareBuiltinFunction(Hypot3Function.class);
     declareBuiltinFunction(IsInstanceFunction.class);
     declareBuiltinFunction(LenFunction.class);
     declareBuiltinFunction(Log10Function.class);

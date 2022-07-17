@@ -86,6 +86,7 @@
       <item>degrees</item>
       <item>radians</item>
       <item>hypot</item>
+      <item>hypot3</item>
       <item>log</item>
       <item>log10</item>
       <item>abs</item>
