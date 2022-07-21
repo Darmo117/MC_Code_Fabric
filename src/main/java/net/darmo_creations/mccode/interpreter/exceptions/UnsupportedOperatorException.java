@@ -18,7 +18,7 @@ public class UnsupportedOperatorException extends MCCodeRuntimeException {
   public UnsupportedOperatorException(final Scope scope, final UnaryOperator operator,
                                       final TypeBase<?> type) {
     super(scope, buildErrorObject(operator, type),
-        "mccode.interpreter.error.unsupported_operator_unary",
+        "mccode.interpreter.error.unsupported_unary_operator",
         type, operator.getSymbol());
   }
 
