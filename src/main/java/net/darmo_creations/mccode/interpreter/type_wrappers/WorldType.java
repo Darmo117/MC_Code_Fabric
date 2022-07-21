@@ -142,6 +142,16 @@ public class WorldType extends TypeBase<ServerWorld> {
     }
   }
 
+  @Property(name = "dimension", doc = "Name of the dimension this world object represents.")
+  public String getDimensionName(final ServerWorld self) {
+    return Utils.getDimension(self);
+  }
+
+  @Property(name = "dimension_type", doc = "Name of the dimension type this world object represents.")
+  public String getDimensionType(final ServerWorld self) {
+    return Utils.getDimensionType(self);
+  }
+
   @Property(name = "seed", doc = "The seed of the world.")
   public Long getSeed(final ServerWorld self) {
     return self.getSeed();
@@ -657,7 +667,7 @@ public class WorldType extends TypeBase<ServerWorld> {
     CommandSourceStackWrapper commandSourceStack = new CommandSourceStackWrapper(server, self);
     long result = server.getCommandManager().execute(commandSourceStack, command);
     if (result == 0 && commandSourceStack.anyFailures) {
-      String dimension = Utils.getDimensionIdentifier(scope.getProgram().getProgramManager().getWorld());
+      String dimension = Utils.getDimensionType(scope.getProgram().getProgramManager().getWorld());
       final String cmd = command;
       commandSourceStack.errors.forEach(text -> {
         String prefix = "[MCCode:%s][%s] world.execute(\"/%s\"): ".formatted(scope.getProgram().getName(), dimension, cmd);
@@ -747,7 +757,7 @@ public class WorldType extends TypeBase<ServerWorld> {
 
   @Override
   protected String __str__(final ServerWorld self) {
-    return Utils.getDimensionIdentifier(self);
+    return this.getDimensionName(self);
   }
 
   @Override

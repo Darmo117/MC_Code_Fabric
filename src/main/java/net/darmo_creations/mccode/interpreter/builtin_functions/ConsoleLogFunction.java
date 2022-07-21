@@ -29,7 +29,7 @@ public class ConsoleLogFunction extends BuiltinFunction {
     MinecraftServer server = program.getProgramManager().getWorld().getServer();
     Object message = this.getParameterValue(scope, 0);
     String text = ProgramManager.getTypeForValue(message).toString(message);
-    String dimension = Utils.getDimensionIdentifier(scope.getProgram().getProgramManager().getWorld());
+    String dimension = Utils.getDimension(scope.getProgram().getProgramManager().getWorld());
     server.sendSystemMessage(new LiteralText("[MCCode:%s][%s] %s".formatted(program.getName(), dimension, text)), Util.NIL_UUID);
     return null;
   }
