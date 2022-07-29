@@ -383,7 +383,7 @@ public class ProgramManager extends PersistentState {
         }
         this.runningPrograms.put(program.getName(), programTag.getBoolean(RUNNING_KEY));
       } catch (Exception e) {
-        e.printStackTrace();
+        MCCode.LOGGER.error(e.getMessage(), e);
       }
     }
   }
