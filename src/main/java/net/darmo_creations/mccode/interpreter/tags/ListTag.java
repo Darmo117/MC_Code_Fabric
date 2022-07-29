@@ -42,4 +42,9 @@ public abstract class ListTag<T> implements Tag<NbtList>, Iterable<T> {
   public NbtList toNBT() {
     return this.nbt;
   }
+
+  @Override
+  public String toString() {
+    return this.nbt.toString();
+  }
 }

@@ -132,4 +132,9 @@ public class CompoundTag implements Tag<NbtCompound> {
   public NbtCompound toNBT() {
     return this.nbt;
   }
+
+  @Override
+  public String toString() {
+    return nbt.toString();
+  }
 }
