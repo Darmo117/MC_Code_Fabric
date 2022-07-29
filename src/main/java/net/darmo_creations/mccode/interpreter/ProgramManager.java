@@ -375,9 +375,9 @@ public class ProgramManager extends PersistentState {
       try {
         Program program = new Program(programTag.getCompound(PROGRAM_KEY), this);
         this.programs.put(program.getName(), program);
-        if (programTag.contains(SCHEDULE_KEY, TagType.COMPOUND_TAG_TYPE)) {
+        if (programTag.contains(SCHEDULE_KEY, TagType.LONG_TAG_TYPE)) {
           this.programsSchedules.put(program.getName(), programTag.getLong(SCHEDULE_KEY));
-          if (programTag.contains(REPEAT_AMOUNT_KEY, TagType.COMPOUND_TAG_TYPE)) {
+          if (programTag.contains(REPEAT_AMOUNT_KEY, TagType.LONG_TAG_TYPE)) {
             this.programsRepeats.put(program.getName(), programTag.getLong(REPEAT_AMOUNT_KEY));
           }
         }
