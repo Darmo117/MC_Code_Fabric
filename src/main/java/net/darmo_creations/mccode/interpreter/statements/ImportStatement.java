@@ -1,6 +1,5 @@
 package net.darmo_creations.mccode.interpreter.statements;
 
-import net.darmo_creations.mccode.interpreter.CallStackElement;
 import net.darmo_creations.mccode.interpreter.*;
 import net.darmo_creations.mccode.interpreter.exceptions.*;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;

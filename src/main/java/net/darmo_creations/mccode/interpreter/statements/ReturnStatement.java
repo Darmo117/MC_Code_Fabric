@@ -6,6 +6,7 @@ import net.darmo_creations.mccode.interpreter.Variable;
 import net.darmo_creations.mccode.interpreter.nodes.Node;
 import net.darmo_creations.mccode.interpreter.nodes.NodeTagHelper;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
+import net.darmo_creations.mccode.interpreter.tags.TagType;
 
 import java.util.Objects;
 
@@ -29,7 +30,7 @@ public class ReturnStatement extends Statement {
    */
   public ReturnStatement(final Node node, final int line, final int column) {
     super(line, column);
-    this.node = Objects.requireNonNull(node);
+    this.node = node;
   }
 
   /**
@@ -39,7 +40,9 @@ public class ReturnStatement extends Statement {
    */
   public ReturnStatement(final CompoundTag tag) {
     super(tag);
-    this.node = NodeTagHelper.getNodeForTag(tag.getCompound(EXPR_KEY));
+    this.node = tag.contains(EXPR_KEY, TagType.COMPOUND_TAG_TYPE)
+        ? NodeTagHelper.getNodeForTag(tag.getCompound(EXPR_KEY))
+        : null;
   }
 
   @Override
@@ -52,7 +55,9 @@ public class ReturnStatement extends Statement {
   @Override
   public CompoundTag writeToTag() {
     CompoundTag tag = super.writeToTag();
-    tag.putTag(EXPR_KEY, this.node.writeToTag());
+    if (this.node != null) {
+      tag.putTag(EXPR_KEY, this.node.writeToTag());
+    }
     return tag;
   }
 
@@ -63,7 +68,7 @@ public class ReturnStatement extends Statement {
 
   @Override
   public String toString() {
-    return String.format("return %s;", this.node);
+    return this.node == null ? "return;" : String.format("return %s;", this.node);
   }
 
   @Override
@@ -75,7 +80,7 @@ public class ReturnStatement extends Statement {
       return false;
     }
     ReturnStatement that = (ReturnStatement) o;
-    return this.node.equals(that.node);
+    return Objects.equals(this.node, that.node);
   }
 
   @Override
