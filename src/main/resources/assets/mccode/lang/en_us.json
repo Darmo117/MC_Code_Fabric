@@ -4,10 +4,9 @@
 
   "gamerule.show_mccode_error_messages": "Show MC Code error messages",
 
-  "commands.program.feedback.program_loaded": "Program \"%s\" loaded.",
-  "commands.program.feedback.program_unloaded": "Program \"%s\" unloaded.",
-  "commands.program.feedback.program_reset": "Program \"%s\" reset.",
   "commands.program.feedback.program_launched": "Program \"%s\" launched.",
+  "commands.program.feedback.program_stopped": "Program \"%s\" stopped and unloaded.",
+  "commands.program.feedback.program_reset": "Program \"%s\" reset.",
   "commands.program.feedback.program_paused": "Program \"%s\" paused.",
   "commands.program.feedback.loaded_programs": "Loaded programs: %s",
   "commands.program.feedback.get_variable_value": "Variable %s is: %s",

@@ -46,23 +46,19 @@ public class ProgramCommand {
    * Register this command in the given dispatcher.
    */
   public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-    LiteralArgumentBuilder<ServerCommandSource> loadProgramOption = CommandManager.literal("load")
+    LiteralArgumentBuilder<ServerCommandSource> loadAndRunProgramOption = CommandManager.literal("run")
         .then(buildLoadProgramBranch(CommandManager.argument(PROGRAM_NAME_ARG, ProgramNameArgumentType.available()), false))
         .then(CommandManager.argument(PROGRAM_NAME_ARG, ProgramNameArgumentType.available())
             .then(CommandManager.literal("as")
                 .then(buildLoadProgramBranch(CommandManager.argument(PROGRAM_ALIAS_ARG, StringArgumentType.word()), true))));
 
-    LiteralArgumentBuilder<ServerCommandSource> unloadProgramOption = CommandManager.literal("unload")
+    LiteralArgumentBuilder<ServerCommandSource> stopProgramOption = CommandManager.literal("stop")
         .then(CommandManager.argument(PROGRAM_NAME_ARG, ProgramNameArgumentType.loaded())
-            .executes(ProgramCommand::unloadProgram));
+            .executes(ProgramCommand::stopProgram));
 
     LiteralArgumentBuilder<ServerCommandSource> resetProgramOption = CommandManager.literal("reset")
         .then(CommandManager.argument(PROGRAM_NAME_ARG, ProgramNameArgumentType.loaded())
             .executes(ProgramCommand::resetProgram));
-
-    LiteralArgumentBuilder<ServerCommandSource> runProgramOption = CommandManager.literal("run")
-        .then(CommandManager.argument(PROGRAM_NAME_ARG, ProgramNameArgumentType.loaded())
-            .executes(ProgramCommand::runProgram));
 
     LiteralArgumentBuilder<ServerCommandSource> pauseProgramOption = CommandManager.literal("pause")
         .then(CommandManager.argument(PROGRAM_NAME_ARG, ProgramNameArgumentType.loaded())
@@ -95,10 +91,9 @@ public class ProgramCommand {
     dispatcher.register(
         CommandManager.literal("program")
             .requires(commandSourceStack -> commandSourceStack.hasPermissionLevel(2))
-            .then(loadProgramOption)
-            .then(unloadProgramOption)
+            .then(loadAndRunProgramOption)
+            .then(stopProgramOption)
             .then(resetProgramOption)
-            .then(runProgramOption)
             .then(pauseProgramOption)
             .then(getVariableOption)
             .then(setVariableOption)
@@ -110,18 +105,19 @@ public class ProgramCommand {
 
   private static ArgumentBuilder<ServerCommandSource, ?> buildLoadProgramBranch(
       ArgumentBuilder<ServerCommandSource, ?> root, final boolean hasAlias) {
-    return root.executes(context -> loadProgram(context, hasAlias, false))
+    return root.executes(context -> loadAndRunProgram(context, hasAlias, false))
         .then(CommandManager.argument(PROGRAM_ARGUMENTS_ARG, StringArgumentType.greedyString())
-            .executes(context -> loadProgram(context, hasAlias, true)));
+            .executes(context -> loadAndRunProgram(context, hasAlias, true)));
   }
 
-  private static int loadProgram(CommandContext<ServerCommandSource> context, final boolean hasAlias, final boolean hasArgs) {
+  private static int loadAndRunProgram(CommandContext<ServerCommandSource> context, final boolean hasAlias, final boolean hasArgs) {
     ProgramManager pm = MCCode.INSTANCE.PROGRAM_MANAGERS.get(context.getSource().getWorld());
     String programName = ProgramNameArgumentType.getName(context, PROGRAM_NAME_ARG);
     String alias = hasAlias ? StringArgumentType.getString(context, PROGRAM_ALIAS_ARG) : null;
     String[] args = hasArgs ? StringArgumentType.getString(context, PROGRAM_ARGUMENTS_ARG).split(" ") : new String[0];
+    Program p;
     try {
-      pm.loadProgram(programName, alias, false, args);
+      p = pm.loadProgram(programName, alias, false, args);
     } catch (SyntaxErrorException e) {
       context.getSource().sendError(new LiteralText("[%s:%d:%d] ".formatted(programName, e.getLine(), e.getColumn()))
           .append(new TranslatableText(e.getTranslationKey(), e.getArgs())));
@@ -130,12 +126,18 @@ public class ProgramCommand {
       context.getSource().sendError(new TranslatableText(e.getTranslationKey(), e.getProgramName()));
       return 0;
     }
+    try {
+      pm.runProgram(p.getName());
+    } catch (ProgramStatusException e) {
+      context.getSource().sendError(new TranslatableText(e.getTranslationKey(), e.getProgramName()));
+      return 0;
+    }
     context.getSource().sendFeedback(
-        new TranslatableText("commands.program.feedback.program_loaded", programName), true);
+        new TranslatableText("commands.program.feedback.program_launched", programName), true);
     return 1;
   }
 
-  private static int unloadProgram(CommandContext<ServerCommandSource> context) {
+  private static int stopProgram(CommandContext<ServerCommandSource> context) {
     ProgramManager pm = MCCode.INSTANCE.PROGRAM_MANAGERS.get(context.getSource().getWorld());
     String programName = ProgramNameArgumentType.getName(context, PROGRAM_NAME_ARG);
     try {
@@ -145,7 +147,7 @@ public class ProgramCommand {
       return 0;
     }
     context.getSource().sendFeedback(
-        new TranslatableText("commands.program.feedback.program_unloaded", programName), true);
+        new TranslatableText("commands.program.feedback.program_stopped", programName), true);
     return 1;
   }
 
@@ -160,20 +162,6 @@ public class ProgramCommand {
     }
     context.getSource().sendFeedback(
         new TranslatableText("commands.program.feedback.program_reset", programName), true);
-    return 1;
-  }
-
-  private static int runProgram(final CommandContext<ServerCommandSource> context) {
-    ProgramManager pm = MCCode.INSTANCE.PROGRAM_MANAGERS.get(context.getSource().getWorld());
-    String programName = ProgramNameArgumentType.getName(context, PROGRAM_NAME_ARG);
-    try {
-      pm.runProgram(programName);
-    } catch (ProgramStatusException e) {
-      context.getSource().sendError(new TranslatableText(e.getTranslationKey(), e.getProgramName()));
-      return 0;
-    }
-    context.getSource().sendFeedback(
-        new TranslatableText("commands.program.feedback.program_launched", programName), true);
     return 1;
   }
 
