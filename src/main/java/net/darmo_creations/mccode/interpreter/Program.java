@@ -60,7 +60,7 @@ public class Program {
    * @param repeatAmount   Program’s repeat amount. May be null.
    * @param programManager Program’s manager.
    * @param args           Optional command arguments for the program.
-   * @throws MCCodeRuntimeException If the schedule delay or repeat amount is negative,
+   * @throws MCCodeRuntimeException If the schedule delay or repeat amount is negative or 0,
    *                                or a repeat amount is defined without a schedule delay.
    */
   public Program(final String name, final List<Statement> statements, final Long scheduleDelay, final Long repeatAmount, ProgramManager programManager, String... args) {
@@ -68,7 +68,7 @@ public class Program {
     this.name = Objects.requireNonNull(name);
     this.statements = Objects.requireNonNull(statements);
     this.scope = new Scope(this);
-    if (scheduleDelay != null && scheduleDelay < 0) {
+    if (scheduleDelay != null && scheduleDelay <= 0) {
       throw new MCCodeRuntimeException(this.scope, null, "mccode.interpreter.error.invalid_schedule_delay", scheduleDelay);
     }
     if (repeatAmount != null && repeatAmount <= 0) {
@@ -280,13 +280,13 @@ public class Program {
    *
    * @param scope Scope this instruction is called from.
    * @param ticks Number of ticks to wait for.
-   * @throws EvaluationException If ticks amount is negative.
+   * @throws EvaluationException If ticks amount is negative or 0.
    */
   public void wait(final Scope scope, long ticks) throws EvaluationException {
-    if (ticks < 0) {
-      throw new EvaluationException(scope, "mccode.interpreter.error.negative_wait_time");
+    if (ticks <= 0) {
+      throw new EvaluationException(scope, "mccode.interpreter.error.invalid_wait_time");
     }
-    this.timeToWait = ticks;
+    this.timeToWait = ticks - 1;
   }
 
   /**

@@ -139,7 +139,7 @@ public class ProgramManager extends PersistentState {
       Program program = this.programs.get(programName);
 
       if (program.hasTerminated()) {
-        if (delay <= 0) {
+        if (delay <= 1) { // Not 0 as we want the tick difference to be equal to the schedule delay
           long repeatAmount = this.programsRepeats.get(programName);
           if (repeatAmount != Long.MAX_VALUE) {
             this.programsRepeats.put(programName, repeatAmount - 1);
