@@ -21,7 +21,7 @@ public class ToDegreesFunction extends BuiltinFunction {
    * Create a function that converts the given angle in radians to degrees.
    */
   public ToDegreesFunction() {
-    super("to_degrees", ProgramManager.getTypeInstance(FloatType.class), false,
+    super("to_degrees", ProgramManager.getTypeInstance(FloatType.class), false, false,
         new Parameter("radians", ProgramManager.getTypeInstance(FloatType.class)));
   }
 

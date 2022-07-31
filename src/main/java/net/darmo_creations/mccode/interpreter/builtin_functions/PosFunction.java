@@ -24,7 +24,7 @@ public class PosFunction extends BuiltinFunction {
    * Create a function that creates a new Position instance.
    */
   public PosFunction() {
-    super("pos", ProgramManager.getTypeInstance(FloatType.class), false,
+    super("pos", ProgramManager.getTypeInstance(FloatType.class), false, false,
         new Parameter("x", ProgramManager.getTypeInstance(AnyType.class)),
         new Parameter("y", ProgramManager.getTypeInstance(AnyType.class)),
         new Parameter("z", ProgramManager.getTypeInstance(AnyType.class)));

@@ -24,7 +24,7 @@ public class ReversedFunction extends BuiltinFunction {
    * Create a function that reverses the given iterable object.
    */
   public ReversedFunction() {
-    super("reversed", ProgramManager.getTypeInstance(AnyType.class), false,
+    super("reversed", ProgramManager.getTypeInstance(AnyType.class), false, false,
         new Parameter("o", ProgramManager.getTypeInstance(AnyType.class)));
   }
 

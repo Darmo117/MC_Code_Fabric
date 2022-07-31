@@ -14,7 +14,7 @@ import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
     doc = "Unescapes a string by removing any \\ character before a special character (\", \\ or \\n) and removing the surrounding quotes (\").")
 public class UnescapeFunction extends BuiltinFunction {
   public UnescapeFunction() {
-    super("unescape", ProgramManager.getTypeInstance(StringType.class), false,
+    super("unescape", ProgramManager.getTypeInstance(StringType.class), false, false,
         new Parameter("s", ProgramManager.getTypeInstance(StringType.class)));
   }
 

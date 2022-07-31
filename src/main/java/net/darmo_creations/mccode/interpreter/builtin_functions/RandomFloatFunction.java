@@ -20,7 +20,7 @@ public class RandomFloatFunction extends BuiltinFunction {
    * Create a function that returns a random float in a range.
    */
   public RandomFloatFunction() {
-    super("random_float", ProgramManager.getTypeInstance(FloatType.class), false,
+    super("random_float", ProgramManager.getTypeInstance(FloatType.class), false, false,
         new Parameter("a", ProgramManager.getTypeInstance(FloatType.class)),
         new Parameter("b", ProgramManager.getTypeInstance(FloatType.class)));
   }

@@ -21,7 +21,7 @@ public class FloorFunction extends BuiltinFunction {
    * that is less than or equal to the argument and is equal to a mathematical integer.
    */
   public FloorFunction() {
-    super("floor", ProgramManager.getTypeInstance(IntType.class), false,
+    super("floor", ProgramManager.getTypeInstance(IntType.class), false, false,
         new Parameter("x", ProgramManager.getTypeInstance(FloatType.class)));
   }
 

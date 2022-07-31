@@ -20,7 +20,7 @@ public class RoundFunction extends BuiltinFunction {
    * Create a function that returns the integer closest to its parameter.
    */
   public RoundFunction() {
-    super("round", ProgramManager.getTypeInstance(IntType.class), false,
+    super("round", ProgramManager.getTypeInstance(IntType.class), false, false,
         new Parameter("x", ProgramManager.getTypeInstance(FloatType.class)));
   }
 

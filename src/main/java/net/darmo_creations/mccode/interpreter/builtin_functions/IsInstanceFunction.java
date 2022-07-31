@@ -21,7 +21,7 @@ public class IsInstanceFunction extends BuiltinFunction {
    * Create a function that checks whether the given object is of the provided type.
    */
   public IsInstanceFunction() {
-    super("is_instance", ProgramManager.getTypeInstance(BooleanType.class), false,
+    super("is_instance", ProgramManager.getTypeInstance(BooleanType.class), false, false,
         new Parameter("type_name", ProgramManager.getTypeInstance(StringType.class)),
         new Parameter("o", ProgramManager.getTypeInstance(AnyType.class), true));
   }

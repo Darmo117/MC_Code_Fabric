@@ -23,9 +23,11 @@ public class DefineFunctionStatement extends Statement {
   private static final String PARAMS_LIST_KEY = "Parameters";
   private static final String STATEMENTS_LIST_KEY = "Statements";
   private static final String PUBLIC_KEY = "Public";
+  private static final String VARARG_KEY = "VarArg";
 
   private final String name;
   private final List<String> parametersNames;
+  private final boolean vararg;
   private final List<Statement> statements;
   private final boolean publiclyVisible;
 
@@ -34,16 +36,18 @@ public class DefineFunctionStatement extends Statement {
    *
    * @param name            Function’s name.
    * @param parametersNames Function’s parameter names.
+   * @param vararg          Whether the last argument is a vararg.
    * @param statements      Function’s statements.
    * @param publiclyVisible Whether the function should be visible from outside the program.
    * @param line            The line this statement starts on.
    * @param column          The column in the line this statement starts at.
    */
-  public DefineFunctionStatement(final String name, final List<String> parametersNames, final List<Statement> statements,
+  public DefineFunctionStatement(final String name, final List<String> parametersNames, final boolean vararg, final List<Statement> statements,
                                  final boolean publiclyVisible, final int line, final int column) {
     super(line, column);
     this.name = Objects.requireNonNull(name);
     this.parametersNames = parametersNames;
+    this.vararg = vararg;
     this.statements = statements;
     this.publiclyVisible = publiclyVisible;
   }
@@ -58,13 +62,14 @@ public class DefineFunctionStatement extends Statement {
     this.name = tag.getString(NAME_KEY);
     this.publiclyVisible = tag.getBoolean(PUBLIC_KEY);
     this.parametersNames = tag.getList(PARAMS_LIST_KEY, TagType.STRING_TAG_TYPE).stream().toList();
+    this.vararg = tag.getBoolean(VARARG_KEY);
     this.statements = tag.getList(STATEMENTS_LIST_KEY, TagType.COMPOUND_TAG_TYPE).stream()
         .map(StatementTagHelper::getStatementForTag).toList();
   }
 
   @Override
   protected StatementAction executeWrapped(Scope scope, CallStack callStack) {
-    UserFunction function = new UserFunction(this.name, this.parametersNames, this.statements);
+    UserFunction function = new UserFunction(this.name, this.parametersNames, this.statements, this.vararg);
     scope.declareVariable(new Variable(this.name, this.publiclyVisible, false, true, true, function));
     return StatementAction.PROCEED;
   }

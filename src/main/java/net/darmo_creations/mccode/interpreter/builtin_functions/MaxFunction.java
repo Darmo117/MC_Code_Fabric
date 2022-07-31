@@ -28,7 +28,7 @@ public class MaxFunction extends BuiltinFunction {
    * Create a function that returns the maximum value of an iterable object.
    */
   public MaxFunction() {
-    super("max", ProgramManager.getTypeInstance(AnyType.class), false,
+    super("max", ProgramManager.getTypeInstance(AnyType.class), false, false,
         new Parameter("o", ProgramManager.getTypeInstance(AnyType.class)));
   }
 

@@ -19,7 +19,7 @@ public class CosFunction extends BuiltinFunction {
    * Create a function that returns the cosine of its parameter.
    */
   public CosFunction() {
-    super("cos", ProgramManager.getTypeInstance(FloatType.class), false,
+    super("cos", ProgramManager.getTypeInstance(FloatType.class), false, false,
         new Parameter("a", ProgramManager.getTypeInstance(FloatType.class)));
   }
 

@@ -24,7 +24,7 @@ public class Atan2Function extends BuiltinFunction {
    * of y/x in the range of -π to π.
    */
   public Atan2Function() {
-    super("atan2", ProgramManager.getTypeInstance(FloatType.class), false,
+    super("atan2", ProgramManager.getTypeInstance(FloatType.class), false, false,
         new Parameter("y", ProgramManager.getTypeInstance(FloatType.class)),
         new Parameter("x", ProgramManager.getTypeInstance(FloatType.class)));
   }

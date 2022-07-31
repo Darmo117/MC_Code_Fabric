@@ -18,7 +18,7 @@ public class AbsFunction extends BuiltinFunction {
    * Create a function that returns the absolute value of its parameter.
    */
   public AbsFunction() {
-    super("abs", ProgramManager.getTypeInstance(FloatType.class), false,
+    super("abs", ProgramManager.getTypeInstance(FloatType.class), false, false,
         new Parameter("x", ProgramManager.getTypeInstance(FloatType.class)));
   }
 

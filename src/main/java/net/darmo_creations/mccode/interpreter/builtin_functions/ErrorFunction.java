@@ -20,7 +20,7 @@ public class ErrorFunction extends BuiltinFunction {
    * Create a function that raises an error with an attached object.
    */
   public ErrorFunction() {
-    super("error", ProgramManager.getTypeInstance(NullType.class), false,
+    super("error", ProgramManager.getTypeInstance(NullType.class), false, false,
         new Parameter("message", ProgramManager.getTypeInstance(AnyType.class), true));
   }
 

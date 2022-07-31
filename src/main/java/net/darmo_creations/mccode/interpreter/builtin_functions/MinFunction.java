@@ -28,7 +28,7 @@ public class MinFunction extends BuiltinFunction {
    * Create a function that returns the minimum value of an iterable object.
    */
   public MinFunction() {
-    super("min", ProgramManager.getTypeInstance(AnyType.class), false,
+    super("min", ProgramManager.getTypeInstance(AnyType.class), false, false,
         new Parameter("o", ProgramManager.getTypeInstance(AnyType.class)));
   }
 

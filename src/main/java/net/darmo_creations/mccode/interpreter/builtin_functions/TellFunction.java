@@ -24,7 +24,7 @@ public class TellFunction extends BuiltinFunction {
    * Create a function that prints formatted text into the chat.
    */
   public TellFunction() {
-    super("tell", ProgramManager.getTypeInstance(NullType.class), false,
+    super("tell", ProgramManager.getTypeInstance(NullType.class), false, false,
         new Parameter("targets", ProgramManager.getTypeInstance(StringType.class)),
         new Parameter("message", ProgramManager.getTypeInstance(AnyType.class), true));
   }

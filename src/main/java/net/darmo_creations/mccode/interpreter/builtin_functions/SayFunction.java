@@ -25,7 +25,7 @@ public class SayFunction extends BuiltinFunction {
    * Create a function that prints text into the chat.
    */
   public SayFunction() {
-    super("say", ProgramManager.getTypeInstance(NullType.class), false,
+    super("say", ProgramManager.getTypeInstance(NullType.class), false, false,
         new Parameter("targets", ProgramManager.getTypeInstance(StringType.class)),
         new Parameter("message", ProgramManager.getTypeInstance(StringType.class)));
   }

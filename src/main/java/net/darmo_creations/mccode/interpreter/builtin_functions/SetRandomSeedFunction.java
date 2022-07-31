@@ -22,7 +22,7 @@ public class SetRandomSeedFunction extends BuiltinFunction {
    * Create a function that sets the random number generator’s seed for the program it is called from.
    */
   public SetRandomSeedFunction() {
-    super("set_random_seed", ProgramManager.getTypeInstance(NullType.class), false,
+    super("set_random_seed", ProgramManager.getTypeInstance(NullType.class), false, false,
         new Parameter("seed", ProgramManager.getTypeInstance(IntType.class)));
   }
 

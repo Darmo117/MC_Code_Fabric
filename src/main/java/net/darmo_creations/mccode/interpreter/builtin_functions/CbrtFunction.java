@@ -19,7 +19,7 @@ public class CbrtFunction extends BuiltinFunction {
    * Create a function that returns the cube root of its parameter.
    */
   public CbrtFunction() {
-    super("cbrt", ProgramManager.getTypeInstance(FloatType.class), false,
+    super("cbrt", ProgramManager.getTypeInstance(FloatType.class), false, false,
         new Parameter("x", ProgramManager.getTypeInstance(FloatType.class)));
   }
 

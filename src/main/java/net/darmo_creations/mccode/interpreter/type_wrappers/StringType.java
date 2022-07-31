@@ -178,12 +178,12 @@ public class StringType extends TypeBase<String> {
 
   @Method(name = "format",
       parametersMetadata = {
-          @ParameterMeta(name = "args", doc = "A `list of values to insert into the `string.")
+          @ParameterMeta(name = "args", doc = "The values to insert into the `string.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "The resulting `string."),
-      doc = "Formats a `string using the specified `list of values.")
-  public String format(final Scope scope, final String self, final MCList args) {
-    return String.format(self, args.toArray());
+      doc = "Formats a `string using the specified values.")
+  public String format(final Scope scope, final String self, final Object... args) {
+    return String.format(self, args);
   }
 
   @Override

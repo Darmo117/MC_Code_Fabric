@@ -10,7 +10,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * This class represents a method of a builtin type.
@@ -42,7 +41,7 @@ public class MemberFunction extends Function {
    */
   public MemberFunction(final TypeBase<?> hostType, final String name, final List<? extends TypeBase<?>> parametersTypes,
                         final TypeBase<?> returnType, final boolean mayReturnNull, final Method method, final String doc) {
-    super(Objects.requireNonNull(name), generateParameters(parametersTypes.toArray(new TypeBase[0])), returnType, mayReturnNull);
+    super(Objects.requireNonNull(name), generateParameters(parametersTypes.toArray(new TypeBase[0])), returnType, mayReturnNull, method.isVarArgs());
     this.hostType = Objects.requireNonNull(hostType);
     this.method = Objects.requireNonNull(method);
     this.doc = doc;
@@ -78,7 +77,8 @@ public class MemberFunction extends Function {
       for (int i = 0; i < this.parameters.size(); i++) {
         Parameter parameter = this.parameters.get(i);
         Object arg = scope.getVariable(parameter.getName(), false);
-        args[i + 2] = arg == null ? null : parameter.getType().implicitCast(scope, arg);
+        // Arrays (varargs) have already been type-checked
+        args[i + 2] = arg == null ? null : (arg.getClass().isArray() ? arg : parameter.getType().implicitCast(scope, arg));
       }
 
       return this.method.invoke(this.hostType, args);
@@ -95,9 +95,7 @@ public class MemberFunction extends Function {
 
   @Override
   public String toString() {
-    String params = this.parameters.stream()
-        .map(p -> p.getType().getName() + " " + p.getName())
-        .collect(Collectors.joining(", "));
-    return String.format("builtin method %s.%s(%s) -> %s", this.hostType, this.getName(), params, this.getReturnType());
+    return "builtin method %s.%s(%s) -> %s"
+        .formatted(this.hostType, this.getName(), this.formatParametersForToString(true), this.getReturnType());
   }
 }

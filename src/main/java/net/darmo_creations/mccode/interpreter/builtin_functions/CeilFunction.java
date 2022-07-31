@@ -21,7 +21,7 @@ public class CeilFunction extends BuiltinFunction {
    * that is greater than or equal to the argument and is equal to a mathematical integer.
    */
   public CeilFunction() {
-    super("ceil", ProgramManager.getTypeInstance(IntType.class), false,
+    super("ceil", ProgramManager.getTypeInstance(IntType.class), false, false,
         new Parameter("x", ProgramManager.getTypeInstance(FloatType.class)));
   }
 

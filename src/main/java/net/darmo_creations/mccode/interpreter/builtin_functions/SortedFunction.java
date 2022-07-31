@@ -29,7 +29,7 @@ public class SortedFunction extends BuiltinFunction {
    * Create a function that sorts the given iterable object.
    */
   public SortedFunction() {
-    super("sorted", ProgramManager.getTypeInstance(AnyType.class), false,
+    super("sorted", ProgramManager.getTypeInstance(AnyType.class), false, false,
         new Parameter("o", ProgramManager.getTypeInstance(AnyType.class)),
         new Parameter("reversed", ProgramManager.getTypeInstance(BooleanType.class)));
   }

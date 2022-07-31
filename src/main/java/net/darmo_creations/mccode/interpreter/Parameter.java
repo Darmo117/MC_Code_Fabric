@@ -75,11 +75,11 @@ public class Parameter {
       return false;
     }
     Parameter parameter = (Parameter) o;
-    return this.name.equals(parameter.name) && this.type.equals(parameter.type);
+    return this.nullable == parameter.nullable && this.name.equals(parameter.name) && this.type.equals(parameter.type);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(this.name, this.type);
+    return Objects.hash(this.name, this.type, this.nullable);
   }
 }

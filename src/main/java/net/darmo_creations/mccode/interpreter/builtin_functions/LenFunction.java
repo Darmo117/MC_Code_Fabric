@@ -23,7 +23,7 @@ public class LenFunction extends BuiltinFunction {
    * Create a function that returns the length of a collection.
    */
   public LenFunction() {
-    super("len", ProgramManager.getTypeInstance(IntType.class), false,
+    super("len", ProgramManager.getTypeInstance(IntType.class), false, false,
         new Parameter("o", ProgramManager.getTypeInstance(AnyType.class)));
   }
 

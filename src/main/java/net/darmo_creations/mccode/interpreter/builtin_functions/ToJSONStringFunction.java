@@ -13,7 +13,7 @@ import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
     doc = "Converts a value into a JSON string.")
 public class ToJSONStringFunction extends BuiltinFunction {
   public ToJSONStringFunction() {
-    super("to_json_string", ProgramManager.getTypeInstance(StringType.class), false,
+    super("to_json_string", ProgramManager.getTypeInstance(StringType.class), false, false,
         new Parameter("v", ProgramManager.getTypeInstance(AnyType.class), true));
   }
 

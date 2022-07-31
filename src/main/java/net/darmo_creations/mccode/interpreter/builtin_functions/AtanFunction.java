@@ -19,7 +19,7 @@ public class AtanFunction extends BuiltinFunction {
    * Create a function that returns the arc tangent of its parameter.
    */
   public AtanFunction() {
-    super("atan", ProgramManager.getTypeInstance(FloatType.class), false,
+    super("atan", ProgramManager.getTypeInstance(FloatType.class), false, false,
         new Parameter("x", ProgramManager.getTypeInstance(FloatType.class)));
   }
 

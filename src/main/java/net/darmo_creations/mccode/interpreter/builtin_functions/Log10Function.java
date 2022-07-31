@@ -18,7 +18,7 @@ public class Log10Function extends BuiltinFunction {
    * Create a function that returns the base 10 logarithm of its parameter.
    */
   public Log10Function() {
-    super("log10", ProgramManager.getTypeInstance(FloatType.class), false,
+    super("log10", ProgramManager.getTypeInstance(FloatType.class), false, false,
         new Parameter("x", ProgramManager.getTypeInstance(FloatType.class)));
   }
 

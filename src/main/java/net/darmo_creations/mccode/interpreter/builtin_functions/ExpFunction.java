@@ -19,7 +19,7 @@ public class ExpFunction extends BuiltinFunction {
    * Create a function that returns Euler's number e raised to the power of its parameter.
    */
   public ExpFunction() {
-    super("exp", ProgramManager.getTypeInstance(FloatType.class), false,
+    super("exp", ProgramManager.getTypeInstance(FloatType.class), false, false,
         new Parameter("x", ProgramManager.getTypeInstance(FloatType.class)));
   }
 

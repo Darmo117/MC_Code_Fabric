@@ -19,7 +19,7 @@ public class SqrtFunction extends BuiltinFunction {
    * Create a function that returns the square root of its parameter.
    */
   public SqrtFunction() {
-    super("sqrt", ProgramManager.getTypeInstance(FloatType.class), false,
+    super("sqrt", ProgramManager.getTypeInstance(FloatType.class), false, false,
         new Parameter("x", ProgramManager.getTypeInstance(FloatType.class)));
   }
 

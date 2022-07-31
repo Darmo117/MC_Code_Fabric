@@ -1,6 +1,5 @@
 package net.darmo_creations.mccode.interpreter.types;
 
-import net.darmo_creations.mccode.interpreter.CallStackElement;
 import net.darmo_creations.mccode.interpreter.*;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.exceptions.SyntaxErrorException;
@@ -26,10 +25,11 @@ import java.util.stream.Collectors;
 public class UserFunction extends Function {
   public static final int MAX_CALL_DEPTH = 100;
 
-  public static final String NAME_KEY = "Name";
-  public static final String PARAMETERS_KEY = "Parameters";
-  public static final String STATEMENTS_KEY = "Statements";
-  public static final String IP_KEY = "IP";
+  private static final String NAME_KEY = "Name";
+  private static final String PARAMETERS_KEY = "Parameters";
+  private static final String STATEMENTS_KEY = "Statements";
+  private static final String IP_KEY = "IP";
+  private static final String VARARG_KEY = "VarArg";
 
   private final List<Statement> statements;
   /**
@@ -43,9 +43,10 @@ public class UserFunction extends Function {
    * @param name           Function’s name.
    * @param parameterNames Names of the function’s parameters.
    * @param statements     List of function’s statements.
+   * @param vararg         Whether the last parameter should be a vararg.
    */
-  public UserFunction(final String name, final List<String> parameterNames, final List<Statement> statements) {
-    super(name, extractParameters(parameterNames), ProgramManager.getTypeInstance(AnyType.class), false);
+  public UserFunction(final String name, final List<String> parameterNames, final List<Statement> statements, final boolean vararg) {
+    super(name, extractParameters(parameterNames), ProgramManager.getTypeInstance(AnyType.class), false, vararg);
     this.statements = Objects.requireNonNull(statements);
     this.ip = 0;
   }
@@ -56,7 +57,7 @@ public class UserFunction extends Function {
    * @param tag The tag to deserialize.
    */
   public UserFunction(final CompoundTag tag) {
-    super(tag.getString(NAME_KEY), extractParameters(tag), ProgramManager.getTypeInstance(AnyType.class), false);
+    super(tag.getString(NAME_KEY), extractParameters(tag), ProgramManager.getTypeInstance(AnyType.class), false, tag.getBoolean(VARARG_KEY));
     this.statements = StatementTagHelper.deserializeStatementsList(tag, STATEMENTS_KEY);
     this.ip = tag.getInt(IP_KEY);
   }
@@ -114,16 +115,15 @@ public class UserFunction extends Function {
     tag.putTag(PARAMETERS_KEY, parametersList);
     tag.putTag(STATEMENTS_KEY, StatementTagHelper.serializeStatementsList(this.statements));
     tag.putInt(IP_KEY, this.ip);
+    tag.putBoolean(VARARG_KEY, this.isVarArg());
     return tag;
   }
 
   @Override
   public String toString() {
-    String params = this.parameters.stream()
-        .map(Parameter::getName)
-        .collect(Collectors.joining(", "));
-    return String.format("function %s(%s)%send",
-        this.getName(), params, this.statements.isEmpty() ? "\n" : Utils.indentStatements(this.statements));
+    return "function %s(%s)%send"
+        .formatted(this.getName(), this.formatParametersForToString(false),
+            this.statements.isEmpty() ? "\n" : Utils.indentStatements(this.statements));
   }
 
   /**

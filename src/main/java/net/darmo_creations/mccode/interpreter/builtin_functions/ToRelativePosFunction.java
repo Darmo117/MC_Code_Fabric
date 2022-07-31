@@ -26,7 +26,7 @@ public class ToRelativePosFunction extends BuiltinFunction {
    * Create a function that casts a value into a relative {@link Position} object.
    */
   public ToRelativePosFunction() {
-    super("to_relative_pos", ProgramManager.getTypeInstance(PosType.class), false,
+    super("to_relative_pos", ProgramManager.getTypeInstance(PosType.class), false, false,
         new Parameter("pos", ProgramManager.getTypeInstance(AnyType.class)),
         new Parameter("x_prefix", ProgramManager.getTypeInstance(StringType.class), true),
         new Parameter("y_prefix", ProgramManager.getTypeInstance(StringType.class), true),

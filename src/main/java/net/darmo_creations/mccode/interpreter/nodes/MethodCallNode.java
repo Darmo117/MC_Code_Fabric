@@ -5,7 +5,9 @@ import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.type_wrappers.TypeBase;
 import net.darmo_creations.mccode.interpreter.types.Function;
+import net.darmo_creations.mccode.interpreter.types.MCList;
 
+import java.lang.reflect.Array;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -67,14 +69,25 @@ public class MethodCallNode extends OperationNode {
       // Prevent method from accessing any non-global variables
       moduleScope.lockAllButTopAndBottom();
 
-      if (this.arguments.size() != function.getParameters().size()) {
+      if (function.isVarArg()) {
+        if (this.arguments.size() < function.getParameters().size() - 1) {
+          throw new EvaluationException(scope, "mccode.interpreter.error.invalid_vararg_function_arguments_number",
+              function.getName(), function.getParameters().size() - 1, this.arguments.size());
+        }
+      } else if (this.arguments.size() != function.getParameters().size()) {
         throw new EvaluationException(scope, "mccode.interpreter.error.invalid_function_arguments_number",
             function.getName(), function.getParameters().size(), this.arguments.size());
       }
 
-      for (int i = 0; i < this.arguments.size(); i++) {
+      for (int i = 0; i < function.getParameters().size(); i++) {
         Parameter parameter = function.getParameter(i);
-        moduleScope.declareVariable(new Variable(parameter.getName(), false, false, false, true, this.arguments.get(i).evaluate(scope, callStack)));
+        Object value;
+        if (function.isVarArg() && i == function.getParameters().size() - 1) {
+          value = new MCList(this.arguments.subList(i, this.arguments.size()).stream().map(node -> node.evaluate(scope, callStack)).toList());
+        } else {
+          value = this.arguments.get(i).evaluate(scope, callStack);
+        }
+        moduleScope.declareVariable(new Variable(parameter.getName(), false, false, false, true, value));
       }
 
       callStack.push(new CallStackElement(scope.getProgram().getName(), scope.getTopName(), this.getLine(), this.getColumn()));
@@ -92,15 +105,31 @@ public class MethodCallNode extends OperationNode {
       // Create new scope to prevent built-in methods from accessing program’s variables
       Scope methodScope = new Scope(scope.getProgram());
 
-      if (this.arguments.size() != method.getParameters().size()) {
+      if (method.isVarArg()) {
+        if (this.arguments.size() < method.getParameters().size() - 1) {
+          throw new EvaluationException(scope, "mccode.interpreter.error.invalid_vararg_method_arguments_number",
+              method.getHostType(), method.getName(), method.getParameters().size() - 1, this.arguments.size());
+        }
+      } else if (this.arguments.size() != method.getParameters().size()) {
         throw new EvaluationException(scope, "mccode.interpreter.error.invalid_method_arguments_number",
             method.getHostType(), method.getName(), method.getParameters().size(), this.arguments.size());
       }
 
       methodScope.declareVariable(new Variable(MemberFunction.SELF_PARAM_NAME, false, false, true, false, self));
-      for (int i = 0; i < this.arguments.size(); i++) {
+      for (int i = 0; i < method.getParameters().size(); i++) {
         Parameter parameter = method.getParameter(i);
-        methodScope.declareVariable(new Variable(parameter.getName(), false, false, false, true, this.arguments.get(i).evaluate(scope, callStack)));
+        Object value;
+        if (method.isVarArg() && i == method.getParameters().size() - 1) {
+          List<Node> remaining = this.arguments.subList(i, this.arguments.size());
+          Object[] array = (Object[]) Array.newInstance(parameter.getType().getWrappedType(), remaining.size());
+          for (int j = 0; j < remaining.size(); j++) {
+            array[j] = parameter.getType().implicitCast(scope, remaining.get(j).evaluate(scope, callStack));
+          }
+          value = array;
+        } else {
+          value = this.arguments.get(i).evaluate(scope, callStack);
+        }
+        methodScope.declareVariable(new Variable(parameter.getName(), false, false, false, true, value));
       }
 
       return method.apply(methodScope, callStack);

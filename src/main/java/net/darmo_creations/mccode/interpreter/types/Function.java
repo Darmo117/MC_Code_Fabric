@@ -17,6 +17,7 @@ public abstract class Function {
   protected final List<Parameter> parameters;
   private final TypeBase<?> returnType;
   private final boolean mayReturnNull;
+  private final boolean vararg;
 
   /**
    * Create a function with the given name.
@@ -25,24 +26,29 @@ public abstract class Function {
    * @param parameters    Functions parameters.
    * @param returnType    Function’s return type.
    * @param mayReturnNull Whether this function may return a null value.
+   * @param vararg        Whether the last parameter is a vararg.
    */
-  public Function(final String name, final List<Parameter> parameters, final TypeBase<?> returnType, final boolean mayReturnNull) {
+  public Function(final String name, final List<Parameter> parameters, final TypeBase<?> returnType, final boolean mayReturnNull, final boolean vararg) {
     if (!ProgramParser.IDENTIFIER_PATTERN.asPredicate().test(name)) {
       throw new MCCodeException(String.format("invalid function name \"%s\" for class %s", name, this.getClass().getSimpleName()));
     }
     this.name = name == null ? "<anonymous>" : name;
+    if (vararg && parameters.isEmpty()) {
+      throw new MCCodeException("function \"%s\" is vararg but has no parameters".formatted(this.name));
+    }
     // Check for duplicate names
     Set<String> names = new HashSet<>();
     for (Parameter parameter : parameters) {
       String parameterName = parameter.getName();
       if (names.contains(parameterName)) {
-        throw new MCCodeException(String.format("parameter %s declared twice in function %s", parameterName, names));
+        throw new MCCodeException("parameter %s declared twice in function %s".formatted(parameterName, names));
       }
       names.add(parameterName);
     }
     this.parameters = parameters;
     this.returnType = Objects.requireNonNull(returnType);
     this.mayReturnNull = mayReturnNull;
+    this.vararg = vararg;
   }
 
   /**
@@ -64,6 +70,13 @@ public abstract class Function {
    */
   public boolean mayReturnNull() {
     return this.mayReturnNull;
+  }
+
+  /**
+   * Indicate whether this function has a vararg.
+   */
+  public boolean isVarArg() {
+    return this.vararg;
   }
 
   /**
@@ -119,5 +132,28 @@ public abstract class Function {
    */
   protected static String getAutoParameterNameForIndex(final int index) {
     return String.format("_x%d_", index);
+  }
+
+  /**
+   * Formats this function’s arguments as a string.
+   *
+   * @param addTypes Whether to prefix arguments with their respective type.
+   * @return A string.
+   */
+  protected String formatParametersForToString(boolean addTypes) {
+    StringJoiner joiner = new StringJoiner(", ");
+    List<Parameter> parameterList = this.parameters;
+    for (int i = 0; i < parameterList.size(); i++) {
+      Parameter p = parameterList.get(i);
+      String s = p.getName();
+      String vargs = i == this.parameters.size() - 1 && this.isVarArg() ? "..." : "";
+      if (addTypes) {
+        s = p.getType().getName() + vargs + " " + s;
+      } else {
+        s += vargs;
+      }
+      joiner.add(s);
+    }
+    return joiner.toString();
   }
 }

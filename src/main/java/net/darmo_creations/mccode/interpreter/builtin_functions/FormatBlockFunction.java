@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
     doc = "Converts the given block-related objects into a string that can be used in commands.")
 public class FormatBlockFunction extends BuiltinFunction {
   public FormatBlockFunction() {
-    super("format_block", ProgramManager.getTypeInstance(StringType.class), false,
+    super("format_block", ProgramManager.getTypeInstance(StringType.class), false, false,
         new Parameter("block", ProgramManager.getTypeInstance(AnyType.class)),
         new Parameter("state", ProgramManager.getTypeInstance(MapType.class), true),
         new Parameter("tags", ProgramManager.getTypeInstance(MapType.class), true));

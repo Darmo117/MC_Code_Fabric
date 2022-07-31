@@ -4,8 +4,10 @@ import net.darmo_creations.mccode.interpreter.*;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.types.Function;
+import net.darmo_creations.mccode.interpreter.types.MCList;
 import net.darmo_creations.mccode.interpreter.types.UserFunction;
 
+import java.lang.reflect.Array;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -56,15 +58,36 @@ public class FunctionCallNode extends OperationNode {
           ProgramManager.getTypeForValue(o));
     }
 
-    if (this.arguments.size() != function.getParameters().size()) {
+    if (function.isVarArg()) {
+      if (this.arguments.size() < function.getParameters().size() - 1) {
+        throw new EvaluationException(scope, "mccode.interpreter.error.invalid_vararg_function_arguments_number",
+            function.getName(), function.getParameters().size() - 1, this.arguments.size());
+      }
+    } else if (this.arguments.size() != function.getParameters().size()) {
       throw new EvaluationException(scope, "mccode.interpreter.error.invalid_function_arguments_number",
           function.getName(), function.getParameters().size(), this.arguments.size());
     }
 
     List<Variable> values = new LinkedList<>();
-    for (int i = 0; i < this.arguments.size(); i++) {
+    for (int i = 0; i < function.getParameters().size(); i++) {
       Parameter parameter = function.getParameter(i);
-      values.add(new Variable(parameter.getName(), false, false, false, true, this.arguments.get(i).evaluate(scope, callStack)));
+      Object value;
+      if (function.isVarArg() && i == function.getParameters().size() - 1) {
+        // Pack all remaining values into array
+        List<Node> remaining = this.arguments.subList(i, this.arguments.size());
+        if (function instanceof UserFunction) {
+          value = new MCList(remaining.stream().map(node -> node.evaluate(scope, callStack)).toList());
+        } else {
+          Object[] array = (Object[]) Array.newInstance(parameter.getType().getWrappedType(), remaining.size());
+          for (int j = 0; j < remaining.size(); j++) {
+            array[j] = parameter.getType().implicitCast(scope, remaining.get(j).evaluate(scope, callStack));
+          }
+          value = array;
+        }
+      } else {
+        value = this.arguments.get(i).evaluate(scope, callStack);
+      }
+      values.add(new Variable(parameter.getName(), false, false, false, true, value));
     }
 
     Scope s;

@@ -14,7 +14,7 @@ import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
     doc = "Escapes a string by inserting a \\ character before any special character (\", \\ or \\n) and surrounding the whole string with quotes (\").")
 public class EscapeFunction extends BuiltinFunction {
   public EscapeFunction() {
-    super("escape", ProgramManager.getTypeInstance(StringType.class), false,
+    super("escape", ProgramManager.getTypeInstance(StringType.class), false, false,
         new Parameter("s", ProgramManager.getTypeInstance(StringType.class)));
   }
 

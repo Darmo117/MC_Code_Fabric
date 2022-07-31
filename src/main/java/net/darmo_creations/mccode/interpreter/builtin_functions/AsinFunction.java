@@ -19,7 +19,7 @@ public class AsinFunction extends BuiltinFunction {
    * Create a function that returns the arc sine of its parameter.
    */
   public AsinFunction() {
-    super("asin", ProgramManager.getTypeInstance(FloatType.class), false,
+    super("asin", ProgramManager.getTypeInstance(FloatType.class), false, false,
         new Parameter("x", ProgramManager.getTypeInstance(FloatType.class)));
   }
 

@@ -18,7 +18,7 @@ public class Hypot3Function extends BuiltinFunction {
    * Create a function that returns sqrt(x² + y² + z²).
    */
   public Hypot3Function() {
-    super("hypot3", ProgramManager.getTypeInstance(FloatType.class), false,
+    super("hypot3", ProgramManager.getTypeInstance(FloatType.class), false, false,
         new Parameter("x", ProgramManager.getTypeInstance(FloatType.class)),
         new Parameter("y", ProgramManager.getTypeInstance(FloatType.class)),
         new Parameter("z", ProgramManager.getTypeInstance(FloatType.class)));

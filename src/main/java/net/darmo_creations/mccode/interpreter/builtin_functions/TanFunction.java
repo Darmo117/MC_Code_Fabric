@@ -19,7 +19,7 @@ public class TanFunction extends BuiltinFunction {
    * Create a function that returns the tangent of its parameter.
    */
   public TanFunction() {
-    super("tan", ProgramManager.getTypeInstance(FloatType.class), false,
+    super("tan", ProgramManager.getTypeInstance(FloatType.class), false, false,
         new Parameter("a", ProgramManager.getTypeInstance(FloatType.class)));
   }
 

@@ -19,7 +19,7 @@ public class AcosFunction extends BuiltinFunction {
    * Create a function that returns the arc cosine of its parameter.
    */
   public AcosFunction() {
-    super("acos", ProgramManager.getTypeInstance(FloatType.class), false,
+    super("acos", ProgramManager.getTypeInstance(FloatType.class), false, false,
         new Parameter("x", ProgramManager.getTypeInstance(FloatType.class)));
   }
 

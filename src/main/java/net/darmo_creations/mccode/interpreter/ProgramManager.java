@@ -665,7 +665,7 @@ public class ProgramManager extends PersistentState {
             type.getName(), propertyName));
       }
 
-      String doc = DOC_TAG_PREFIX + "Type: " + formatTypeDoc(returnType.getName(), nullable);
+      String doc = DOC_TAG_PREFIX + "Type: " + formatTypeDoc(returnType.getName(), nullable, false);
       if (docString.length() != 0) {
         doc = docString + "\n" + doc;
       }
@@ -738,7 +738,7 @@ public class ProgramManager extends PersistentState {
               method.getReturnType(), typeName, methodName));
         }
 
-        String doc = generateMethodDoc(typeName, methodAnnotation, paramsTypes, returnType);
+        String doc = generateMethodDoc(typeName, methodAnnotation, paramsTypes, returnType, method.isVarArgs());
         boolean mayReturnNull = methodAnnotation.returnTypeMetadata().mayBeNull();
         MemberFunction memberFunction = new MemberFunction(type, methodName, paramsTypes, returnType, mayReturnNull, method, doc);
         methods.put(memberFunction.getName(), memberFunction);
@@ -760,7 +760,8 @@ public class ProgramManager extends PersistentState {
   private static String generateMethodDoc(final String typeName,
                                           final net.darmo_creations.mccode.interpreter.annotations.Method methodAnnotation,
                                           final List<? extends TypeBase<?>> paramsTypes,
-                                          final TypeBase<?> returnType) {
+                                          final TypeBase<?> returnType,
+                                          final boolean vararg) {
     String fname = "%s%s.§2§l%s§r".formatted(DOC_TYPE_PREFIX, typeName, methodAnnotation.name());
     ParameterMeta[] paramsMetadata = methodAnnotation.parametersMetadata();
     List<Pair<Parameter, String>> paramsMeta = new ArrayList<>();
@@ -776,7 +777,8 @@ public class ProgramManager extends PersistentState {
         paramsMeta,
         returnMeta.doc().trim(),
         returnType.getName(),
-        returnMeta.mayBeNull()
+        returnMeta.mayBeNull(),
+        vararg
     );
   }
 
@@ -850,7 +852,7 @@ public class ProgramManager extends PersistentState {
       if (type.generateCastOperator()) {
         String typeName = type.getName();
         String name = "to_" + typeName;
-        BuiltinFunction function = new BuiltinFunction(name, type, false, new Parameter("o", ProgramManager.getTypeInstance(AnyType.class))) {
+        BuiltinFunction function = new BuiltinFunction(name, type, false, false, new Parameter("o", ProgramManager.getTypeInstance(AnyType.class))) {
           @Override
           public Object apply(final Scope scope, CallStack callStack) {
             return type.explicitCast(scope, this.getParameterValue(scope, 0));
@@ -863,7 +865,8 @@ public class ProgramManager extends PersistentState {
             Collections.singletonList(new ImmutablePair<>(new Parameter("v", getTypeInstance(AnyType.class)), "The value to convert.")),
             "A new `%s object.".formatted(typeName),
             function.getReturnType().getName(),
-            function.mayReturnNull()
+            function.mayReturnNull(),
+            function.isVarArg()
         ));
         FUNCTIONS.put(name, function);
       }
@@ -922,7 +925,8 @@ public class ProgramManager extends PersistentState {
         paramsMeta,
         functionAnnotation.returnDoc().trim(),
         function.getReturnType().getName(),
-        function.mayReturnNull()
+        function.mayReturnNull(),
+        function.isVarArg()
     );
 
     ReflectionUtils.setPrivateField(BuiltinFunction.class, function, "doc", doc);
@@ -930,14 +934,15 @@ public class ProgramManager extends PersistentState {
 
   private static String generateFunctionDoc(final String functionName, final String baseDoc,
                                             final List<Pair<Parameter, String>> paramsMeta,
-                                            final String returnDoc, final String returnType, final boolean returnNullable) {
+                                            final String returnDoc, final String returnType,
+                                            final boolean returnNullable, final boolean vararg) {
     StringBuilder paramsDoc = new StringBuilder();
     for (int i = 0; i < paramsMeta.size(); i++) {
       if (i > 0) {
         paramsDoc.append(", ");
       }
       Parameter param = paramsMeta.get(i).getLeft();
-      paramsDoc.append(formatTypeDoc(param.getType().getName(), param.isNullable()))
+      paramsDoc.append(formatTypeDoc(param.getType().getName(), param.isNullable(), vararg && i == paramsMeta.size() - 1))
           .append(' ')
           .append(DOC_PARAM_PREFIX)
           .append(param.getName());
@@ -950,7 +955,7 @@ public class ProgramManager extends PersistentState {
         .append('(')
         .append(paramsDoc)
         .append(") -> ")
-        .append(formatTypeDoc(returnType, returnNullable));
+        .append(formatTypeDoc(returnType, returnNullable, false));
 
     // Function
     if (baseDoc.length() != 0) {
@@ -984,8 +989,8 @@ public class ProgramManager extends PersistentState {
    * @param nullable Whether the parameter associated to the type may be null.
    * @return The type name with a question mark appended at the end if nullable is true; only the type name otherwise.
    */
-  private static String formatTypeDoc(final String typeName, final boolean nullable) {
-    return DOC_TYPE_PREFIX + typeName + (nullable ? "?" : "");
+  private static String formatTypeDoc(final String typeName, final boolean nullable, final boolean vararg) {
+    return DOC_TYPE_PREFIX + typeName + (vararg ? "..." : (nullable ? "?" : ""));
   }
 
   public static final String DOC_PARAM_PREFIX = "$";

@@ -638,19 +638,19 @@ public class WorldType extends TypeBase<ServerWorld> {
   @Method(name = "execute",
       parametersMetadata = {
           @ParameterMeta(name = "name", doc = "Name of the command to execute. Must not include the / character."),
-          @ParameterMeta(name = "args", doc = "A `list that contains the command’s arguments. All elements will be converted to a `string.")
+          @ParameterMeta(name = "args", doc = "The command’s arguments. All values will be converted to strings.")
       },
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The result of the command or #null if an error occured."),
       doc = "Executes a command. See the Minecraft wiki for more information.")
-  public Long executeCommand(final Scope scope, ServerWorld self, final String name, final MCList args) {
+  public Long executeCommand(final Scope scope, ServerWorld self, final String name, final Object... args) {
     if ("trigger".equals(name)) {
       throw new MCCodeRuntimeException(scope, name, "mccode.interpreter.error.illegal_command", name);
     }
     return executeCommand(
         scope, self,
         name,
-        args.stream().map(o -> ProgramManager.getTypeForValue(o).toString(o)).toArray(String[]::new)
+        Arrays.stream(args).map(o -> ProgramManager.getTypeForValue(o).toString(o)).toArray(String[]::new)
     ).orElse(null);
   }
 

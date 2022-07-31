@@ -18,7 +18,7 @@ public class LogFunction extends BuiltinFunction {
    * Create a function that returns the natural logarithm (base e) of its parameter.
    */
   public LogFunction() {
-    super("log", ProgramManager.getTypeInstance(FloatType.class), false,
+    super("log", ProgramManager.getTypeInstance(FloatType.class), false, false,
         new Parameter("x", ProgramManager.getTypeInstance(FloatType.class)));
   }
 

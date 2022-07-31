@@ -21,7 +21,7 @@ public class RandomIntFunction extends BuiltinFunction {
    * Create a function that returns a random integer in a range.
    */
   public RandomIntFunction() {
-    super("random_int", ProgramManager.getTypeInstance(IntType.class), false,
+    super("random_int", ProgramManager.getTypeInstance(IntType.class), false, false,
         new Parameter("a", ProgramManager.getTypeInstance(IntType.class)),
         new Parameter("b", ProgramManager.getTypeInstance(IntType.class)));
   }

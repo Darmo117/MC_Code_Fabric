@@ -18,7 +18,7 @@ import net.minecraft.item.Item;
     doc = "Converts the given item-related objects into a string that can be used in commands.")
 public class FormatItemFunction extends BuiltinFunction {
   public FormatItemFunction() {
-    super("format_item", ProgramManager.getTypeInstance(StringType.class), false,
+    super("format_item", ProgramManager.getTypeInstance(StringType.class), false, false,
         new Parameter("item", ProgramManager.getTypeInstance(AnyType.class)),
         new Parameter("tags", ProgramManager.getTypeInstance(MapType.class), true));
   }

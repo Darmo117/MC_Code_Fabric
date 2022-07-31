@@ -19,7 +19,7 @@ public class SinFunction extends BuiltinFunction {
    * Create a function that returns the sine of its parameter.
    */
   public SinFunction() {
-    super("sin", ProgramManager.getTypeInstance(FloatType.class), false,
+    super("sin", ProgramManager.getTypeInstance(FloatType.class), false, false,
         new Parameter("a", ProgramManager.getTypeInstance(FloatType.class)));
   }
 

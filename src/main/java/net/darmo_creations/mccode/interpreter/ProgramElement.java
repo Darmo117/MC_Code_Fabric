@@ -113,11 +113,13 @@ public abstract class ProgramElement implements TagSerializable {
       callStack.push(element);
       throw new MathException(scope, this.getLine(), this.getColumn(), e.getMessage());
     } catch (NullPointerException e) {
+      e.printStackTrace();
       callStack.push(element);
       // Custom exception wrapper for NPEs
       throw new WrappedException(e, this.getLine(), this.getColumn(),
           "mccode.interpreter.error.null_pointer_exception");
     } catch (Throwable e) {
+      e.printStackTrace();
       callStack.push(element);
       // Wrap any other exception to prevent them from being caught by try-except statements
       throw new WrappedException(e, this.getLine(), this.getColumn(),

@@ -21,7 +21,7 @@ public class RangeFunction extends BuiltinFunction {
    * Create a function that returns an integer range generator.
    */
   public RangeFunction() {
-    super("range", ProgramManager.getTypeInstance(RangeType.class), false,
+    super("range", ProgramManager.getTypeInstance(RangeType.class), false, false,
         new Parameter("start", ProgramManager.getTypeInstance(IntType.class)),
         new Parameter("end", ProgramManager.getTypeInstance(IntType.class)),
         new Parameter("step", ProgramManager.getTypeInstance(IntType.class)));

@@ -6,7 +6,6 @@ import net.darmo_creations.mccode.interpreter.type_wrappers.TypeBase;
 
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Base class for builtin functions.
@@ -22,11 +21,12 @@ public abstract class BuiltinFunction extends Function {
    * @param name          Function’s name.
    * @param returnType    Function’s return type.
    * @param mayReturnNull Whether this function may return a null value.
+   * @param vararg        Whether the last parameter is a vararg.
    * @param parameters    Function’s parameter types. Parameter names are generated:
    *                      {@code _x&lt;i>_} where {@code i} is the parameter’s index.
    */
-  public BuiltinFunction(final String name, final TypeBase<?> returnType, boolean mayReturnNull, final Parameter... parameters) {
-    super(name, Arrays.asList(parameters), returnType, mayReturnNull);
+  public BuiltinFunction(final String name, final TypeBase<?> returnType, boolean mayReturnNull, boolean vararg, final Parameter... parameters) {
+    super(name, Arrays.asList(parameters), returnType, mayReturnNull, vararg);
   }
 
   /**
@@ -43,16 +43,15 @@ public abstract class BuiltinFunction extends Function {
     if (value == null) {
       return null;
     }
+    // Arrays (varargs) have already been type-checked
     //noinspection unchecked
-    return (T) parameter.getType().implicitCast(scope, value);
+    return (T) (value.getClass().isArray() ? value : parameter.getType().implicitCast(scope, value));
   }
 
   @Override
   public String toString() {
-    String params = this.parameters.stream()
-        .map(p -> p.getType().getName() + " " + p.getName())
-        .collect(Collectors.joining(", "));
-    return String.format("builtin function %s(%s) -> %s", this.getName(), params, this.getReturnType());
+    return "builtin function %s(%s) -> %s"
+        .formatted(this.getName(), this.formatParametersForToString(true), this.getReturnType());
   }
 
   /**
