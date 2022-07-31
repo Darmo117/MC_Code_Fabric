@@ -13,6 +13,7 @@ COMMA : ',';
 COLON : ':';
 SEMIC : ';';
 DOT   : '.';
+VARARG: '...';
 
 ASSIGN: ':=';
 PLUSA : '+=';
@@ -90,7 +91,7 @@ import_statement: IMPORT IDENT (DOT IDENT)* (AS alias=IDENT)? SEMIC; // ID: 0
 global_statement:
     PUBLIC EDITABLE? VAR name=IDENT ASSIGN value=expr SEMIC # DeclareGlobalVariable // ID: 10
   | PUBLIC CONST name=IDENT ASSIGN value=expr SEMIC         # DeclareGlobalConstant // ID: 10
-  | PUBLIC? FUNC name=IDENT LPAREN (IDENT (COMMA IDENT)* COMMA?)? RPAREN statement* END # DefineFunctionStatement // ID: 11
+  | PUBLIC? FUNC name=IDENT LPAREN ((IDENT (COMMA IDENT)* (COMMA IDENT VARARG)? | IDENT VARARG) COMMA?)? RPAREN statement* END # DefineFunctionStatement // ID: 11
   | statement # Stmt
 ;
 

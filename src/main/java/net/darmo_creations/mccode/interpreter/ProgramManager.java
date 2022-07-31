@@ -665,7 +665,7 @@ public class ProgramManager extends PersistentState {
             type.getName(), propertyName));
       }
 
-      String doc = DOC_TAG_PREFIX + "Type: " + formatTypeDoc(returnType.getName(), nullable, false);
+      String doc = DOC_TAG_PREFIX + "Type: " + formatTypeDoc(returnType.getName(), nullable);
       if (docString.length() != 0) {
         doc = docString + "\n" + doc;
       }
@@ -725,7 +725,8 @@ public class ProgramManager extends PersistentState {
 
         List<? extends TypeBase<?>> paramsTypes = Arrays.stream(parameterTypes)
             .skip(2) // Skip scope and instance arguments
-            .map(c -> (TypeBase<?>) getTypeForWrappedClass(c))
+            // Cannot pass ternary as getTypeForWrappedClass() argument because of wildcard generics shenanigans
+            .map(c -> (TypeBase<?>) (c.isArray() ? getTypeForWrappedClass(c.getComponentType()) : getTypeForWrappedClass(c)))
             .collect(Collectors.toList());
 
         if (paramsTypes.stream().anyMatch(Objects::isNull)) {
@@ -942,10 +943,11 @@ public class ProgramManager extends PersistentState {
         paramsDoc.append(", ");
       }
       Parameter param = paramsMeta.get(i).getLeft();
-      paramsDoc.append(formatTypeDoc(param.getType().getName(), param.isNullable(), vararg && i == paramsMeta.size() - 1))
+      paramsDoc.append(formatTypeDoc(param.getType().getName(), param.isNullable()))
           .append(' ')
           .append(DOC_PARAM_PREFIX)
-          .append(param.getName());
+          .append(param.getName())
+          .append(vararg && i == paramsMeta.size() - 1 ? "..." : "");
     }
 
     StringBuilder doc = new StringBuilder()
@@ -955,7 +957,7 @@ public class ProgramManager extends PersistentState {
         .append('(')
         .append(paramsDoc)
         .append(") -> ")
-        .append(formatTypeDoc(returnType, returnNullable, false));
+        .append(formatTypeDoc(returnType, returnNullable));
 
     // Function
     if (baseDoc.length() != 0) {
@@ -989,8 +991,8 @@ public class ProgramManager extends PersistentState {
    * @param nullable Whether the parameter associated to the type may be null.
    * @return The type name with a question mark appended at the end if nullable is true; only the type name otherwise.
    */
-  private static String formatTypeDoc(final String typeName, final boolean nullable, final boolean vararg) {
-    return DOC_TYPE_PREFIX + typeName + (vararg ? "..." : (nullable ? "?" : ""));
+  private static String formatTypeDoc(final String typeName, final boolean nullable) {
+    return DOC_TYPE_PREFIX + typeName + (nullable ? "?" : "");
   }
 
   public static final String DOC_PARAM_PREFIX = "$";

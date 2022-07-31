@@ -178,7 +178,7 @@ public class StringType extends TypeBase<String> {
 
   @Method(name = "format",
       parametersMetadata = {
-          @ParameterMeta(name = "args", doc = "The values to insert into the `string.")
+          @ParameterMeta(name = "args", doc = "The values to insert into the `string.", mayBeNull = true)
       },
       returnTypeMetadata = @ReturnMeta(doc = "The resulting `string."),
       doc = "Formats a `string using the specified values.")

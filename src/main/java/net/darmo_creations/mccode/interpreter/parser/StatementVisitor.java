@@ -60,7 +60,7 @@ public class StatementVisitor extends MCCodeBaseVisitor<Statement> {
     String name = ctx.name.getText();
     List<String> params = ctx.IDENT().stream().skip(1).map(TerminalNode::getText).collect(Collectors.toList());
     List<Statement> statements = ctx.statement().stream().map(super::visit).collect(Collectors.toList());
-    boolean vararg = false; // TODO
+    boolean vararg = ctx.VARARG() != null;
     return new DefineFunctionStatement(name, params, vararg, statements, ctx.PUBLIC() != null,
         ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);
   }

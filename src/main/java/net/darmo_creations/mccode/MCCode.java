@@ -1,8 +1,8 @@
 package net.darmo_creations.mccode;
 
 import net.darmo_creations.mccode.commands.ProgramCommand;
-import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.CallStackElement;
+import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.exceptions.ProgramErrorReport;
 import net.darmo_creations.mccode.interpreter.exceptions.ProgramErrorReportElement;
 import net.fabricmc.api.ModInitializer;

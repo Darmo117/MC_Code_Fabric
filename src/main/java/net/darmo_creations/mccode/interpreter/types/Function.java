@@ -145,12 +145,10 @@ public abstract class Function {
     List<Parameter> parameterList = this.parameters;
     for (int i = 0; i < parameterList.size(); i++) {
       Parameter p = parameterList.get(i);
-      String s = p.getName();
       String vargs = i == this.parameters.size() - 1 && this.isVarArg() ? "..." : "";
+      String s = p.getName() + vargs;
       if (addTypes) {
-        s = p.getType().getName() + vargs + " " + s;
-      } else {
-        s += vargs;
+        s = p.getType().getName() + " " + s;
       }
       joiner.add(s);
     }
