@@ -11,6 +11,7 @@ import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
  * @see Utils#escapeString(String)
  */
 @Function(parametersDoc = {"The string to escape."},
+    returnDoc = "The escaped string.",
     doc = "Escapes a string by inserting a \\ character before any special character (\", \\ or \\n) and surrounding the whole string with quotes (\").")
 public class EscapeFunction extends BuiltinFunction {
   public EscapeFunction() {

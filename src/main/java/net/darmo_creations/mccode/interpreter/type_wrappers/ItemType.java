@@ -61,7 +61,11 @@ public class ItemType extends TypeBase<Item> {
   @Override
   public Item explicitCast(final Scope scope, final Object o) throws MCCodeRuntimeException {
     if (o instanceof String s) {
-      return Registry.ITEM.get(new Identifier(s));
+      Identifier id = new Identifier(s);
+      if (!Registry.ITEM.containsId(id)) {
+        return super.explicitCast(scope, o);
+      }
+      return Registry.ITEM.get(id);
     } else if (o instanceof Block b) {
       Item itemBlock = Item.BLOCK_ITEMS.get(b);
       if (itemBlock == Items.AIR) {

@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * A function that prints raw text into the console.
  */
 @Function(parametersDoc = {"The values to print."},
-    doc = "Prints a value in the server console.")
+    doc = "Prints values to the server console.")
 public class ConsoleLogFunction extends BuiltinFunction {
   /**
    * Create a function that prints raw text into the console.

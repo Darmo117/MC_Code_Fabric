@@ -14,7 +14,7 @@ import net.minecraft.item.Item;
 /**
  * Formats item-related objects into a string format parsable by commands.
  */
-@Function(parametersDoc = {"An item ID.", "A `map object to serve as the tags. May be #null."},
+@Function(parametersDoc = {"An item object or item ID.", "A `map object to serve as the tags. May be #null."},
     doc = "Converts the given item-related objects into a string that can be used in commands.")
 public class FormatItemFunction extends BuiltinFunction {
   public FormatItemFunction() {

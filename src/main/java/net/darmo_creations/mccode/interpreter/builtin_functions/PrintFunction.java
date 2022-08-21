@@ -18,7 +18,10 @@ import java.util.stream.Collectors;
 /**
  * A function that prints raw text into the chat.
  */
-@Function(parametersDoc = {"An entity selector that targets the players to send the message to.", "The values to print."},
+@Function(parametersDoc = {
+    "An entity selector that targets the players to send the message to.",
+    "The values to print. The values after the first argument are printed with a single space character between each."
+},
     doc = "Prints a value in the chat.")
 public class PrintFunction extends BuiltinFunction {
   /**

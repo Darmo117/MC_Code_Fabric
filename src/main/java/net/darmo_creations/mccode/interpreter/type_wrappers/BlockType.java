@@ -54,7 +54,11 @@ public class BlockType extends TypeBase<Block> {
   @Override
   public Block explicitCast(final Scope scope, final Object o) throws MCCodeRuntimeException {
     if (o instanceof String s) {
-      return Registry.BLOCK.get(new Identifier(s));
+      Identifier id = new Identifier(s);
+      if (!Registry.BLOCK.containsId(id)) {
+        return super.explicitCast(scope, o);
+      }
+      return Registry.BLOCK.get(id);
     }
     return super.explicitCast(scope, o);
   }

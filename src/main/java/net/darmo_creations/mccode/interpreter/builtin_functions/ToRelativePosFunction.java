@@ -18,9 +18,10 @@ import net.darmo_creations.mccode.interpreter.types.Position;
     "The absolute position to make relative.",
     "The prefix to apply to the x coordinate. May be #null.",
     "The prefix to apply to the y coordinate. May be #null.",
-    "The prefix to apply to the z coordinate. May be #null."},
+    "The prefix to apply to the z coordinate. May be #null."
+},
     returnDoc = "A new `pos object.",
-    doc = "Casts an absolute position into a relative position.")
+    doc = "Converts an absolute position into a relative position.")
 public class ToRelativePosFunction extends BuiltinFunction {
   /**
    * Create a function that casts a value into a relative {@link Position} object.

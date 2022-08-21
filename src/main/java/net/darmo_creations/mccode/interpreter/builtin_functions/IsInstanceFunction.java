@@ -13,7 +13,7 @@ import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
 /**
  * Function that checks whether the given object is of the provided type.
  */
-@Function(parametersDoc = {"A type name.", "A value."},
+@Function(parametersDoc = {"The name of the expected type.", "A value."},
     returnDoc = "#True if the value is an instance of the given type, #false otherwise.",
     doc = "Checks whether the given object is of the provided type.")
 public class IsInstanceFunction extends BuiltinFunction {

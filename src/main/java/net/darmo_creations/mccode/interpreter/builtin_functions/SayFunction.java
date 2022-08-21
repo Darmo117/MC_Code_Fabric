@@ -18,7 +18,10 @@ import java.util.Objects;
 /**
  * A function that prints text into the chat and formats any entity selector.
  */
-@Function(parametersDoc = {"An entity selector that targets the players to send the message to.", "The string to print."},
+@Function(parametersDoc = {
+    "An entity selector that targets the players to send the message to.",
+    "The string to format and print."
+},
     doc = "Prints a value in the chat after replacing any entity selector by the appropriate value. Behavior is similar to /say command.")
 public class SayFunction extends BuiltinFunction {
   /**

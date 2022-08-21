@@ -17,7 +17,7 @@ import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
 @Function(parametersDoc = {"An iterable value (`map, `list, `set, `string, etc.)."},
     returnDoc = "The number of elements contained in the argument.",
     doc = "Returns the number of elements of the given collection. " +
-        "Will raise an error if the argument is not iterable.")
+        "Will raise an error if the argument is not iterable or has no length property.")
 public class LenFunction extends BuiltinFunction {
   /**
    * Create a function that returns the length of a collection.
@@ -30,6 +30,7 @@ public class LenFunction extends BuiltinFunction {
   @Override
   public Object apply(Scope scope, CallStack callStack) {
     Object parameter = this.getParameterValue(scope, 0);
-    return ProgramManager.getTypeForValue(parameter).applyOperator(scope, UnaryOperator.LENGTH, parameter, null, null, false);
+    return ProgramManager.getTypeForValue(parameter)
+        .applyOperator(scope, UnaryOperator.LENGTH, parameter, null, null, false);
   }
 }

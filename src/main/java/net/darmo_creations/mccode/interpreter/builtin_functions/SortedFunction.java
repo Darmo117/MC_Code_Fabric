@@ -21,7 +21,8 @@ import java.util.Set;
  */
 @Function(parametersDoc = {
     "An iterable object (`list, `set or `string) to be sorted.",
-    "If #true values will be sorted in reverse order, otherwise natural order will be used."},
+    "If #true, values will be sorted in reverse order, otherwise natural order will be used."
+},
     returnDoc = "A new `list or `string containing all elements of the arguments sorted in natural or reverse order.",
     doc = "Sorts the given iterable object. Returns a new object.")
 public class SortedFunction extends BuiltinFunction {

@@ -10,6 +10,7 @@ import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
  * Converts a map into a JSON string.
  */
 @Function(parametersDoc = {"The value to serialize. May be #null."},
+    returnDoc = "The JSON representation of the given value.",
     doc = "Converts a value into a JSON string.")
 public class ToJSONStringFunction extends BuiltinFunction {
   public ToJSONStringFunction() {

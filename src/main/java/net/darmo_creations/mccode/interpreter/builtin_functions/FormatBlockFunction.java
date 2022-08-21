@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * Formats block-related objects into a string format parsable by commands.
  */
 @Function(parametersDoc = {
-    "A block ID or block instance.",
+    "A block object block ID.",
     "A `map object to serve as the blockstate. May be #null.",
     "A `map object to serve as the tags. May be #null."
 },

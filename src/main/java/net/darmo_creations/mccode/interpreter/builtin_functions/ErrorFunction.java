@@ -14,14 +14,14 @@ import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
  * A function that raises an error with an attached object.
  */
 @Function(parametersDoc = {"A value to send with the error."},
-    doc = "Raises an error with the given message.")
+    doc = "Raises an error with the given value.")
 public class ErrorFunction extends BuiltinFunction {
   /**
    * Create a function that raises an error with an attached object.
    */
   public ErrorFunction() {
     super("error", ProgramManager.getTypeInstance(NullType.class), false, false,
-        new Parameter("message", ProgramManager.getTypeInstance(AnyType.class), true));
+        new Parameter("payload", ProgramManager.getTypeInstance(AnyType.class), true));
   }
 
   @Override

@@ -12,9 +12,12 @@ import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
 /**
  * A function that returns a random integer in a range.
  */
-@Function(parametersDoc = {"The lowest possible value (included).", "The highest possible value (excluded)."},
-    returnDoc = "A random int value in [$a, $b[.",
-    doc = "Returns a random int in the given range. Bounds may not be outside of range [-2147483647, 2147483647]. " +
+@Function(parametersDoc = {
+    "The lowest possible value (included).",
+    "The highest possible value (excluded)."
+},
+    returnDoc = "A random `int value in [$a, $b[.",
+    doc = "Returns a random `int in the given range. Bounds may not be outside of range [-2147483647, 2147483647]. " +
         "RNG seed may be set by %set_random_seed function.")
 public class RandomIntFunction extends BuiltinFunction {
   /**
