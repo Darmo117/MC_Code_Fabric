@@ -13,7 +13,8 @@ import java.util.stream.Collectors;
 
 @Type(name = ModuleType.NAME,
     generateCastOperator = false,
-    doc = "Modules are programs that have been imported through the 'import' statement.")
+    doc = "A module is a script that was imported using the 'import' instruction.\n" +
+        "Its public variables and functions can be accessed using the '.' operator like a regular object property.")
 public class ModuleType extends TypeBase<Program> {
   public static final String NAME = "module";
 

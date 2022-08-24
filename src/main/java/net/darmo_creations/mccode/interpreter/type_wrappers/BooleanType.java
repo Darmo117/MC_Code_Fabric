@@ -8,7 +8,8 @@ import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 /**
  * Wrapper type for {@link Boolean} class.
  */
-@Type(name = BooleanType.NAME, doc = "The type represents a truth value, either true or false.")
+@Type(name = BooleanType.NAME, doc = "Represents a value that can either be #true or #false.\n" +
+    "Can be implicitly converted to an `int or `float.")
 public class BooleanType extends TypeBase<Boolean> {
   public static final String NAME = "boolean";
 

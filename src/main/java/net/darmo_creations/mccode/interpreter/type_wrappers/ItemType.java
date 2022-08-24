@@ -16,7 +16,7 @@ import net.minecraft.util.registry.Registry;
  * <p>
  * Implements __eq__ operator. Can explicitly cast {@link String}s and {@link Block}s.
  */
-@Type(name = ItemType.NAME, doc = "Type that represents an item.")
+@Type(name = ItemType.NAME, doc = "Represents a Minecraft item.")
 public class ItemType extends TypeBase<Item> {
   public static final String NAME = "item";
 

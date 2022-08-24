@@ -19,7 +19,8 @@ import java.util.Map;
  * <p>
  * New instances can be created by casting {@link List}s or {@link Map}s.
  */
-@Type(name = PosType.NAME, doc = "Type representing a `block position.")
+@Type(name = PosType.NAME, doc = "Represents a 3D position. Its components are floats or ints.\n" +
+    "When converted to a `string, the resulting representation is parsable by in-game commands.")
 public class PosType extends TypeBase<Position> {
   public static final String NAME = "pos";
 

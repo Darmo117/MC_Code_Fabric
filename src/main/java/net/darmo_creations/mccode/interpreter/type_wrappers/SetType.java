@@ -23,7 +23,11 @@ import java.util.stream.Collectors;
  * Sets are iterable.
  */
 @Type(name = SetType.NAME,
-    doc = "Sets are data structures that store unique values. Values in a set are not ordered.")
+    doc = """
+        A set is an unordered collection of unique values.
+        Sets can be iterated over in 'for' loops and are accepted by the %len function.
+        The order in which elements are iterated over is not guaranteed.
+        When evaluated as a `boolean, an empty set yields #false while non-empty sets yield #true.""")
 public class SetType extends TypeBase<MCSet> {
   public static final String NAME = "set";
 

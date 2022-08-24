@@ -19,7 +19,11 @@ import java.util.stream.Collectors;
  * <p>
  * Strings are iterable and support the __get_item__ operator.
  */
-@Type(name = StringType.NAME, doc = "Type representing strings.")
+@Type(name = StringType.NAME, doc = """
+    A string is a sequence of characters that represents text. Strings are immutable objects.
+    Strings can be iterated over in 'for' loops.
+    The %len function returns the number of Unicode code units.
+    When evaluated as a `boolean, an empty string yields #false while non-empty strings yield #true.""")
 public class StringType extends TypeBase<String> {
   public static final String NAME = "string";
 
@@ -92,7 +96,7 @@ public class StringType extends TypeBase<String> {
           @ParameterMeta(name = "needle", doc = "The `string to get the number of occurences of.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "The number of occurences of the needle."),
-      doc = "Returns the number of times the given `string is present in another.")
+      doc = "Returns the number of times a `string is present in another.")
   public Long count(final Scope scope, final String self, final String needle) {
     if ("".equals(needle)) {
       return (long) self.length() + 1;
@@ -115,19 +119,19 @@ public class StringType extends TypeBase<String> {
       returnTypeMetadata = @ReturnMeta(doc = "The resulting `string."),
       doc = "Removes all leading and trailing whitespace from a `string.")
   public String trim(final Scope scope, final String self) {
-    return self.trim();
+    return self.strip();
   }
 
   @Method(name = "left_strip",
       returnTypeMetadata = @ReturnMeta(doc = "The resulting `string."),
       doc = "Removes all leading whitespace from a `string.")
   public String trimLeft(final Scope scope, final String self) {
-    return self.replaceFirst("^\\s+", "");
+    return self.stripLeading();
   }
 
   @Method(name = "right_strip", doc = "Removes all trailing whitespace from a `string.")
   public String trimRight(final Scope scope, final String self) {
-    return self.replaceFirst("\\s+$", "");
+    return self.stripTrailing();
   }
 
   @Method(name = "replace",
@@ -137,7 +141,7 @@ public class StringType extends TypeBase<String> {
       },
       returnTypeMetadata = @ReturnMeta(doc = "The resulting `string."),
       doc = "Replaces each substring of a `string that matches the target `string with " +
-          "the specified literal replacement sequence.")
+          "the specified replacement sequence.")
   public String replace(final Scope scope, final String self, final String target, final String replacement) {
     return self.replace(target, replacement);
   }
@@ -167,13 +171,12 @@ public class StringType extends TypeBase<String> {
 
   @Method(name = "join",
       parametersMetadata = {
-          @ParameterMeta(name = "collection", doc = "A collection containing the values to join.")
+          @ParameterMeta(name = "collection", doc = "A list containing the values to join.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "The resulting `string."),
       doc = "Joins all values from the given `list using the `string as a delimiter.")
-  public String join(final Scope scope, final String self, final Object collection) {
-    MCList list = ProgramManager.getTypeInstance(ListType.class).implicitCast(scope, collection);
-    return list.stream().map(e -> ProgramManager.getTypeForValue(e).toString(e)).collect(Collectors.joining(self));
+  public String join(final Scope scope, final String self, final MCList collection) {
+    return collection.stream().map(e -> ProgramManager.getTypeForValue(e).toString(e)).collect(Collectors.joining(self));
   }
 
   @Method(name = "format",

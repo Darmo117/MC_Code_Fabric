@@ -15,7 +15,7 @@ import net.darmo_creations.mccode.interpreter.types.UserFunction;
  */
 @Type(name = FunctionType.NAME,
     generateCastOperator = false,
-    doc = "Functions are objects that can be called and return a value based on the values of its parameters.")
+    doc = "Represents a function. A function is a callable object that takes arguments and returns a value.")
 public class FunctionType extends TypeBase<Function> {
   public static final String NAME = "function";
 

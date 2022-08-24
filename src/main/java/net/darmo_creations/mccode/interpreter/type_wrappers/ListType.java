@@ -22,7 +22,10 @@ import java.util.stream.Collectors;
  * <p>
  * Lists are iterable and support the __get_item__, __set_item__ and __del_item__ operators.
  */
-@Type(name = ListType.NAME, doc = "Lists are data structures that store values sequentially.")
+@Type(name = ListType.NAME, doc = """
+    A list is an ordered sequence of values.
+    Lists can be iterated over in 'for' loops and are accepted by the %len function.
+    When evaluated as a `boolean, an empty list yields #false while non-empty lists yield #true.""")
 public class ListType extends TypeBase<MCList> {
   public static final String NAME = "list";
 

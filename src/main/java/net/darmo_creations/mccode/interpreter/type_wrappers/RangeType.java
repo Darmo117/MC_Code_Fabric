@@ -14,7 +14,10 @@ import java.util.Iterator;
  */
 @Type(name = RangeType.NAME,
     generateCastOperator = false,
-    doc = "Ranges are objects that generate integers within between two values with a given step.")
+    doc = """
+        A range is an iterable object that returns values in between two bounds with a certain step.
+        Ranges can be iterated over in 'for' loops and are accepted by the %len function.
+        When evaluated as a `boolean, an empty range yields #false while non-empty range yield #true.""")
 public class RangeType extends TypeBase<Range> {
   public static final String NAME = "range";
 

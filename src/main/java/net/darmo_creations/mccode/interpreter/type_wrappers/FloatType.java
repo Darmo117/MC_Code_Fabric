@@ -11,7 +11,7 @@ import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 /**
  * Wrapper type for {@link Double}.
  */
-@Type(name = FloatType.NAME, doc = "Type representing real numbers.")
+@Type(name = FloatType.NAME, doc = "Represents a decimal number ranging from -(2-2^-52)·2^1023 to (2-2^-52)·2^1023.")
 public class FloatType extends TypeBase<Double> {
   public static final String NAME = "float";
 

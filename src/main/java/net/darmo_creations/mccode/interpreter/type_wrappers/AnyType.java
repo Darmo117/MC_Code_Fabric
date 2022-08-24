@@ -12,7 +12,7 @@ import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
  */
 @Type(name = AnyType.NAME,
     generateCastOperator = false,
-    doc = "Base type. Placeholder for functions parameters.")
+    doc = "The base type. It is a placeholder used to denote that a method/function may accept/return values of any type.")
 public class AnyType extends TypeBase<Object> {
   public static final String NAME = "any";
 

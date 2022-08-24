@@ -12,7 +12,7 @@ import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 /**
  * Wrapper type for {@link Integer}.
  */
-@Type(name = IntType.NAME, doc = "Type representing integers.")
+@Type(name = IntType.NAME, doc = "Represents an integer ranging from -2^63 to (2^63)-1.")
 public class IntType extends TypeBase<Long> {
   public static final String NAME = "int";
 

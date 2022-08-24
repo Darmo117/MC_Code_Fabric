@@ -66,7 +66,8 @@ import java.util.stream.Collectors;
  */
 @Type(name = WorldType.NAME,
     generateCastOperator = false,
-    doc = "This type represents the dimension/world (overworld, nether, end, etc.) the program is currently running in.")
+    doc = "Represents the world dimension (overworld, nether, end, etc.) a script is running in.\n" +
+        "It is the object through which scripts can interact with blocks, entities, etc.")
 public class WorldType extends TypeBase<ServerWorld> {
   public static final String NAME = "world";
 
@@ -167,7 +168,7 @@ public class WorldType extends TypeBase<ServerWorld> {
     return self.getTimeOfDay() % 24000;
   }
 
-  @Property(name = "game_time", doc = "The current game time of the world.")
+  @Property(name = "game_time", doc = "The current game time (number of ticks) of the world.")
   public Long getWorldTick(final ServerWorld self) {
     return self.getTime() % 0x7fffffff;
   }
@@ -219,7 +220,9 @@ public class WorldType extends TypeBase<ServerWorld> {
           @ParameterMeta(name = "target", doc = "An entity selector that targets a single entity."),
           @ParameterMeta(name = "target_nbt_path", mayBeNull = true, doc = "The path to the data to query. If #null, all data is returned.")
       },
-      returnTypeMetadata = @ReturnMeta(doc = "The queried data or #null if none or more than one entity were targetted or the specified path is invalid."),
+      returnTypeMetadata = @ReturnMeta(
+          doc = "The queried data or #null if none or more than one entity were targetted or the specified path is invalid.",
+          mayBeNull = true),
       doc = "Returns NBT data from the targetted entity.")
   public MCList getEntityData(final Scope scope, ServerWorld self, final String target, final String targetNBTPath) {
     List<? extends Entity> entities = getSelectedEntities(self, target);
@@ -229,14 +232,15 @@ public class WorldType extends TypeBase<ServerWorld> {
     return this.getData(targetNBTPath, NbtPredicate.entityToNbt(entities.get(0)));
   }
 
-  @Method(name = "get_block_data",
+  @Method(name = "get_block_entity_data",
       parametersMetadata = {
           @ParameterMeta(name = "position", doc = "A block position."),
           @ParameterMeta(name = "target_nbt_path", mayBeNull = true, doc = "The path to the data to query. If #null, all data is returned.")
       },
-      returnTypeMetadata = @ReturnMeta(doc = "The queried data or #null if the targetted block does not have a block entity or the specified path is invalid."),
-      doc = "Returns NBT data from the block at the given position.")
-  public MCList getBlockData(final Scope scope, ServerWorld self, final Position position, final String targetNBTPath) {
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The queried data or #null if the targetted block does not have a block entity or the specified path is invalid."),
+      doc = "Returns NBT data from the block entity at the given position.")
+  public MCList getBlockEntityData(final Scope scope, ServerWorld self, final Position position, final String targetNBTPath) {
     BlockPos pos = position.toBlockPos();
     BlockEntity blockEntity = self.getBlockEntity(pos);
     if (blockEntity == null) {
@@ -251,7 +255,8 @@ public class WorldType extends TypeBase<ServerWorld> {
           @ParameterMeta(name = "identifier", doc = "A storage identifier."),
           @ParameterMeta(name = "target_nbt_path", mayBeNull = true, doc = "The path to the data to query. If #null, all data is returned.")
       },
-      returnTypeMetadata = @ReturnMeta(doc = "The queried data or #null if the specified storage does not exist or the specified path is invalid."),
+      returnTypeMetadata = @ReturnMeta(mayBeNull = true,
+          doc = "The queried data or #null if the specified storage does not exist or the specified path is invalid."),
       doc = "Returns NBT data from the specified storage.")
   public MCList getStorageData(final Scope scope, ServerWorld self, final String identifier, final String targetNBTPath) {
     NbtCompound nbt = self.getServer().getDataCommandStorage().get(new Identifier(identifier));
@@ -351,7 +356,7 @@ public class WorldType extends TypeBase<ServerWorld> {
 
   @Method(name = "is_chunk_force_loaded",
       parametersMetadata = {
-          @ParameterMeta(name = "pos", doc = "Position of the chunk to test.")
+          @ParameterMeta(name = "p", doc = "A block position inside the chunk to test.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the chunk is force loaded, #false otherwise."),
       doc = "Checks whether the chunk at the given position is force loaded.")
@@ -367,17 +372,17 @@ public class WorldType extends TypeBase<ServerWorld> {
 
   @Method(name = "get_block",
       parametersMetadata = {
-          @ParameterMeta(name = "pos", doc = "Position of the block.")
+          @ParameterMeta(name = "p", doc = "Position of the block.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "The `block at the given position."),
-      doc = "Returns the block at the given position.")
+      doc = "Returns the `block at the given position.")
   public Block getBlock(final Scope scope, final ServerWorld self, final Position position) {
     return self.getBlockState(position.toBlockPos()).getBlock();
   }
 
   @Method(name = "get_block_state",
       parametersMetadata = {
-          @ParameterMeta(name = "pos", doc = "Position of the block.")
+          @ParameterMeta(name = "p", doc = "Position of the block.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "A `map containing all properties of the block."),
       doc = "Returns the block state at the given position in this world.")
@@ -401,10 +406,10 @@ public class WorldType extends TypeBase<ServerWorld> {
 
   @Method(name = "is_block_loaded",
       parametersMetadata = {
-          @ParameterMeta(name = "pos", doc = "Position of the block to check.")
+          @ParameterMeta(name = "p", doc = "Position of the block to check.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "#True if the block is loaded, #false otherwise."),
-      doc = "Returns whether the block at the given position is currently loaded.")
+      doc = "Returns whether the `block at the given position is currently loaded.")
   public Boolean isBlockLoaded(final Scope scope, final ServerWorld self, final Position position) {
     //noinspection deprecation
     return self.isChunkLoaded(position.toBlockPos());
@@ -415,7 +420,7 @@ public class WorldType extends TypeBase<ServerWorld> {
    */
 
   @Method(name = "get_players_list",
-      returnTypeMetadata = @ReturnMeta(doc = "A `list containing data for all connected players."),
+      returnTypeMetadata = @ReturnMeta(doc = "A `map containing data for all connected players."),
       doc = "Fetches profile data for all connected players.")
   public MCMap getPlayersList(final Scope scope, final ServerWorld self) {
     return new MCMap(self.getServer().getPlayerManager().getPlayerList()
@@ -611,7 +616,7 @@ public class WorldType extends TypeBase<ServerWorld> {
       },
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "A position in the nearest biome of desired type or #null if an error occured."),
-      doc = "Returns the coordinates of the closest structure around the given point.")
+      doc = "Returns the coordinates of the closest biome around the given point.")
   public Position locateBiome(final Scope scope, final ServerWorld self, final String biomeID,
                               final Position around, final Long radius) {
     String command = "locatebiome " + biomeID;
@@ -642,7 +647,7 @@ public class WorldType extends TypeBase<ServerWorld> {
       },
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The result of the command or #null if an error occured."),
-      doc = "Executes a command. See the Minecraft wiki for more information.")
+      doc = "Executes a command. See the Minecraft Wiki for more information. The /trigger command is not accepted and will raise an error ")
   public Long executeCommand(final Scope scope, ServerWorld self, final String name, final Object... args) {
     if ("trigger".equals(name)) {
       throw new MCCodeRuntimeException(scope, name, "mccode.interpreter.error.illegal_command", name);

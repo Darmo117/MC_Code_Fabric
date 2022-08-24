@@ -24,7 +24,11 @@ import java.util.stream.Collectors;
  * Maps are iterable and support the __get_item__, __set_item__ and __del_item__ operators.
  * Maps iterate over their keys.
  */
-@Type(name = MapType.NAME, doc = "Maps are datastructures that associate a unique key to some arbitrary data.")
+@Type(name = MapType.NAME, doc = """
+    A map is a data structure that contains key-value pairs where keys cannot appear multiple times.
+    Maps can be iterated over in 'for' loops and are accepted by the %len function.
+    'for' loops will iterate over the keys.
+    When evaluated as a `boolean, an empty map yields #false while non-empty maps yield #true.""")
 public class MapType extends TypeBase<MCMap> {
   public static final String NAME = "map";
 

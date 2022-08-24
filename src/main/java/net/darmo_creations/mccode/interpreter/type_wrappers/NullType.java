@@ -12,7 +12,8 @@ import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
  */
 @Type(name = NullType.NAME,
     generateCastOperator = false,
-    doc = "Placeholder type for the null value.")
+    doc = "This type has a single value, #null which represents the absence of any value.\n" +
+        "When evaluated as a `boolean, it always yields #false.")
 public class NullType extends TypeBase<Void> {
   public static final String NAME = "null";
 

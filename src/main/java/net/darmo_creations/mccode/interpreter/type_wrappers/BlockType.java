@@ -14,7 +14,7 @@ import net.minecraft.util.registry.Registry;
  * <p>
  * New instances can be created by casting {@link String}s.
  */
-@Type(name = BlockType.NAME, doc = "Type that represents a block.")
+@Type(name = BlockType.NAME, doc = "Represents a Minecraft block.")
 public class BlockType extends TypeBase<Block> {
   public static final String NAME = "block";
 
