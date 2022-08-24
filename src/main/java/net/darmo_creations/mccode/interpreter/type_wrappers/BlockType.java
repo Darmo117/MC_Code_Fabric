@@ -25,7 +25,7 @@ public class BlockType extends TypeBase<Block> {
     return Block.class;
   }
 
-  @Property(name = "id", doc = "The ID of a `block.")
+  @Property(name = "id", doc = "The ID of the `block.")
   public String getID(final Block self) {
     return Registry.BLOCK.getKey(self).map(i -> i.getValue().toString()).orElse(null);
   }

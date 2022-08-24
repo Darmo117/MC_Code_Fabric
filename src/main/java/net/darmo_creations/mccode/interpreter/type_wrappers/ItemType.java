@@ -27,12 +27,12 @@ public class ItemType extends TypeBase<Item> {
     return Item.class;
   }
 
-  @Property(name = "id", doc = "The ID of an `item.")
+  @Property(name = "id", doc = "The ID of the `item.")
   public String getID(final Item self) {
     return Registry.ITEM.getKey(self).map(i -> i.getValue().toString()).orElse(null);
   }
 
-  @Property(name = "max_stack_size", doc = "The max stack size of an `item.")
+  @Property(name = "max_stack_size", doc = "The max stack size of the `item.")
   public Long getMaxStackSize(final Item self) {
     return (long) self.getMaxCount();
   }
