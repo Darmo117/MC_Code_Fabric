@@ -23,19 +23,19 @@ import java.util.Map;
 public class PosType extends TypeBase<Position> {
   public static final String NAME = "pos";
 
-  public static final String X_KEY = "X";
-  public static final String Y_KEY = "Y";
-  public static final String Z_KEY = "Z";
-  public static final String X_REL_KEY = "XRelative";
-  public static final String Y_REL_KEY = "YRelative";
-  public static final String Z_REL_KEY = "ZRelative";
+  private static final String X_KEY = "X";
+  private static final String Y_KEY = "Y";
+  private static final String Z_KEY = "Z";
+  private static final String X_REL_KEY = "XRelative";
+  private static final String Y_REL_KEY = "YRelative";
+  private static final String Z_REL_KEY = "ZRelative";
 
   @Override
   public Class<Position> getWrappedType() {
     return Position.class;
   }
 
-  @Property(name = "x", doc = "The x component of a position.")
+  @Property(name = "x", doc = "The x component of this position.")
   public Number getX(final Position self) {
     double x = self.getX();
     if (x == Math.floor(x)) { // Cannot use ?: as it will convert long to double
@@ -44,7 +44,7 @@ public class PosType extends TypeBase<Position> {
     return x;
   }
 
-  @Property(name = "y", doc = "The y component of a position.")
+  @Property(name = "y", doc = "The y component of this position.")
   public Number getY(final Position self) {
     double y = self.getY();
     if (y == Math.floor(y)) { // Cannot use ?: as it will convert long to double
@@ -53,7 +53,7 @@ public class PosType extends TypeBase<Position> {
     return y;
   }
 
-  @Property(name = "z", doc = "The z component of a position.")
+  @Property(name = "z", doc = "The z component of this position.")
   public Number getZ(final Position self) {
     double z = self.getZ();
     if (z == Math.floor(z)) { // Cannot use ?: as it will convert long to double
@@ -81,7 +81,7 @@ public class PosType extends TypeBase<Position> {
       parametersMetadata = {
           @ParameterMeta(name = "offset", doc = "The number of blocks up.")
       },
-      returnTypeMetadata = @ReturnMeta(doc = "The resulting position."),
+      returnTypeMetadata = @ReturnMeta(doc = "A new `pos object."),
       doc = "Returns a position that is a certain amount of blocks above.")
   public Position up(final Scope scope, final Position self, final Long offset) {
     return self.up(offset.intValue());
@@ -91,7 +91,7 @@ public class PosType extends TypeBase<Position> {
       parametersMetadata = {
           @ParameterMeta(name = "offset", doc = "The number of blocks down.")
       },
-      returnTypeMetadata = @ReturnMeta(doc = "The resulting position."),
+      returnTypeMetadata = @ReturnMeta(doc = "A new `pos object."),
       doc = "Returns a position that is a certain amount of blocks below.")
   public Position down(final Scope scope, final Position self, final Long offset) {
     return self.down(offset.intValue());
@@ -101,7 +101,7 @@ public class PosType extends TypeBase<Position> {
       parametersMetadata = {
           @ParameterMeta(name = "offset", doc = "The number of blocks north.")
       },
-      returnTypeMetadata = @ReturnMeta(doc = "The resulting position."),
+      returnTypeMetadata = @ReturnMeta(doc = "A new `pos object."),
       doc = "Returns a position that is a certain amount of blocks to the north.")
   public Position north(final Scope scope, final Position self, final Long offset) {
     return self.north(offset.intValue());
@@ -111,7 +111,7 @@ public class PosType extends TypeBase<Position> {
       parametersMetadata = {
           @ParameterMeta(name = "offset", doc = "The number of blocks south.")
       },
-      returnTypeMetadata = @ReturnMeta(doc = "The resulting position."),
+      returnTypeMetadata = @ReturnMeta(doc = "A new `pos object."),
       doc = "Returns a position that is a certain amount of blocks to the south.")
   public Position south(final Scope scope, final Position self, final Long offset) {
     return self.south(offset.intValue());
@@ -121,7 +121,7 @@ public class PosType extends TypeBase<Position> {
       parametersMetadata = {
           @ParameterMeta(name = "offset", doc = "The number of blocks west.")
       },
-      returnTypeMetadata = @ReturnMeta(doc = "The resulting position."),
+      returnTypeMetadata = @ReturnMeta(doc = "A new `pos object."),
       doc = "Returns a position that is a certain amount of blocks to the west.")
   public Position west(final Scope scope, final Position self, final Long offset) {
     return self.west(offset.intValue());
@@ -131,7 +131,7 @@ public class PosType extends TypeBase<Position> {
       parametersMetadata = {
           @ParameterMeta(name = "offset", doc = "The number of blocks east.")
       },
-      returnTypeMetadata = @ReturnMeta(doc = "The resulting position."),
+      returnTypeMetadata = @ReturnMeta(doc = "A new `pos object."),
       doc = "Returns a position that is a certain amount of blocks to the east.")
   public Position east(final Scope scope, final Position self, final Long offset) {
     return self.east(offset.intValue());
@@ -141,7 +141,7 @@ public class PosType extends TypeBase<Position> {
       parametersMetadata = {
           @ParameterMeta(name = "quadrant", doc = "0 for 0°, 1 for 90°, 2 for 180°, 3 for 270°.")
       },
-      returnTypeMetadata = @ReturnMeta(doc = "The resulting position."),
+      returnTypeMetadata = @ReturnMeta(doc = "A new `pos object."),
       doc = "Rotates a position by 0°, 90°, 180° or 270°.")
   public Position rotate(final Scope scope, final Position self, final Long quadrant) {
     return self.rotate(BlockRotation.values()[(int) (quadrant % 4)]);
@@ -149,7 +149,7 @@ public class PosType extends TypeBase<Position> {
 
   @Method(name = "distance",
       parametersMetadata = {
-          @ParameterMeta(name = "pos", doc = "The position to get the distance to.")
+          @ParameterMeta(name = "p", doc = "The position to get the distance to.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "The euclidian distance between the two positions."),
       doc = "Returns the distance between two positions.")
@@ -159,7 +159,7 @@ public class PosType extends TypeBase<Position> {
 
   @Method(name = "distance_sq",
       parametersMetadata = {
-          @ParameterMeta(name = "pos", doc = "The position to get the distance to.")
+          @ParameterMeta(name = "p", doc = "The position to get the distance to.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "The squared euclidian distance between the two positions."),
       doc = "Returns the squared distance between two positions.")

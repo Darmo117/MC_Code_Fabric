@@ -15,7 +15,7 @@ import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 public class FloatType extends TypeBase<Double> {
   public static final String NAME = "float";
 
-  public static final String VALUE_KEY = "Value";
+  private static final String VALUE_KEY = "Value";
 
   @Override
   public Class<Double> getWrappedType() {

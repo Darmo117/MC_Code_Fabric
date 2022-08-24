@@ -20,7 +20,7 @@ import net.minecraft.util.registry.Registry;
 public class ItemType extends TypeBase<Item> {
   public static final String NAME = "item";
 
-  public static final String ID_KEY = "ID";
+  private static final String ID_KEY = "ID";
 
   @Override
   public Class<Item> getWrappedType() {

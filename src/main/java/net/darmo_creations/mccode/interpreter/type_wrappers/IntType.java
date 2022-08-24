@@ -16,7 +16,7 @@ import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 public class IntType extends TypeBase<Long> {
   public static final String NAME = "int";
 
-  public static final String VALUE_KEY = "Value";
+  private static final String VALUE_KEY = "Value";
 
   @Override
   public Class<Long> getWrappedType() {

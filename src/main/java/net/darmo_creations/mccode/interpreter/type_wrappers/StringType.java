@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class StringType extends TypeBase<String> {
   public static final String NAME = "string";
 
-  public static final String VALUE_KEY = "Value";
+  private static final String VALUE_KEY = "Value";
 
   @Override
   public Class<String> getWrappedType() {

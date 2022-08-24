@@ -19,8 +19,8 @@ import net.darmo_creations.mccode.interpreter.types.UserFunction;
 public class FunctionType extends TypeBase<Function> {
   public static final String NAME = "function";
 
-  public static final String FUNCTION_TYPE_KEY = "Type";
-  public static final String FUNCTION_KEY = "Function";
+  private static final String FUNCTION_TYPE_KEY = "Type";
+  private static final String FUNCTION_KEY = "Function";
 
   private static final String FUNCTION_TYPE_BUILTIN = "builtin";
   private static final String FUNCTION_TYPE_USER = "user";

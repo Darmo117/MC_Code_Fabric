@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class SetType extends TypeBase<MCSet> {
   public static final String NAME = "set";
 
-  public static final String VALUES_KEY = "Values";
+  private static final String VALUES_KEY = "Values";
 
   @Override
   public Class<MCSet> getWrappedType() {

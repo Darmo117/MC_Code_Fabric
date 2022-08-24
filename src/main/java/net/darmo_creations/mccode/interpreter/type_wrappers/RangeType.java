@@ -18,9 +18,9 @@ import java.util.Iterator;
 public class RangeType extends TypeBase<Range> {
   public static final String NAME = "range";
 
-  public static final String START_KEY = "Start";
-  public static final String END_KEY = "End";
-  public static final String STEP_KEY = "Step";
+  private static final String START_KEY = "Start";
+  private static final String END_KEY = "End";
+  private static final String STEP_KEY = "Step";
 
   @Override
   public Class<Range> getWrappedType() {
@@ -33,6 +33,11 @@ public class RangeType extends TypeBase<Range> {
       return self.equals(r);
     }
     return super.__eq__(scope, self, o);
+  }
+
+  @Override
+  protected boolean __bool__(final Range self) {
+    return self.size() != 0;
   }
 
   @Override

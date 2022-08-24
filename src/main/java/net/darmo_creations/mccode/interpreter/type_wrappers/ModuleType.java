@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class ModuleType extends TypeBase<Program> {
   public static final String NAME = "module";
 
-  public static final String MODULE_KEY = "Module";
+  private static final String MODULE_KEY = "Module";
 
   @Override
   public Class<Program> getWrappedType() {

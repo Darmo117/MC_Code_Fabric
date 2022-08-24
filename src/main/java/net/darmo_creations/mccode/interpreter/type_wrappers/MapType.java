@@ -28,19 +28,19 @@ import java.util.stream.Collectors;
 public class MapType extends TypeBase<MCMap> {
   public static final String NAME = "map";
 
-  public static final String ENTRIES_KEY = "Entries";
+  private static final String ENTRIES_KEY = "Entries";
 
   @Override
   public Class<MCMap> getWrappedType() {
     return MCMap.class;
   }
 
-  @Property(name = "keys", doc = "The `set of all keys of a `map.")
+  @Property(name = "keys", doc = "The `set of all keys of this `map.")
   public MCSet getKeys(final MCMap self) {
     return new MCSet(self.keySet());
   }
 
-  @Property(name = "values", doc = "The `list of all values of a `map. " +
+  @Property(name = "values", doc = "The `list of all values of this `map. " +
       "Order of values in the returned `list is not guaranteed.")
   public MCList getValues(final MCMap self) {
     return new MCList(self.values());

@@ -12,7 +12,7 @@ import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 public class BooleanType extends TypeBase<Boolean> {
   public static final String NAME = "boolean";
 
-  public static final String VALUE_KEY = "Value";
+  private static final String VALUE_KEY = "Value";
 
   @Override
   public Class<Boolean> getWrappedType() {

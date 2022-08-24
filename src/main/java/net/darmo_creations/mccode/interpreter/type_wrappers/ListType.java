@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class ListType extends TypeBase<MCList> {
   public static final String NAME = "list";
 
-  public static final String VALUES_KEY = "Values";
+  private static final String VALUES_KEY = "Values";
 
   /**
    * Return a comparator to sort instances of this type.
