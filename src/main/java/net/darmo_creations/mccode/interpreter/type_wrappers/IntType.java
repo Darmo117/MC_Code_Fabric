@@ -182,6 +182,9 @@ public class IntType extends TypeBase<Long> {
 
   @Override
   public Long implicitCast(final Scope scope, final Object o) {
+    if (o instanceof Double) { // Cannot implicitly convert floats to ints
+      return super.implicitCast(scope, o);
+    }
     return ProgramManager.getTypeForValue(o).toInt(o);
   }
 
