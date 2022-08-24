@@ -46,6 +46,11 @@ public class RangeType extends TypeBase<Range> {
   }
 
   @Override
+  protected long __len__(final Scope scope, final Range self) {
+    return self.size();
+  }
+
+  @Override
   protected CompoundTag _writeToTag(final Range self) {
     CompoundTag tag = super._writeToTag(self);
     tag.putLong(START_KEY, self.getStart());

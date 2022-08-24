@@ -50,6 +50,21 @@ public class Range implements Iterable<Long>, Cloneable {
     return this.step;
   }
 
+  /**
+   * Returns the number of expected values comprised in this range.
+   */
+  public long size() {
+    if (this.start == this.end || this.step > 0 && this.start > this.end || this.step < 0 && this.start < this.end) {
+      return 0;
+    }
+    if (this.step > 0) {
+      long range = this.end - this.start;
+      return (long) Math.ceil(range / (double) this.step);
+    }
+    long range = this.start - this.end;
+    return (long) Math.ceil(range / (double) -this.step);
+  }
+
   @Override
   public Iterator<Long> iterator() {
     return new Iterator<>() {
