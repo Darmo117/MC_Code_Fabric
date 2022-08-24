@@ -37,6 +37,11 @@ public class ItemType extends TypeBase<Item> {
     return (long) self.getMaxCount();
   }
 
+  @Property(name = "max_damage", doc = "The max damage of the `item.")
+  public Long getMaxDamage(final Item self) {
+    return (long) self.getMaxDamage();
+  }
+
   @Override
   protected Object __eq__(final Scope scope, final Item self, final Object o) {
     if (o instanceof Item i) {
