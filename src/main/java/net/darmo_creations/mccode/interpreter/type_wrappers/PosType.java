@@ -177,8 +177,6 @@ public class PosType extends TypeBase<Position> {
   protected Object __add__(final Scope scope, final Position self, final Object o, final boolean inPlace) {
     if (o instanceof Position p) {
       return self.add(p);
-    } else if (o instanceof String s) {
-      return this.__str__(self) + s;
     }
     return super.__add__(scope, self, o, inPlace);
   }
@@ -194,15 +192,20 @@ public class PosType extends TypeBase<Position> {
   @Override
   protected Object __mul__(final Scope scope, final Position self, final Object o, final boolean inPlace) {
     if (o instanceof Number || o instanceof Boolean) {
-      return self.multiply(ProgramManager.getTypeInstance(FloatType.class).implicitCast(scope, o));
+      return self.multiply(ProgramManager.getTypeForValue(o).toFloat(o));
     }
     return super.__mul__(scope, self, o, inPlace);
   }
 
   @Override
+  protected Object __rmul__(final Scope scope, final Position self, final Object o) {
+    return this.__mul__(scope, self, o, false);
+  }
+
+  @Override
   protected Object __div__(final Scope scope, final Position self, final Object o, final boolean inPlace) {
     if (o instanceof Number || o instanceof Boolean) {
-      double n = ProgramManager.getTypeInstance(FloatType.class).implicitCast(scope, o);
+      double n = ProgramManager.getTypeForValue(o).toFloat(o);
       if (n == 0) {
         throw new ArithmeticException("/ by 0");
       }
@@ -214,7 +217,7 @@ public class PosType extends TypeBase<Position> {
   @Override
   protected Object __intdiv__(final Scope scope, final Position self, final Object o, final boolean inPlace) {
     if (o instanceof Number || o instanceof Boolean) {
-      double n = ProgramManager.getTypeInstance(FloatType.class).implicitCast(scope, o);
+      double n = ProgramManager.getTypeForValue(o).toFloat(o);
       if (n == 0) {
         throw new ArithmeticException("/ by 0");
       }
@@ -226,7 +229,7 @@ public class PosType extends TypeBase<Position> {
   @Override
   protected Object __mod__(final Scope scope, final Position self, final Object o, final boolean inPlace) {
     if (o instanceof Number || o instanceof Boolean) {
-      double n = ProgramManager.getTypeInstance(FloatType.class).implicitCast(scope, o);
+      double n = ProgramManager.getTypeForValue(o).toFloat(o);
       if (n == 0) {
         throw new ArithmeticException("/ by 0");
       }
@@ -238,7 +241,7 @@ public class PosType extends TypeBase<Position> {
   @Override
   protected Object __pow__(final Scope scope, final Position self, final Object o, final boolean inPlace) {
     if (o instanceof Number || o instanceof Boolean) {
-      return self.pow(ProgramManager.getTypeInstance(FloatType.class).implicitCast(scope, o));
+      return self.pow(ProgramManager.getTypeForValue(o).toFloat(o));
     }
     return super.__pow__(scope, self, o, inPlace);
   }

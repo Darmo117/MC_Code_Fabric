@@ -22,14 +22,6 @@ public class NullType extends TypeBase<Void> {
   }
 
   @Override
-  protected Object __add__(Scope scope, Void self, Object o, boolean inPlace) {
-    if (o instanceof String s) {
-      return this.__str__(self) + s;
-    }
-    return super.__add__(scope, self, o, inPlace);
-  }
-
-  @Override
   protected boolean __bool__(final Void self) {
     return false;
   }

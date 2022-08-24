@@ -92,8 +92,6 @@ public class MapType extends TypeBase<MCMap> {
         return this.add(scope, self, m, true);
       }
       return this.add(scope, new MCMap(self), m, false);
-    } else if (o instanceof String) {
-      return this.__str__(self) + o;
     }
     return super.__add__(scope, self, o, inPlace);
   }

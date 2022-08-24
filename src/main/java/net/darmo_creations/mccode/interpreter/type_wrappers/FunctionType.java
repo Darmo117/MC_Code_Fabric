@@ -31,14 +31,6 @@ public class FunctionType extends TypeBase<Function> {
   }
 
   @Override
-  protected Object __add__(final Scope scope, final Function self, final Object o, final boolean inPlace) {
-    if (o instanceof String s) {
-      return this.__str__(self) + s;
-    }
-    return super.__add__(scope, self, o, inPlace);
-  }
-
-  @Override
   protected CompoundTag _writeToTag(final Function self) {
     CompoundTag tag = super._writeToTag(self);
     if (self instanceof BuiltinFunction) {

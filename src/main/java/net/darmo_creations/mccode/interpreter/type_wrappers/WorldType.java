@@ -743,19 +743,6 @@ public class WorldType extends TypeBase<ServerWorld> {
    */
 
   @Override
-  protected Object __add__(final Scope scope, final ServerWorld self, final Object o, final boolean inPlace) {
-    if (o instanceof String s) {
-      return this.__str__(self) + s;
-    }
-    return super.__add__(scope, self, o, inPlace);
-  }
-
-  @Override
-  protected Object __eq__(final Scope scope, final ServerWorld self, final Object o) {
-    return self == o;
-  }
-
-  @Override
   protected String __str__(final ServerWorld self) {
     return this.getDimensionName(self);
   }

@@ -204,11 +204,18 @@ public class StringType extends TypeBase<String> {
   }
 
   @Override
+  protected Object __radd__(final Scope scope, final String self, final Object o) {
+    return ProgramManager.getTypeForValue(o).toString(o) + self;
+  }
+
+  @Override
   protected Object __mul__(final Scope scope, final String self, final Object o, final boolean inPlace) {
     if (o instanceof Long || o instanceof Boolean) {
-      Long nb = ProgramManager.getTypeInstance(IntType.class).implicitCast(scope, o);
+      long nb = ProgramManager.getTypeForValue(o).toInt(o);
       if (nb <= 0) {
         return "";
+      } else if (nb == 1) {
+        return self;
       }
       StringBuilder s = new StringBuilder(self);
       for (int i = 0; i < nb - 1; i++) {
@@ -217,6 +224,11 @@ public class StringType extends TypeBase<String> {
       return s.toString();
     }
     return super.__mul__(scope, self, o, inPlace);
+  }
+
+  @Override
+  protected Object __rmul__(final Scope scope, final String self, final Object o) {
+    return this.__mul__(scope, self, o, false);
   }
 
   @Override

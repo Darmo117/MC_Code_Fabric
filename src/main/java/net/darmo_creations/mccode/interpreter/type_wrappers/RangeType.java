@@ -28,14 +28,6 @@ public class RangeType extends TypeBase<Range> {
   }
 
   @Override
-  protected Object __add__(final Scope scope, final Range self, final Object o, final boolean inPlace) {
-    if (o instanceof String s) {
-      return this.__str__(self) + s;
-    }
-    return super.__add__(scope, self, o, inPlace);
-  }
-
-  @Override
   protected Object __eq__(final Scope scope, final Range self, final Object o) {
     if (o instanceof Range r) {
       return self.equals(r);

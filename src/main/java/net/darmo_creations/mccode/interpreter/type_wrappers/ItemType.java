@@ -38,14 +38,6 @@ public class ItemType extends TypeBase<Item> {
   }
 
   @Override
-  protected Object __add__(final Scope scope, final Item self, final Object o, final boolean inPlace) {
-    if (o instanceof String s) {
-      return this.__str__(self) + s;
-    }
-    return super.__add__(scope, self, o, inPlace);
-  }
-
-  @Override
   protected Object __eq__(final Scope scope, final Item self, final Object o) {
     if (o instanceof Item i) {
       return this.getID(self).equals(this.getID(i));

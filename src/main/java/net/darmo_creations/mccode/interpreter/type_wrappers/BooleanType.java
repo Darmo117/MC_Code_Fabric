@@ -21,65 +21,111 @@ public class BooleanType extends TypeBase<Boolean> {
 
   @Override
   protected Object __minus__(final Scope scope, final Boolean self) {
-    return self ? -1L : 0L;
+    return -this.__int__(self);
   }
 
   @Override
-  protected Object __add__(final Scope scope, final Boolean self, final Object o, boolean inPlace) {
-    if (o instanceof String s) {
-      return this.__str__(self) + s;
+  protected Object __add__(final Scope scope, final Boolean self, final Object o, final boolean inPlace) {
+    if (o instanceof Boolean b) {
+      return this.toInt(self) + this.toInt(b);
     }
-    IntType intType = ProgramManager.getTypeInstance(IntType.class);
-    return intType.__add__(scope, intType.implicitCast(scope, self), o, inPlace);
+    return super.__add__(scope, self, o, inPlace);
   }
 
   @Override
-  protected Object __sub__(final Scope scope, final Boolean self, final Object o, boolean inPlace) {
-    IntType intType = ProgramManager.getTypeInstance(IntType.class);
-    return intType.__sub__(scope, intType.implicitCast(scope, self), o, inPlace);
+  protected Object __sub__(final Scope scope, final Boolean self, final Object o, final boolean inPlace) {
+    if (o instanceof Boolean b) {
+      return this.toInt(self) - this.toInt(b);
+    }
+    return super.__sub__(scope, self, o, inPlace);
   }
 
   @Override
-  protected Object __mul__(final Scope scope, final Boolean self, final Object o, boolean inPlace) {
-    IntType intType = ProgramManager.getTypeInstance(IntType.class);
-    return intType.__mul__(scope, intType.implicitCast(scope, self), o, inPlace);
+  protected Object __mul__(final Scope scope, final Boolean self, final Object o, final boolean inPlace) {
+    if (o instanceof Boolean b) {
+      return this.toInt(self && b);
+    }
+    return super.__mul__(scope, self, o, inPlace);
   }
 
   @Override
-  protected Object __div__(final Scope scope, final Boolean self, final Object o, boolean inPlace) {
-    IntType intType = ProgramManager.getTypeInstance(IntType.class);
-    return intType.__div__(scope, intType.implicitCast(scope, self), o, inPlace);
+  protected Object __div__(final Scope scope, final Boolean self, final Object o, final boolean inPlace) {
+    if (o instanceof Boolean b) {
+      if (!b) {
+        throw new ArithmeticException("/ by 0");
+      }
+      return this.toFloat(self);
+    }
+    return super.__div__(scope, self, o, inPlace);
   }
 
   @Override
-  protected Object __mod__(final Scope scope, final Boolean self, final Object o, boolean inPlace) {
-    IntType intType = ProgramManager.getTypeInstance(IntType.class);
-    return intType.__mod__(scope, intType.implicitCast(scope, self), o, inPlace);
+  protected Object __intdiv__(final Scope scope, final Boolean self, final Object o, final boolean inPlace) {
+    if (o instanceof Boolean b) {
+      if (!b) {
+        throw new ArithmeticException("/ by 0");
+      }
+      return this.toInt(self);
+    }
+    return super.__intdiv__(scope, self, o, inPlace);
   }
 
   @Override
-  protected Object __pow__(final Scope scope, final Boolean self, final Object o, boolean inPlace) {
-    IntType intType = ProgramManager.getTypeInstance(IntType.class);
-    return intType.__pow__(scope, intType.implicitCast(scope, self), o, inPlace);
+  protected Object __mod__(final Scope scope, final Boolean self, final Object o, final boolean inPlace) {
+    if (o instanceof Boolean b) {
+      if (!b) {
+        throw new ArithmeticException("/ by 0");
+      }
+      return 0;
+    }
+    return super.__mod__(scope, self, o, inPlace);
+  }
+
+  @Override
+  protected Object __pow__(final Scope scope, final Boolean self, final Object o, final boolean inPlace) {
+    if (o instanceof Boolean b) {
+      return this.toInt(self || !b);
+    }
+    return super.__pow__(scope, self, o, inPlace);
   }
 
   @Override
   protected Object __eq__(final Scope scope, final Boolean self, final Object o) {
-    FloatType floatType = ProgramManager.getTypeInstance(FloatType.class);
-    double d = floatType.implicitCast(scope, self);
-    return floatType.__eq__(scope, d, o);
+    if (o instanceof Boolean b) {
+      return self == b;
+    } else if (o instanceof Number n) {
+      return ProgramManager.getTypeInstance(FloatType.class)
+          .__eq__(scope, this.__float__(self), n.doubleValue());
+    } else {
+      return super.__eq__(scope, self, o);
+    }
   }
 
   @Override
   protected Object __gt__(final Scope scope, final Boolean self, final Object o) {
-    FloatType floatType = ProgramManager.getTypeInstance(FloatType.class);
-    double d = floatType.implicitCast(scope, self);
-    return floatType.__gt__(scope, d, o);
+    if (o instanceof Boolean b) {
+      return self && !b;
+    } else if (o instanceof Number n) {
+      return ProgramManager.getTypeInstance(FloatType.class)
+          .__gt__(scope, this.__float__(self), n.doubleValue());
+    } else {
+      return super.__gt__(scope, self, o);
+    }
   }
 
   @Override
   protected boolean __bool__(final Boolean self) {
     return self;
+  }
+
+  @Override
+  protected long __int__(Boolean self) {
+    return self ? 1 : 0;
+  }
+
+  @Override
+  protected double __float__(Boolean self) {
+    return this.__int__(self);
   }
 
   @Override

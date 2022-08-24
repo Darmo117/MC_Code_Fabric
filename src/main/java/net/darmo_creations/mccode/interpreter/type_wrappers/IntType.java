@@ -6,9 +6,8 @@ import net.darmo_creations.mccode.interpreter.Utils;
 import net.darmo_creations.mccode.interpreter.annotations.Type;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.exceptions.MCCodeRuntimeException;
+import net.darmo_creations.mccode.interpreter.exceptions.TypeException;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
-import net.darmo_creations.mccode.interpreter.types.MCList;
-import net.darmo_creations.mccode.interpreter.types.Position;
 
 /**
  * Wrapper type for {@link Integer}.
@@ -29,118 +28,141 @@ public class IntType extends TypeBase<Long> {
     return -self;
   }
 
-  @Override
-  protected Object __add__(final Scope scope, final Long self, final Object o, boolean inPlace) {
-    if (o instanceof Long l) {
-      return self + l;
-    } else if (o instanceof Double d) {
-      return self + d;
-    } else if (o instanceof Boolean b) {
-      return self + (b ? 1 : 0);
-    } else if (o instanceof String s) {
-      return this.__str__(self) + s;
+  /**
+   * Checks whether an object can be converted to a float.
+   */
+  private static boolean isFloat(final Object o) {
+    TypeBase<?> type = ProgramManager.getTypeForValue(o);
+    try {
+      return type.toFloat(o) != type.toInt(o);
+    } catch (TypeException e) {
+      return false;
     }
-    return super.__add__(scope, self, o, inPlace);
   }
 
   @Override
-  protected Object __sub__(final Scope scope, final Long self, final Object o, boolean inPlace) {
-    if (o instanceof Long l) {
-      return self - l;
-    } else if (o instanceof Double d) {
-      return self - d;
-    } else if (o instanceof Boolean b) {
-      return self - (b ? 1 : 0);
+  protected Object __add__(final Scope scope, final Long self, final Object o, final boolean inPlace) {
+    if (isFloat(o)) {
+      return self + ProgramManager.getTypeForValue(o).toFloat(o);
     }
-    return super.__sub__(scope, self, o, inPlace);
+    return self + ProgramManager.getTypeForValue(o).toInt(o);
   }
 
   @Override
-  protected Object __mul__(final Scope scope, final Long self, final Object o, boolean inPlace) {
-    if (o instanceof Long l) {
-      return self * l;
-    } else if (o instanceof Double d) {
-      return self * d;
-    } else if (o instanceof Boolean b) {
-      return self * (b ? 1 : 0);
-    } else if (o instanceof Position p) {
-      return ProgramManager.getTypeInstance(PosType.class).__mul__(scope, p, self, inPlace);
-    } else if (o instanceof String s) {
-      // Return a new string instance everytime
-      return ProgramManager.getTypeInstance(StringType.class).__mul__(scope, s, self, false);
-    } else if (o instanceof MCList l) {
-      // Return a new list instance everytime
-      return ProgramManager.getTypeInstance(ListType.class).__mul__(scope, l, self, false);
-    }
-    return super.__mul__(scope, self, o, inPlace);
+  protected Object __radd__(final Scope scope, final Long self, final Object o) {
+    return this.__add__(scope, self, o, false);
   }
 
   @Override
-  protected Object __div__(final Scope scope, final Long self, final Object o, boolean inPlace) {
-    if (o instanceof Long l) {
-      if (l == 0) {
-        throw new ArithmeticException("/ by 0");
-      }
-      return self.doubleValue() / l;
-    } else if (o instanceof Double d) {
-      if (d == 0) {
-        throw new ArithmeticException("/ by 0");
-      }
-      return self / d;
-    } else if (o instanceof Boolean b) {
-      if (!b) {
-        throw new ArithmeticException("/ by 0");
-      }
-      return (double) self;
+  protected Object __sub__(final Scope scope, final Long self, final Object o, final boolean inPlace) {
+    if (isFloat(o)) {
+      return self - ProgramManager.getTypeForValue(o).toFloat(o);
     }
-    return super.__div__(scope, self, o, inPlace);
+    return self - ProgramManager.getTypeForValue(o).toInt(o);
   }
 
   @Override
-  protected Object __mod__(final Scope scope, final Long self, final Object o, boolean inPlace) {
-    if (o instanceof Long l) {
-      if (l == 0) {
-        throw new ArithmeticException("/ by 0");
-      }
-      return (long) Utils.trueModulo(self, l);
-    } else if (o instanceof Double d) {
-      if (d == 0) {
-        throw new ArithmeticException("/ by 0");
-      }
-      return Utils.trueModulo(self, d);
-    } else if (o instanceof Boolean b) {
-      if (b) {
-        return 0L;
-      }
+  protected Object __rsub__(final Scope scope, final Long self, final Object o) {
+    if (isFloat(o)) {
+      return ProgramManager.getTypeForValue(o).toFloat(o) - self;
+    }
+    return ProgramManager.getTypeForValue(o).toInt(o) - self;
+  }
+
+  @Override
+  protected Object __mul__(final Scope scope, final Long self, final Object o, final boolean inPlace) {
+    if (isFloat(o)) {
+      return self * ProgramManager.getTypeForValue(o).toFloat(o);
+    }
+    return self * ProgramManager.getTypeForValue(o).toInt(o);
+  }
+
+  @Override
+  protected Object __rmul__(final Scope scope, final Long self, final Object o) {
+    return this.__mul__(scope, self, o, false);
+  }
+
+  @Override
+  protected Object __div__(final Scope scope, final Long self, final Object o, final boolean inPlace) {
+    double l = ProgramManager.getTypeForValue(o).toFloat(o);
+    if (l == 0) {
       throw new ArithmeticException("/ by 0");
     }
-    return super.__mod__(scope, self, o, inPlace);
+    return self / l;
   }
 
   @Override
-  protected Object __pow__(final Scope scope, final Long self, final Object o, boolean inPlace) {
-    if (o instanceof Long l) {
-      return (long) Math.pow(self, l);
-    } else if (o instanceof Double d) {
-      return Math.pow(self, d);
-    } else if (o instanceof Boolean b) {
-      return !b ? 1 : self;
+  protected Object __rdiv__(final Scope scope, final Long self, final Object o) {
+    if (self == 0) {
+      throw new ArithmeticException("/ by 0");
     }
-    return super.__pow__(scope, self, o, inPlace);
+    return ProgramManager.getTypeForValue(o).toFloat(o) / self;
+  }
+
+  @Override
+  protected Object __mod__(final Scope scope, final Long self, final Object o, final boolean inPlace) {
+    if (isFloat(o)) {
+      double l = ProgramManager.getTypeForValue(o).toFloat(o);
+      if (l == 0) {
+        throw new ArithmeticException("/ by 0");
+      }
+      return Utils.trueModulo(self, l);
+    }
+    long l = ProgramManager.getTypeForValue(o).toInt(o);
+    if (l == 0) {
+      throw new ArithmeticException("/ by 0");
+    }
+    return (long) Utils.trueModulo(self, l);
+  }
+
+  @Override
+  protected Object __rmod__(final Scope scope, final Long self, final Object o) {
+    if (isFloat(o)) {
+      if (self == 0) {
+        throw new ArithmeticException("/ by 0");
+      }
+      return Utils.trueModulo(ProgramManager.getTypeForValue(o).toFloat(o), self);
+    }
+    if (self == 0) {
+      throw new ArithmeticException("/ by 0");
+    }
+    return (long) Utils.trueModulo(ProgramManager.getTypeForValue(o).toInt(o), self);
+  }
+
+  @Override
+  protected Object __pow__(final Scope scope, final Long self, final Object o, final boolean inPlace) {
+    if (isFloat(o)) {
+      return Math.pow(self, ProgramManager.getTypeForValue(o).toFloat(o));
+    }
+    return Math.pow(self, ProgramManager.getTypeForValue(o).toInt(o));
+  }
+
+  @Override
+  protected Object __rpow__(final Scope scope, final Long self, final Object o) {
+    if (isFloat(o)) {
+      return Math.pow(ProgramManager.getTypeForValue(o).toFloat(o), self);
+    }
+    return Math.pow(ProgramManager.getTypeForValue(o).toInt(o), self);
   }
 
   @Override
   protected Object __eq__(final Scope scope, final Long self, final Object o) {
-    FloatType floatType = ProgramManager.getTypeInstance(FloatType.class);
-    double d = floatType.implicitCast(scope, self);
-    return floatType.__eq__(scope, d, o);
+    if (isFloat(o)) {
+      return self == ProgramManager.getTypeForValue(o).toFloat(o);
+    } else if (o instanceof Long || o instanceof Boolean) {
+      return self == ProgramManager.getTypeForValue(o).toInt(o);
+    }
+    return super.__eq__(scope, self, o);
   }
 
   @Override
   protected Object __gt__(final Scope scope, final Long self, final Object o) {
-    FloatType floatType = ProgramManager.getTypeInstance(FloatType.class);
-    double d = floatType.implicitCast(scope, self);
-    return floatType.__gt__(scope, d, o);
+    if (isFloat(o)) {
+      return self > ProgramManager.getTypeForValue(o).toFloat(o);
+    } else if (o instanceof Long || o instanceof Boolean) {
+      return self > ProgramManager.getTypeForValue(o).toInt(o);
+    }
+    return super.__gt__(scope, self, o);
   }
 
   @Override
@@ -149,25 +171,30 @@ public class IntType extends TypeBase<Long> {
   }
 
   @Override
+  protected long __int__(final Long self) {
+    return self;
+  }
+
+  @Override
+  protected double __float__(final Long self) {
+    return self;
+  }
+
+  @Override
   public Long implicitCast(final Scope scope, final Object o) {
-    if (o instanceof Boolean b) {
-      return b ? 1L : 0;
-    }
-    return super.implicitCast(scope, o);
+    return ProgramManager.getTypeForValue(o).toInt(o);
   }
 
   @Override
   public Long explicitCast(final Scope scope, final Object o) throws MCCodeRuntimeException {
-    if (o instanceof Number n) {
-      return n.longValue();
-    } else if (o instanceof String s) {
+    if (o instanceof String s) {
       try {
         return Long.parseLong(s);
       } catch (NumberFormatException e) {
         throw new EvaluationException(scope, "mccode.interpreter.error.int_format", Utils.escapeString(s));
       }
     }
-    return super.explicitCast(scope, o);
+    return ProgramManager.getTypeForValue(o).toInt(o);
   }
 
   @Override

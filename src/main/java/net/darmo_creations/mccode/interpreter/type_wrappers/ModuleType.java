@@ -54,14 +54,6 @@ public class ModuleType extends TypeBase<Program> {
   }
 
   @Override
-  protected Object __add__(final Scope scope, final Program self, final Object o, final boolean inPlace) {
-    if (o instanceof String s) {
-      return this.__str__(self) + s;
-    }
-    return super.__add__(scope, self, o, inPlace);
-  }
-
-  @Override
   protected CompoundTag _writeToTag(final Program self) {
     CompoundTag tag = super._writeToTag(self);
     tag.putTag(MODULE_KEY, self.writeToTag());

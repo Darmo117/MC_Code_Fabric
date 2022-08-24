@@ -237,6 +237,28 @@ public abstract class TypeBase<T> {
   }
 
   /**
+   * Convert the given object to an int value.
+   *
+   * @param self An instance of this type to convert.
+   * @return The int value for the object.
+   */
+  public final long toInt(final Object self) {
+    //noinspection unchecked
+    return this.__int__((T) self);
+  }
+
+  /**
+   * Convert the given object to a float value.
+   *
+   * @param self An instance of this type to convert.
+   * @return The float value for the object.
+   */
+  public final double toFloat(final Object self) {
+    //noinspection unchecked
+    return this.__float__((T) self);
+  }
+
+  /**
    * Returns the string representation of an object of this type.
    *
    * @param self An instance of this type to convert.
@@ -261,6 +283,22 @@ public abstract class TypeBase<T> {
     return this.__copy__(scope, (T) self);
   }
 
+  @SuppressWarnings("unchecked")
+  protected Object reverseOperator(final BinaryOperator operator, Scope scope, Object self, Object o) {
+    return switch (operator) {
+      case PLUS -> this.__radd__(scope, (T) self, o);
+      case SUB -> this.__rsub__(scope, (T) self, o);
+      case MUL -> this.__rmul__(scope, (T) self, o);
+      case DIV -> this.__rdiv__(scope, (T) self, o);
+      case INT_DIV -> this.__rintdiv__(scope, (T) self, o);
+      case MOD -> this.__rmod__(scope, (T) self, o);
+      case POW -> this.__rpow__(scope, (T) self, o);
+      case AND -> this.__rand__(scope, (T) self, o);
+      case OR -> this.__ror__(scope, (T) self, o);
+      default -> throw new MCCodeException("invalid reverse operator: got %s".formatted(operator));
+    };
+  }
+
   /**
    * Applie an operator on the given values.
    *
@@ -283,6 +321,46 @@ public abstract class TypeBase<T> {
     }
     //noinspection unchecked
     T $this = (T) self;
+    TypeBase<?> secondOperandType = ProgramManager.getTypeForValue(o1);
+
+    @FunctionalInterface
+    interface InPlaceBinOperator<U> {
+      Object apply(final InPlaceBinOp<U> op, final BinaryOperator operator);
+
+      @FunctionalInterface
+      interface InPlaceBinOp<V> {
+        Object apply(Scope scope, V $self, Object o, boolean inPlace);
+      }
+    }
+    @FunctionalInterface
+    interface BinOperator<U> {
+      Object apply(final BinOp<U> op, final BinaryOperator operator);
+
+      @FunctionalInterface
+      interface BinOp<V> {
+        Object apply(Scope scope, V $self, Object o);
+      }
+    }
+    InPlaceBinOperator<T> inPlaceBinOperator = (op, binaryOperator) -> {
+      try {
+        return op.apply(scope, $this, o1, inPlace);
+      } catch (UnsupportedOperatorException | TypeException e) {
+        if (ProgramManager.getTypeForValue($this) != secondOperandType && !inPlace) {
+          return secondOperandType.reverseOperator(binaryOperator, scope, o1, $this);
+        }
+        throw e;
+      }
+    };
+    BinOperator<T> binOperator = (op, binaryOperator) -> {
+      try {
+        return op.apply(scope, $this, o1);
+      } catch (UnsupportedOperatorException | TypeException e) {
+        if (ProgramManager.getTypeForValue($this) != secondOperandType) {
+          return secondOperandType.reverseOperator(binaryOperator, scope, o1, $this);
+        }
+        throw e;
+      }
+    };
 
     if (operator instanceof UnaryOperator) {
       return switch ((UnaryOperator) operator) {
@@ -293,13 +371,13 @@ public abstract class TypeBase<T> {
       };
     } else if (operator instanceof BinaryOperator) {
       return switch ((BinaryOperator) operator) {
-        case PLUS -> this.__add__(scope, $this, o1, inPlace);
-        case SUB -> this.__sub__(scope, $this, o1, inPlace);
-        case MUL -> this.__mul__(scope, $this, o1, inPlace);
-        case DIV -> this.__div__(scope, $this, o1, inPlace);
-        case INT_DIV -> this.__intdiv__(scope, $this, o1, inPlace);
-        case MOD -> this.__mod__(scope, $this, o1, inPlace);
-        case POW -> this.__pow__(scope, $this, o1, inPlace);
+        case PLUS -> inPlaceBinOperator.apply(this::__add__, BinaryOperator.PLUS);
+        case SUB -> inPlaceBinOperator.apply(this::__sub__, BinaryOperator.SUB);
+        case MUL -> inPlaceBinOperator.apply(this::__mul__, BinaryOperator.MUL);
+        case DIV -> inPlaceBinOperator.apply(this::__div__, BinaryOperator.DIV);
+        case INT_DIV -> inPlaceBinOperator.apply(this::__intdiv__, BinaryOperator.INT_DIV);
+        case MOD -> inPlaceBinOperator.apply(this::__mod__, BinaryOperator.MOD);
+        case POW -> inPlaceBinOperator.apply(this::__pow__, BinaryOperator.POW);
         case EQUAL -> this.__eq__(scope, $this, o1);
         case NOT_EQUAL -> this.__neq__(scope, $this, o1);
         case GT -> this.__gt__(scope, $this, o1);
@@ -311,8 +389,8 @@ public abstract class TypeBase<T> {
           Object res = this.__in__(scope, $this, o1);
           yield !ProgramManager.getTypeForValue(res).toBoolean(res);
         }
-        case AND -> this.__and__(scope, $this, o1);
-        case OR -> this.__or__(scope, $this, o1);
+        case AND -> binOperator.apply(this::__and__, BinaryOperator.AND);
+        case OR -> binOperator.apply(this::__or__, BinaryOperator.OR);
         case GET_ITEM -> this.__get_item__(scope, $this, o1);
         case DEL_ITEM -> {
           this.__del_item__(scope, $this, o1);
@@ -435,6 +513,18 @@ public abstract class TypeBase<T> {
   }
 
   /**
+   * Method that performs the reverse "addition" operation.
+   *
+   * @param scope Scope the operation is performed from.
+   * @param self  Instance of this type to apply the operator to.
+   * @param o     The second object.
+   * @return The result of the operator.
+   */
+  protected Object __radd__(Scope scope, T self, Object o) {
+    throw new UnsupportedOperatorException(scope, BinaryOperator.PLUS, this, ProgramManager.getTypeForValue(o));
+  }
+
+  /**
    * Method that performs the "subtraction" operation.
    *
    * @param scope   Scope the operation is performed from.
@@ -444,6 +534,18 @@ public abstract class TypeBase<T> {
    * @return The result of the operator.
    */
   protected Object __sub__(Scope scope, T self, Object o, final boolean inPlace) {
+    throw new UnsupportedOperatorException(scope, BinaryOperator.SUB, this, ProgramManager.getTypeForValue(o));
+  }
+
+  /**
+   * Method that performs the reverse "subtraction" operation.
+   *
+   * @param scope Scope the operation is performed from.
+   * @param self  Instance of this type to apply the operator to.
+   * @param o     The second object.
+   * @return The result of the operator.
+   */
+  protected Object __rsub__(Scope scope, T self, Object o) {
     throw new UnsupportedOperatorException(scope, BinaryOperator.SUB, this, ProgramManager.getTypeForValue(o));
   }
 
@@ -461,6 +563,18 @@ public abstract class TypeBase<T> {
   }
 
   /**
+   * Method that performs the reverse "multiplication" operation.
+   *
+   * @param scope Scope the operation is performed from.
+   * @param self  Instance of this type to apply the operator to.
+   * @param o     The second object.
+   * @return The result of the operator.
+   */
+  protected Object __rmul__(Scope scope, T self, Object o) {
+    throw new UnsupportedOperatorException(scope, BinaryOperator.MUL, this, ProgramManager.getTypeForValue(o));
+  }
+
+  /**
    * Method that performs the "division" operation.
    *
    * @param scope   Scope the operation is performed from.
@@ -470,6 +584,18 @@ public abstract class TypeBase<T> {
    * @return The result of the operator.
    */
   protected Object __div__(Scope scope, T self, Object o, final boolean inPlace) {
+    throw new UnsupportedOperatorException(scope, BinaryOperator.DIV, this, ProgramManager.getTypeForValue(o));
+  }
+
+  /**
+   * Method that performs the reverse "division" operation.
+   *
+   * @param scope Scope the operation is performed from.
+   * @param self  Instance of this type to apply the operator to.
+   * @param o     The second object.
+   * @return The result of the operator.
+   */
+  protected Object __rdiv__(Scope scope, T self, Object o) {
     throw new UnsupportedOperatorException(scope, BinaryOperator.DIV, this, ProgramManager.getTypeForValue(o));
   }
 
@@ -487,6 +613,18 @@ public abstract class TypeBase<T> {
   }
 
   /**
+   * Method that performs the reverse "integer division" operation.
+   *
+   * @param scope Scope the operation is performed from.
+   * @param self  Instance of this type to apply the operator to.
+   * @param o     The second object.
+   * @return The result of the operator.
+   */
+  protected Object __rintdiv__(Scope scope, T self, Object o) {
+    return (long) Math.floor(((Number) this.__rdiv__(scope, self, o)).doubleValue());
+  }
+
+  /**
    * Method that performs the "modulus" operation.
    *
    * @param scope   Scope the operation is performed from.
@@ -500,6 +638,18 @@ public abstract class TypeBase<T> {
   }
 
   /**
+   * Method that performs the reverse "modulus" operation.
+   *
+   * @param scope Scope the operation is performed from.
+   * @param self  Instance of this type to apply the operator to.
+   * @param o     The second object.
+   * @return The result of the operator.
+   */
+  protected Object __rmod__(Scope scope, T self, Object o) {
+    throw new UnsupportedOperatorException(scope, BinaryOperator.MOD, this, ProgramManager.getTypeForValue(o));
+  }
+
+  /**
    * Method that performs the "power/exponent" operation.
    *
    * @param scope   Scope the operation is performed from.
@@ -509,6 +659,18 @@ public abstract class TypeBase<T> {
    * @return The result of the operator.
    */
   protected Object __pow__(Scope scope, T self, Object o, final boolean inPlace) {
+    throw new UnsupportedOperatorException(scope, BinaryOperator.POW, this, ProgramManager.getTypeForValue(o));
+  }
+
+  /**
+   * Method that performs the reverse "power/exponent" operation.
+   *
+   * @param scope Scope the operation is performed from.
+   * @param self  Instance of this type to apply the operator to.
+   * @param o     The second object.
+   * @return The result of the operator.
+   */
+  protected Object __rpow__(Scope scope, T self, Object o) {
     throw new UnsupportedOperatorException(scope, BinaryOperator.POW, this, ProgramManager.getTypeForValue(o));
   }
 
@@ -616,12 +778,27 @@ public abstract class TypeBase<T> {
    * @param o     The second object.
    * @return The result of the operator.
    */
-  @SuppressWarnings("unused")
-  protected Object __and__(Scope scope, T self, Object o) {
+  protected Object __and__(@SuppressWarnings("unused") Scope scope, T self, Object o) {
     if (!this.toBoolean(self)) {
       return self;
     } else {
       return o;
+    }
+  }
+
+  /**
+   * Method that performs the reverse "logical and" operation.
+   *
+   * @param scope Scope the operation is performed from.
+   * @param self  Instance of this type to apply the operator to.
+   * @param o     The second object.
+   * @return The result of the operator.
+   */
+  protected Object __rand__(@SuppressWarnings("unused") Scope scope, T self, Object o) {
+    if (!this.toBoolean(o)) {
+      return o;
+    } else {
+      return self;
     }
   }
 
@@ -633,12 +810,27 @@ public abstract class TypeBase<T> {
    * @param o     The second object.
    * @return The result of the operator.
    */
-  @SuppressWarnings("unused")
-  protected Object __or__(Scope scope, T self, Object o) {
+  protected Object __or__(@SuppressWarnings("unused") Scope scope, T self, Object o) {
     if (this.toBoolean(self)) {
       return self;
     } else {
       return o;
+    }
+  }
+
+  /**
+   * Method that performs the reverse "logical or" operation.
+   *
+   * @param scope Scope the operation is performed from.
+   * @param self  Instance of this type to apply the operator to.
+   * @param o     The second object.
+   * @return The result of the operator.
+   */
+  protected Object __ror__(@SuppressWarnings("unused") Scope scope, T self, Object o) {
+    if (this.toBoolean(o)) {
+      return o;
+    } else {
+      return self;
     }
   }
 
@@ -650,6 +842,26 @@ public abstract class TypeBase<T> {
    */
   protected boolean __bool__(final T self) {
     return true;
+  }
+
+  /**
+   * Convert the given instance object to an int value.
+   *
+   * @param self An instance of this type to convert.
+   * @return The int value for the object.
+   */
+  protected long __int__(final T self) {
+    throw new TypeException("cannot cast object of type %s to int".formatted(this));
+  }
+
+  /**
+   * Convert the given instance object to a float value.
+   *
+   * @param self An instance of this type to convert.
+   * @return The float value for the object.
+   */
+  protected double __float__(final T self) {
+    throw new TypeException("cannot cast object of type %s to float".formatted(this));
   }
 
   /**

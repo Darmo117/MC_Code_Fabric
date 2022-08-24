@@ -162,8 +162,6 @@ public class ListType extends TypeBase<MCList> {
         return this.add(scope, self, l, true);
       }
       return this.add(scope, new MCList(self), l, false);
-    } else if (o instanceof String s) {
-      return this.__str__(self) + s;
     }
     return super.__add__(scope, self, o, inPlace);
   }
@@ -213,9 +211,16 @@ public class ListType extends TypeBase<MCList> {
     return super.__mul__(scope, self, o, inPlace);
   }
 
+  @Override
+  protected Object __rmul__(final Scope scope, final MCList self, final Object o) {
+    return this.__mul__(scope, self, o, false);
+  }
+
   private MCList mul(final Scope scope, MCList list, final long nb) {
     if (nb <= 0) {
       list.clear();
+      return list;
+    } else if (nb == 1) {
       return list;
     }
     MCList temp = this.__copy__(scope, list);

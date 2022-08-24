@@ -31,14 +31,6 @@ public class BlockType extends TypeBase<Block> {
   }
 
   @Override
-  protected Object __add__(final Scope scope, final Block self, final Object o, boolean inPlace) {
-    if (o instanceof String s) {
-      return this.__str__(self) + s;
-    }
-    return super.__add__(scope, self, o, inPlace);
-  }
-
-  @Override
   protected Object __eq__(final Scope scope, final Block self, final Object o) {
     if (o instanceof Block b) {
       return this.getID(self).equals(this.getID(b));
