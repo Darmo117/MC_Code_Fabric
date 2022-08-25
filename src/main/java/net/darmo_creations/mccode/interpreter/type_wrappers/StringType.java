@@ -9,6 +9,7 @@ import net.darmo_creations.mccode.interpreter.annotations.Type;
 import net.darmo_creations.mccode.interpreter.exceptions.IndexOutOfBoundsException;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.types.MCList;
+import net.darmo_creations.mccode.interpreter.types.Range;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -189,14 +190,29 @@ public class StringType extends TypeBase<String> {
     return String.format(self, args);
   }
 
+  private int getIndex(final Scope scope, final String self, Long index) {
+    if (index < -self.length() || index >= self.length()) {
+      throw new IndexOutOfBoundsException(scope, index.intValue());
+    }
+    if (index < 0) {
+      index = self.length() + index;
+    }
+    return index.intValue();
+  }
+
+  private char getCharacter(final Scope scope, final String self, final Long index) {
+    return self.charAt(this.getIndex(scope, self, index));
+  }
+
   @Override
   protected Object __get_item__(final Scope scope, final String self, final Object key) {
     if (key instanceof Long || key instanceof Boolean) {
-      Long index = ProgramManager.getTypeInstance(IntType.class).implicitCast(scope, key);
-      if (index < 0 || index >= self.length()) {
-        throw new IndexOutOfBoundsException(scope, index.intValue());
-      }
-      return String.valueOf(self.charAt(index.intValue()));
+      long index = ProgramManager.getTypeForValue(key).toInt(key);
+      return String.valueOf(this.getCharacter(scope, self, index));
+    } else if (key instanceof Range r) {
+      StringBuilder sb = new StringBuilder();
+      r.iterator().forEachRemaining(i -> sb.append(this.getCharacter(scope, self, i)));
+      return sb.toString();
     }
     return super.__get_item__(scope, self, key);
   }

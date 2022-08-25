@@ -7,15 +7,18 @@ import net.darmo_creations.mccode.interpreter.annotations.ParameterMeta;
 import net.darmo_creations.mccode.interpreter.annotations.ReturnMeta;
 import net.darmo_creations.mccode.interpreter.annotations.Type;
 import net.darmo_creations.mccode.interpreter.exceptions.IndexOutOfBoundsException;
+import net.darmo_creations.mccode.interpreter.exceptions.MCCodeRuntimeException;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTagListTag;
 import net.darmo_creations.mccode.interpreter.tags.TagType;
 import net.darmo_creations.mccode.interpreter.types.MCList;
+import net.darmo_creations.mccode.interpreter.types.Range;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Wrapper type for {@link MCList} class.
@@ -116,14 +119,33 @@ public class ListType extends TypeBase<MCList> {
     return null;
   }
 
+  private int getIndex(final Scope scope, final MCList self, Long index) {
+    if (index < -self.size() || index >= self.size()) {
+      throw new IndexOutOfBoundsException(scope, index.intValue());
+    }
+    if (index < 0) {
+      index = self.size() + index;
+    }
+    return index.intValue();
+  }
+
+  private Object getItem(final Scope scope, final MCList self, final Long index) {
+    return self.get(this.getIndex(scope, self, index));
+  }
+
+  private void setItem(final Scope scope, MCList self, final Long index, final Object value) {
+    self.set(this.getIndex(scope, self, index), value);
+  }
+
   @Override
   protected Object __get_item__(final Scope scope, final MCList self, final Object key) {
     if (key instanceof Long || key instanceof Boolean) {
-      Long index = ProgramManager.getTypeInstance(IntType.class).implicitCast(scope, key);
-      if (index < 0 || index >= self.size()) {
-        throw new IndexOutOfBoundsException(scope, index.intValue());
-      }
-      return self.get(index.intValue());
+      long index = ProgramManager.getTypeForValue(key).toInt(key);
+      return this.getItem(scope, self, index);
+    } else if (key instanceof Range r) {
+      MCList list = new MCList();
+      r.iterator().forEachRemaining(i -> list.add(this.getItem(scope, self, i)));
+      return list;
     }
     return super.__get_item__(scope, self, key);
   }
@@ -131,12 +153,19 @@ public class ListType extends TypeBase<MCList> {
   @Override
   protected void __set_item__(final Scope scope, MCList self, final Object key, final Object value) {
     if (key instanceof Long || key instanceof Boolean) {
-      Long index = ProgramManager.getTypeInstance(IntType.class).implicitCast(scope, key);
-      if (index < 0 || index >= self.size()) {
-        throw new IndexOutOfBoundsException(scope, index.intValue());
+      long index = ProgramManager.getTypeForValue(key).toInt(key);
+      this.setItem(scope, self, index, ProgramManager.getTypeForValue(value).copy(scope, value));
+    } else if (key instanceof Range r) {
+      MCList list = this.implicitCast(scope, value);
+      if (list.size() != r.size()) {
+        throw new MCCodeRuntimeException(scope, null, "mccode.interpreter.error.mismatch_list_size", r.size(), list.size());
       }
-      // Deep copy value
-      self.set(index.intValue(), ProgramManager.getTypeForValue(value).copy(scope, value));
+      int j = 0;
+      for (long i : r) {
+        Object o = list.get(j);
+        this.setItem(scope, self, i, ProgramManager.getTypeForValue(o).copy(scope, o));
+        j++;
+      }
     } else {
       super.__set_item__(scope, self, key, value);
     }
@@ -145,11 +174,13 @@ public class ListType extends TypeBase<MCList> {
   @Override
   protected void __del_item__(final Scope scope, MCList self, final Object key) {
     if (key instanceof Long || key instanceof Boolean) {
-      Long index = ProgramManager.getTypeInstance(IntType.class).implicitCast(scope, key);
-      if (index < 0 || index >= self.size()) {
-        throw new IndexOutOfBoundsException(scope, index.intValue());
-      }
-      self.remove(index.intValue());
+      long index = ProgramManager.getTypeForValue(key).toInt(key);
+      self.remove(this.getIndex(scope, self, index));
+    } else if (key instanceof Range r) {
+      StreamSupport.stream(r.spliterator(), false)
+          .map(i -> this.getIndex(scope, self, i))
+          .sorted((i1, i2) -> -i1.compareTo(i2))
+          .forEach(i -> self.remove(i.intValue())); // intValue() is necessary to use List.remove(int) and not List.remove(Object)
     } else {
       super.__del_item__(scope, self, key);
     }
