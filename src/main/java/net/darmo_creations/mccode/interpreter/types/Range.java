@@ -72,8 +72,8 @@ public class Range implements Iterable<Long>, Cloneable {
 
       @Override
       public boolean hasNext() {
-        return Range.this.step > 0 && this.i < Range.this.end - Range.this.step + 1
-            || Range.this.step < 0 && this.i > Range.this.end + Range.this.step + 1;
+        return Range.this.step > 0 && this.i < Range.this.end
+            || Range.this.step < 0 && this.i > Range.this.end;
       }
 
       @Override
