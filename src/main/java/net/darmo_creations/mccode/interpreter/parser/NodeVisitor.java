@@ -38,7 +38,19 @@ public class NodeVisitor extends MCCodeBaseVisitor<Node> {
 
   @Override
   public Node visitIntLiteral(MCCodeParser.IntLiteralContext ctx) {
-    return new IntLiteralNode(Long.parseLong(ctx.INT().getText()),
+    String literal = ctx.INT().getText().toLowerCase().replace("_", "");
+    int radix = 10;
+    if (literal.startsWith("0x")) {
+      radix = 16;
+      literal = literal.substring(2);
+    } else if (literal.startsWith("0o")) {
+      radix = 8;
+      literal = literal.substring(2);
+    } else if (literal.startsWith("0b")) {
+      radix = 2;
+      literal = literal.substring(2);
+    }
+    return new IntLiteralNode(Long.parseLong(literal, radix),
         ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);
   }
 

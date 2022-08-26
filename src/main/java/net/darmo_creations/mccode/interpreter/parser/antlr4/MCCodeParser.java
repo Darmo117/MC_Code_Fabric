@@ -21,7 +21,7 @@ public class MCCodeParser extends Parser {
 		COMMA=9, COLON=10, SEMIC=11, DOT=12, VARARG=13, ASSIGN=14, PLUSA=15, MINUSA=16, 
 		MULA=17, DIVA=18, INTDIVA=19, MODA=20, POWERA=21, IANDA=22, IORA=23, IXORA=24, 
 		SHIFTLA=25, SHIFTRA=26, SHIFTRUA=27, PLUS=28, MINUS=29, MUL=30, DIV=31, 
-		INTDIV=32, MOD=33, POWER=34, INEG=35, IAND=36, IOR=37, IXOR=38, SHIFTL=39, 
+		INTDIV=32, MOD=33, POWER=34, NEG=35, IAND=36, IOR=37, IXOR=38, SHIFTL=39, 
 		SHIFTR=40, SHIFTRU=41, EQUAL=42, NEQUAL=43, GT=44, GE=45, LT=46, LE=47, 
 		IN=48, NOT=49, AND=50, OR=51, IMPORT=52, AS=53, SCHED=54, VAR=55, CONST=56, 
 		EDITABLE=57, PUBLIC=58, FUNC=59, RETURN=60, IF=61, THEN=62, ELSE=63, ELIF=64, 
@@ -61,7 +61,7 @@ public class MCCodeParser extends Parser {
 			"RCURL", "COMMA", "COLON", "SEMIC", "DOT", "VARARG", "ASSIGN", "PLUSA", 
 			"MINUSA", "MULA", "DIVA", "INTDIVA", "MODA", "POWERA", "IANDA", "IORA", 
 			"IXORA", "SHIFTLA", "SHIFTRA", "SHIFTRUA", "PLUS", "MINUS", "MUL", "DIV", 
-			"INTDIV", "MOD", "POWER", "INEG", "IAND", "IOR", "IXOR", "SHIFTL", "SHIFTR", 
+			"INTDIV", "MOD", "POWER", "NEG", "IAND", "IOR", "IXOR", "SHIFTL", "SHIFTR", 
 			"SHIFTRU", "EQUAL", "NEQUAL", "GT", "GE", "LT", "LE", "IN", "NOT", "AND", 
 			"OR", "IMPORT", "AS", "SCHED", "VAR", "CONST", "EDITABLE", "PUBLIC", 
 			"FUNC", "RETURN", "IF", "THEN", "ELSE", "ELIF", "WHILE", "FOR", "DO", 
@@ -223,7 +223,7 @@ public class MCCodeParser extends Parser {
 			setState(36);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << INEG) | (1L << NOT) | (1L << VAR) | (1L << CONST) | (1L << PUBLIC) | (1L << FUNC) | (1L << RETURN) | (1L << IF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (WHILE - 65)) | (1L << (FOR - 65)) | (1L << (DELETE - 65)) | (1L << (BREAK - 65)) | (1L << (CONTINUE - 65)) | (1L << (WAIT - 65)) | (1L << (TRY - 65)) | (1L << (NULL - 65)) | (1L << (TRUE - 65)) | (1L << (FALSE - 65)) | (1L << (INT - 65)) | (1L << (FLOAT - 65)) | (1L << (STRING - 65)) | (1L << (IDENT - 65)) | (1L << (CMDARG - 65)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << NEG) | (1L << NOT) | (1L << VAR) | (1L << CONST) | (1L << PUBLIC) | (1L << FUNC) | (1L << RETURN) | (1L << IF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (WHILE - 65)) | (1L << (FOR - 65)) | (1L << (DELETE - 65)) | (1L << (BREAK - 65)) | (1L << (CONTINUE - 65)) | (1L << (WAIT - 65)) | (1L << (TRY - 65)) | (1L << (NULL - 65)) | (1L << (TRUE - 65)) | (1L << (FALSE - 65)) | (1L << (INT - 65)) | (1L << (FLOAT - 65)) | (1L << (STRING - 65)) | (1L << (IDENT - 65)) | (1L << (CMDARG - 65)))) != 0)) {
 				{
 				{
 				setState(33);
@@ -651,7 +651,7 @@ public class MCCodeParser extends Parser {
 				setState(108);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << INEG) | (1L << NOT) | (1L << VAR) | (1L << CONST) | (1L << RETURN) | (1L << IF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (WHILE - 65)) | (1L << (FOR - 65)) | (1L << (DELETE - 65)) | (1L << (BREAK - 65)) | (1L << (CONTINUE - 65)) | (1L << (WAIT - 65)) | (1L << (TRY - 65)) | (1L << (NULL - 65)) | (1L << (TRUE - 65)) | (1L << (FALSE - 65)) | (1L << (INT - 65)) | (1L << (FLOAT - 65)) | (1L << (STRING - 65)) | (1L << (IDENT - 65)) | (1L << (CMDARG - 65)))) != 0)) {
+				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << NEG) | (1L << NOT) | (1L << VAR) | (1L << CONST) | (1L << RETURN) | (1L << IF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (WHILE - 65)) | (1L << (FOR - 65)) | (1L << (DELETE - 65)) | (1L << (BREAK - 65)) | (1L << (CONTINUE - 65)) | (1L << (WAIT - 65)) | (1L << (TRY - 65)) | (1L << (NULL - 65)) | (1L << (TRUE - 65)) | (1L << (FALSE - 65)) | (1L << (INT - 65)) | (1L << (FLOAT - 65)) | (1L << (STRING - 65)) | (1L << (IDENT - 65)) | (1L << (CMDARG - 65)))) != 0)) {
 					{
 					{
 					setState(105);
@@ -1197,7 +1197,7 @@ public class MCCodeParser extends Parser {
 				setState(137);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << INEG) | (1L << NOT) | (1L << VAR) | (1L << CONST) | (1L << RETURN) | (1L << IF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (WHILE - 65)) | (1L << (FOR - 65)) | (1L << (DELETE - 65)) | (1L << (BREAK - 65)) | (1L << (CONTINUE - 65)) | (1L << (WAIT - 65)) | (1L << (TRY - 65)) | (1L << (NULL - 65)) | (1L << (TRUE - 65)) | (1L << (FALSE - 65)) | (1L << (INT - 65)) | (1L << (FLOAT - 65)) | (1L << (STRING - 65)) | (1L << (IDENT - 65)) | (1L << (CMDARG - 65)))) != 0)) {
+				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << NEG) | (1L << NOT) | (1L << VAR) | (1L << CONST) | (1L << RETURN) | (1L << IF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (WHILE - 65)) | (1L << (FOR - 65)) | (1L << (DELETE - 65)) | (1L << (BREAK - 65)) | (1L << (CONTINUE - 65)) | (1L << (WAIT - 65)) | (1L << (TRY - 65)) | (1L << (NULL - 65)) | (1L << (TRUE - 65)) | (1L << (FALSE - 65)) | (1L << (INT - 65)) | (1L << (FLOAT - 65)) | (1L << (STRING - 65)) | (1L << (IDENT - 65)) | (1L << (CMDARG - 65)))) != 0)) {
 					{
 					{
 					setState(134);
@@ -1249,7 +1249,7 @@ public class MCCodeParser extends Parser {
 				setState(157);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << INEG) | (1L << NOT) | (1L << VAR) | (1L << CONST) | (1L << RETURN) | (1L << IF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (WHILE - 65)) | (1L << (FOR - 65)) | (1L << (DELETE - 65)) | (1L << (BREAK - 65)) | (1L << (CONTINUE - 65)) | (1L << (WAIT - 65)) | (1L << (TRY - 65)) | (1L << (NULL - 65)) | (1L << (TRUE - 65)) | (1L << (FALSE - 65)) | (1L << (INT - 65)) | (1L << (FLOAT - 65)) | (1L << (STRING - 65)) | (1L << (IDENT - 65)) | (1L << (CMDARG - 65)))) != 0)) {
+				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << NEG) | (1L << NOT) | (1L << VAR) | (1L << CONST) | (1L << RETURN) | (1L << IF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (WHILE - 65)) | (1L << (FOR - 65)) | (1L << (DELETE - 65)) | (1L << (BREAK - 65)) | (1L << (CONTINUE - 65)) | (1L << (WAIT - 65)) | (1L << (TRY - 65)) | (1L << (NULL - 65)) | (1L << (TRUE - 65)) | (1L << (FALSE - 65)) | (1L << (INT - 65)) | (1L << (FLOAT - 65)) | (1L << (STRING - 65)) | (1L << (IDENT - 65)) | (1L << (CMDARG - 65)))) != 0)) {
 					{
 					{
 					setState(154);
@@ -1281,7 +1281,7 @@ public class MCCodeParser extends Parser {
 				setState(170);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << INEG) | (1L << NOT) | (1L << VAR) | (1L << CONST) | (1L << RETURN) | (1L << IF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (WHILE - 65)) | (1L << (FOR - 65)) | (1L << (DELETE - 65)) | (1L << (BREAK - 65)) | (1L << (CONTINUE - 65)) | (1L << (WAIT - 65)) | (1L << (TRY - 65)) | (1L << (NULL - 65)) | (1L << (TRUE - 65)) | (1L << (FALSE - 65)) | (1L << (INT - 65)) | (1L << (FLOAT - 65)) | (1L << (STRING - 65)) | (1L << (IDENT - 65)) | (1L << (CMDARG - 65)))) != 0)) {
+				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << NEG) | (1L << NOT) | (1L << VAR) | (1L << CONST) | (1L << RETURN) | (1L << IF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (WHILE - 65)) | (1L << (FOR - 65)) | (1L << (DELETE - 65)) | (1L << (BREAK - 65)) | (1L << (CONTINUE - 65)) | (1L << (WAIT - 65)) | (1L << (TRY - 65)) | (1L << (NULL - 65)) | (1L << (TRUE - 65)) | (1L << (FALSE - 65)) | (1L << (INT - 65)) | (1L << (FLOAT - 65)) | (1L << (STRING - 65)) | (1L << (IDENT - 65)) | (1L << (CMDARG - 65)))) != 0)) {
 					{
 					{
 					setState(167);
@@ -1305,7 +1305,7 @@ public class MCCodeParser extends Parser {
 				setState(179);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << INEG) | (1L << NOT) | (1L << VAR) | (1L << CONST) | (1L << RETURN) | (1L << IF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (WHILE - 65)) | (1L << (FOR - 65)) | (1L << (DELETE - 65)) | (1L << (BREAK - 65)) | (1L << (CONTINUE - 65)) | (1L << (WAIT - 65)) | (1L << (TRY - 65)) | (1L << (NULL - 65)) | (1L << (TRUE - 65)) | (1L << (FALSE - 65)) | (1L << (INT - 65)) | (1L << (FLOAT - 65)) | (1L << (STRING - 65)) | (1L << (IDENT - 65)) | (1L << (CMDARG - 65)))) != 0)) {
+				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << NEG) | (1L << NOT) | (1L << VAR) | (1L << CONST) | (1L << RETURN) | (1L << IF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (WHILE - 65)) | (1L << (FOR - 65)) | (1L << (DELETE - 65)) | (1L << (BREAK - 65)) | (1L << (CONTINUE - 65)) | (1L << (WAIT - 65)) | (1L << (TRY - 65)) | (1L << (NULL - 65)) | (1L << (TRUE - 65)) | (1L << (FALSE - 65)) | (1L << (INT - 65)) | (1L << (FLOAT - 65)) | (1L << (STRING - 65)) | (1L << (IDENT - 65)) | (1L << (CMDARG - 65)))) != 0)) {
 					{
 					{
 					setState(176);
@@ -1363,7 +1363,7 @@ public class MCCodeParser extends Parser {
 				setState(195);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << INEG) | (1L << NOT))) != 0) || ((((_la - 77)) & ~0x3f) == 0 && ((1L << (_la - 77)) & ((1L << (NULL - 77)) | (1L << (TRUE - 77)) | (1L << (FALSE - 77)) | (1L << (INT - 77)) | (1L << (FLOAT - 77)) | (1L << (STRING - 77)) | (1L << (IDENT - 77)) | (1L << (CMDARG - 77)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << NEG) | (1L << NOT))) != 0) || ((((_la - 77)) & ~0x3f) == 0 && ((1L << (_la - 77)) & ((1L << (NULL - 77)) | (1L << (TRUE - 77)) | (1L << (FALSE - 77)) | (1L << (INT - 77)) | (1L << (FLOAT - 77)) | (1L << (STRING - 77)) | (1L << (IDENT - 77)) | (1L << (CMDARG - 77)))) != 0)) {
 					{
 					setState(194);
 					((ReturnStatementContext)_localctx).returned = expr(0);
@@ -1524,7 +1524,7 @@ public class MCCodeParser extends Parser {
 			setState(229);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << INEG) | (1L << NOT) | (1L << VAR) | (1L << CONST) | (1L << RETURN) | (1L << IF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (WHILE - 65)) | (1L << (FOR - 65)) | (1L << (DELETE - 65)) | (1L << (BREAK - 65)) | (1L << (CONTINUE - 65)) | (1L << (WAIT - 65)) | (1L << (TRY - 65)) | (1L << (NULL - 65)) | (1L << (TRUE - 65)) | (1L << (FALSE - 65)) | (1L << (INT - 65)) | (1L << (FLOAT - 65)) | (1L << (STRING - 65)) | (1L << (IDENT - 65)) | (1L << (CMDARG - 65)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << NEG) | (1L << NOT) | (1L << VAR) | (1L << CONST) | (1L << RETURN) | (1L << IF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (WHILE - 65)) | (1L << (FOR - 65)) | (1L << (DELETE - 65)) | (1L << (BREAK - 65)) | (1L << (CONTINUE - 65)) | (1L << (WAIT - 65)) | (1L << (TRY - 65)) | (1L << (NULL - 65)) | (1L << (TRUE - 65)) | (1L << (FALSE - 65)) | (1L << (INT - 65)) | (1L << (FLOAT - 65)) | (1L << (STRING - 65)) | (1L << (IDENT - 65)) | (1L << (CMDARG - 65)))) != 0)) {
 				{
 				{
 				setState(226);
@@ -1587,7 +1587,7 @@ public class MCCodeParser extends Parser {
 			setState(236);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << INEG) | (1L << NOT) | (1L << VAR) | (1L << CONST) | (1L << RETURN) | (1L << IF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (WHILE - 65)) | (1L << (FOR - 65)) | (1L << (DELETE - 65)) | (1L << (BREAK - 65)) | (1L << (CONTINUE - 65)) | (1L << (WAIT - 65)) | (1L << (TRY - 65)) | (1L << (NULL - 65)) | (1L << (TRUE - 65)) | (1L << (FALSE - 65)) | (1L << (INT - 65)) | (1L << (FLOAT - 65)) | (1L << (STRING - 65)) | (1L << (IDENT - 65)) | (1L << (CMDARG - 65)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << NEG) | (1L << NOT) | (1L << VAR) | (1L << CONST) | (1L << RETURN) | (1L << IF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (WHILE - 65)) | (1L << (FOR - 65)) | (1L << (DELETE - 65)) | (1L << (BREAK - 65)) | (1L << (CONTINUE - 65)) | (1L << (WAIT - 65)) | (1L << (TRY - 65)) | (1L << (NULL - 65)) | (1L << (TRUE - 65)) | (1L << (FALSE - 65)) | (1L << (INT - 65)) | (1L << (FLOAT - 65)) | (1L << (STRING - 65)) | (1L << (IDENT - 65)) | (1L << (CMDARG - 65)))) != 0)) {
 				{
 				{
 				setState(233);
@@ -1656,7 +1656,7 @@ public class MCCodeParser extends Parser {
 			setState(245);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << INEG) | (1L << NOT) | (1L << VAR) | (1L << CONST) | (1L << RETURN) | (1L << IF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (WHILE - 65)) | (1L << (FOR - 65)) | (1L << (DELETE - 65)) | (1L << (BREAK - 65)) | (1L << (CONTINUE - 65)) | (1L << (WAIT - 65)) | (1L << (TRY - 65)) | (1L << (NULL - 65)) | (1L << (TRUE - 65)) | (1L << (FALSE - 65)) | (1L << (INT - 65)) | (1L << (FLOAT - 65)) | (1L << (STRING - 65)) | (1L << (IDENT - 65)) | (1L << (CMDARG - 65)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << NEG) | (1L << NOT) | (1L << VAR) | (1L << CONST) | (1L << RETURN) | (1L << IF))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (WHILE - 65)) | (1L << (FOR - 65)) | (1L << (DELETE - 65)) | (1L << (BREAK - 65)) | (1L << (CONTINUE - 65)) | (1L << (WAIT - 65)) | (1L << (TRY - 65)) | (1L << (NULL - 65)) | (1L << (TRUE - 65)) | (1L << (FALSE - 65)) | (1L << (INT - 65)) | (1L << (FLOAT - 65)) | (1L << (STRING - 65)) | (1L << (IDENT - 65)) | (1L << (CMDARG - 65)))) != 0)) {
 				{
 				{
 				setState(242);
@@ -1987,7 +1987,7 @@ public class MCCodeParser extends Parser {
 			return getRuleContext(ExprContext.class,0);
 		}
 		public TerminalNode MINUS() { return getToken(MCCodeParser.MINUS, 0); }
-		public TerminalNode INEG() { return getToken(MCCodeParser.INEG, 0); }
+		public TerminalNode NEG() { return getToken(MCCodeParser.NEG, 0); }
 		public TerminalNode NOT() { return getToken(MCCodeParser.NOT, 0); }
 		public UnaryOperatorContext(ExprContext ctx) { copyFrom(ctx); }
 		@Override
@@ -2217,7 +2217,7 @@ public class MCCodeParser extends Parser {
 				setState(271);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << INEG) | (1L << NOT))) != 0) || ((((_la - 77)) & ~0x3f) == 0 && ((1L << (_la - 77)) & ((1L << (NULL - 77)) | (1L << (TRUE - 77)) | (1L << (FALSE - 77)) | (1L << (INT - 77)) | (1L << (FLOAT - 77)) | (1L << (STRING - 77)) | (1L << (IDENT - 77)) | (1L << (CMDARG - 77)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << NEG) | (1L << NOT))) != 0) || ((((_la - 77)) & ~0x3f) == 0 && ((1L << (_la - 77)) & ((1L << (NULL - 77)) | (1L << (TRUE - 77)) | (1L << (FALSE - 77)) | (1L << (INT - 77)) | (1L << (FLOAT - 77)) | (1L << (STRING - 77)) | (1L << (IDENT - 77)) | (1L << (CMDARG - 77)))) != 0)) {
 					{
 					setState(260);
 					expr(0);
@@ -2362,7 +2362,7 @@ public class MCCodeParser extends Parser {
 				setState(307);
 				((UnaryOperatorContext)_localctx).operator = _input.LT(1);
 				_la = _input.LA(1);
-				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << MINUS) | (1L << INEG) | (1L << NOT))) != 0)) ) {
+				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << MINUS) | (1L << NEG) | (1L << NOT))) != 0)) ) {
 					((UnaryOperatorContext)_localctx).operator = (Token)_errHandler.recoverInline(this);
 				}
 				else {
@@ -2636,7 +2636,7 @@ public class MCCodeParser extends Parser {
 						setState(370);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
-						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << INEG) | (1L << NOT))) != 0) || ((((_la - 77)) & ~0x3f) == 0 && ((1L << (_la - 77)) & ((1L << (NULL - 77)) | (1L << (TRUE - 77)) | (1L << (FALSE - 77)) | (1L << (INT - 77)) | (1L << (FLOAT - 77)) | (1L << (STRING - 77)) | (1L << (IDENT - 77)) | (1L << (CMDARG - 77)))) != 0)) {
+						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << NEG) | (1L << NOT))) != 0) || ((((_la - 77)) & ~0x3f) == 0 && ((1L << (_la - 77)) & ((1L << (NULL - 77)) | (1L << (TRUE - 77)) | (1L << (FALSE - 77)) | (1L << (INT - 77)) | (1L << (FLOAT - 77)) | (1L << (STRING - 77)) | (1L << (IDENT - 77)) | (1L << (CMDARG - 77)))) != 0)) {
 							{
 							setState(359);
 							expr(0);
@@ -2699,7 +2699,7 @@ public class MCCodeParser extends Parser {
 						setState(389);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
-						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << INEG) | (1L << NOT))) != 0) || ((((_la - 77)) & ~0x3f) == 0 && ((1L << (_la - 77)) & ((1L << (NULL - 77)) | (1L << (TRUE - 77)) | (1L << (FALSE - 77)) | (1L << (INT - 77)) | (1L << (FLOAT - 77)) | (1L << (STRING - 77)) | (1L << (IDENT - 77)) | (1L << (CMDARG - 77)))) != 0)) {
+						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAREN) | (1L << LBRACK) | (1L << LCURL) | (1L << MINUS) | (1L << NEG) | (1L << NOT))) != 0) || ((((_la - 77)) & ~0x3f) == 0 && ((1L << (_la - 77)) & ((1L << (NULL - 77)) | (1L << (TRUE - 77)) | (1L << (FALSE - 77)) | (1L << (INT - 77)) | (1L << (FLOAT - 77)) | (1L << (STRING - 77)) | (1L << (IDENT - 77)) | (1L << (CMDARG - 77)))) != 0)) {
 							{
 							setState(378);
 							expr(0);
