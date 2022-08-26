@@ -139,7 +139,7 @@ public class IntType extends TypeBase<Long> {
     if (isFloat(o)) {
       return Math.pow(self, ProgramManager.getTypeForValue(o).toFloat(o));
     }
-    return Math.pow(self, ProgramManager.getTypeForValue(o).toInt(o));
+    return (long) Math.pow(self, ProgramManager.getTypeForValue(o).toInt(o));
   }
 
   @Override
@@ -147,7 +147,7 @@ public class IntType extends TypeBase<Long> {
     if (isFloat(o)) {
       return Math.pow(ProgramManager.getTypeForValue(o).toFloat(o), self);
     }
-    return Math.pow(ProgramManager.getTypeForValue(o).toInt(o), self);
+    return (long) Math.pow(ProgramManager.getTypeForValue(o).toInt(o), self);
   }
 
   @Override
