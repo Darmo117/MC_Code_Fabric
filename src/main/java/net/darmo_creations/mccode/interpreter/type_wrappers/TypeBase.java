@@ -352,7 +352,11 @@ public abstract class TypeBase<T> {
         return op.apply(scope, $this, o1, inPlace);
       } catch (UnsupportedOperatorException | TypeException e) {
         if (ProgramManager.getTypeForValue($this) != secondOperandType && !inPlace) {
-          return secondOperandType.reverseOperator(binaryOperator, scope, o1, $this);
+          try {
+            return secondOperandType.reverseOperator(binaryOperator, scope, o1, $this);
+          } catch (UnsupportedOperatorException | TypeException ignored) {
+            // Rethrow the original error below for coherence
+          }
         }
         throw e;
       }
@@ -362,7 +366,11 @@ public abstract class TypeBase<T> {
         return op.apply(scope, $this, o1);
       } catch (UnsupportedOperatorException | TypeException e) {
         if (ProgramManager.getTypeForValue($this) != secondOperandType) {
-          return secondOperandType.reverseOperator(binaryOperator, scope, o1, $this);
+          try {
+            return secondOperandType.reverseOperator(binaryOperator, scope, o1, $this);
+          } catch (UnsupportedOperatorException | TypeException ignored) {
+            // Rethrow the original error below for coherence
+          }
         }
         throw e;
       }
