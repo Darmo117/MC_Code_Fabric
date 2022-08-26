@@ -56,7 +56,7 @@ public class NodeVisitor extends MCCodeBaseVisitor<Node> {
 
   @Override
   public Node visitFloatLiteral(MCCodeParser.FloatLiteralContext ctx) {
-    return new FloatLiteralNode(Double.parseDouble(ctx.FLOAT().getText()),
+    return new FloatLiteralNode(Double.parseDouble(ctx.FLOAT().getText().replace("_", "")),
         ctx.start.getLine(), ctx.start.getCharPositionInLine() + 1);
   }
 
