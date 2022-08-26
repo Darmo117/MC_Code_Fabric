@@ -132,12 +132,12 @@
         <keyword attribute="Builtin Constant" context="#stay" String="builtin_constants"/>
         <keyword attribute="Builtin Function" context="#stay" String="builtin_functions"/>
         <DetectChar attribute="String" context="string" char="&quot;"/>
-        <RegExpr attribute="Command Argument" context="#stay" String="\$(?:[$_]|\d+)(?=[^$\w])"/>
+        <RegExpr attribute="Command Argument" context="#stay" String="\$([$_]|\d+)(?=[^$\w])"/>
         <keyword attribute="Literal" context="#stay" String="literals"/>
         <DetectIdentifier attribute="Identifier"/>
         <DetectChar attribute="Comment" context="comment" char="#"/>
         <RegExpr attribute="Operator" context="#stay"
-                 String="(?:[:&lt;&gt;!=+*/%^&amp;|@-]=|//=|[~+*/%^&amp;|@:;,()[\]{}.&lt;&gt;-])"/>
+                 String="([:&lt;&gt;=!+*/%^|&amp;-]=|[~+*/%^|&amp;:;,()[\]{}.&lt;&gt;-])"/>
         <RegExpr attribute="Error" context="#stay" String="[^ \n\r\t]"/>
       </context>
       <context attribute="String" lineEndContext="#pop" name="string">

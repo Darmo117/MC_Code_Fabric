@@ -11,12 +11,12 @@ public enum BinaryOperator implements Operator {
   DIV("/"),
   INT_DIV("//"),
   MOD("%"),
-  POW("^"),
+  POW("**"),
 
   // Bit-wise
   IAND("&"),
   IOR("|"),
-  IXOR("@"),
+  IXOR("^"),
   SHIFTL("<<"),
   SHIFTR(">>"),
   SHIFTRU(">>>"),

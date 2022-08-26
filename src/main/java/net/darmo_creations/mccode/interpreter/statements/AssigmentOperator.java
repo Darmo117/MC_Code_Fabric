@@ -16,12 +16,12 @@ public enum AssigmentOperator {
   DIV("/=", BinaryOperator.DIV),
   INT_DIV("//=", BinaryOperator.INT_DIV),
   MOD("%=", BinaryOperator.MOD),
-  POW("^=", BinaryOperator.POW),
+  POW("**=", BinaryOperator.POW),
 
   // Bit-wise
   IAND("&=", BinaryOperator.IAND),
   IOR("|=", BinaryOperator.IOR),
-  IXOR("@=", BinaryOperator.IXOR),
+  IXOR("^=", BinaryOperator.IXOR),
   SHIFTL("<<=", BinaryOperator.SHIFTL),
   SHIFTR(">>=", BinaryOperator.SHIFTR),
   SHIFTRU(">>>=", BinaryOperator.SHIFTRU),
