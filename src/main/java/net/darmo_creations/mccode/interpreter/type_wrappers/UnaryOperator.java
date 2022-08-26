@@ -7,6 +7,9 @@ public enum UnaryOperator implements Operator {
   // Math
   MINUS("-"),
 
+  // Bit-wise
+  NEG("~"),
+
   // Logic
   NOT("not"),
 

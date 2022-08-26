@@ -13,6 +13,14 @@ public enum BinaryOperator implements Operator {
   MOD("%"),
   POW("^"),
 
+  // Bit-wise
+  IAND("&"),
+  IOR("|"),
+  IXOR("@"),
+  SHIFTL("<<"),
+  SHIFTR(">>"),
+  SHIFTRU(">>>"),
+
   // Comparison
   EQUAL("=="),
   NOT_EQUAL("!="),

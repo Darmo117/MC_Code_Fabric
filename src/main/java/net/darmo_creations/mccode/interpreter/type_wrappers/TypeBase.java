@@ -284,7 +284,7 @@ public abstract class TypeBase<T> {
   }
 
   @SuppressWarnings("unchecked")
-  protected Object reverseOperator(final BinaryOperator operator, Scope scope, Object self, Object o) {
+  protected final Object reverseOperator(final BinaryOperator operator, Scope scope, Object self, Object o) {
     return switch (operator) {
       case PLUS -> this.__radd__(scope, (T) self, o);
       case SUB -> this.__rsub__(scope, (T) self, o);
@@ -293,6 +293,12 @@ public abstract class TypeBase<T> {
       case INT_DIV -> this.__rintdiv__(scope, (T) self, o);
       case MOD -> this.__rmod__(scope, (T) self, o);
       case POW -> this.__rpow__(scope, (T) self, o);
+      case IAND -> this.__riand__(scope, (T) self, o);
+      case IOR -> this.__rior__(scope, (T) self, o);
+      case IXOR -> this.__rixor__(scope, (T) self, o);
+      case SHIFTL -> this.__rshiftl__(scope, (T) self, o);
+      case SHIFTR -> this.__rshiftr__(scope, (T) self, o);
+      case SHIFTRU -> this.__rshiftru__(scope, (T) self, o);
       case AND -> this.__rand__(scope, (T) self, o);
       case OR -> this.__ror__(scope, (T) self, o);
       default -> throw new MCCodeException("invalid reverse operator: got %s".formatted(operator));
@@ -366,6 +372,7 @@ public abstract class TypeBase<T> {
       return switch ((UnaryOperator) operator) {
         case MINUS -> this.__minus__(scope, $this);
         case NOT -> this.__not__(scope, $this);
+        case NEG -> this.__neg__(scope, $this);
         case ITERATE -> this.__iter__(scope, $this);
         case LENGTH -> this.__len__(scope, $this);
       };
@@ -378,6 +385,12 @@ public abstract class TypeBase<T> {
         case INT_DIV -> inPlaceBinOperator.apply(this::__intdiv__, BinaryOperator.INT_DIV);
         case MOD -> inPlaceBinOperator.apply(this::__mod__, BinaryOperator.MOD);
         case POW -> inPlaceBinOperator.apply(this::__pow__, BinaryOperator.POW);
+        case IAND -> inPlaceBinOperator.apply(this::__iand__, BinaryOperator.IAND);
+        case IOR -> inPlaceBinOperator.apply(this::__ior__, BinaryOperator.IOR);
+        case IXOR -> inPlaceBinOperator.apply(this::__ixor__, BinaryOperator.IXOR);
+        case SHIFTL -> inPlaceBinOperator.apply(this::__shiftl__, BinaryOperator.SHIFTL);
+        case SHIFTR -> inPlaceBinOperator.apply(this::__shiftr__, BinaryOperator.SHIFTR);
+        case SHIFTRU -> inPlaceBinOperator.apply(this::__shiftru__, BinaryOperator.SHIFTRU);
         case EQUAL -> this.__eq__(scope, $this, o1);
         case NOT_EQUAL -> this.__neq__(scope, $this, o1);
         case GT -> this.__gt__(scope, $this, o1);
@@ -497,6 +510,18 @@ public abstract class TypeBase<T> {
   @SuppressWarnings("unused")
   protected Object __not__(Scope scope, T self) {
     return !this.toBoolean(self);
+  }
+
+  /**
+   * Method that performs the "negation" operation.
+   *
+   * @param scope Scope the operation is performed from.
+   * @param self  Instance of this type to apply the operator to.
+   * @return The result of the operator.
+   */
+  @SuppressWarnings("unused")
+  protected Object __neg__(Scope scope, T self) {
+    throw new UnsupportedOperatorException(scope, UnaryOperator.NEG, this);
   }
 
   /**
@@ -672,6 +697,156 @@ public abstract class TypeBase<T> {
    */
   protected Object __rpow__(Scope scope, T self, Object o) {
     throw new UnsupportedOperatorException(scope, BinaryOperator.POW, this, ProgramManager.getTypeForValue(o));
+  }
+
+  /**
+   * Method that performs the "bit-wise and" operation.
+   *
+   * @param scope   Scope the operation is performed from.
+   * @param self    Instance of this type to apply the operator to.
+   * @param o       The second object.
+   * @param inPlace Whether this operation should modify the instance instead of creating a new one.
+   * @return The result of the operator.
+   */
+  protected Object __iand__(Scope scope, T self, Object o, final boolean inPlace) {
+    throw new UnsupportedOperatorException(scope, BinaryOperator.IAND, this, ProgramManager.getTypeForValue(o));
+  }
+
+  /**
+   * Method that performs the reverse "bit-wise and" operation.
+   *
+   * @param scope Scope the operation is performed from.
+   * @param self  Instance of this type to apply the operator to.
+   * @param o     The second object.
+   * @return The result of the operator.
+   */
+  protected Object __riand__(Scope scope, T self, Object o) {
+    throw new UnsupportedOperatorException(scope, BinaryOperator.IAND, this, ProgramManager.getTypeForValue(o));
+  }
+
+  /**
+   * Method that performs the "bit-wise or" operation.
+   *
+   * @param scope   Scope the operation is performed from.
+   * @param self    Instance of this type to apply the operator to.
+   * @param o       The second object.
+   * @param inPlace Whether this operation should modify the instance instead of creating a new one.
+   * @return The result of the operator.
+   */
+  protected Object __ior__(Scope scope, T self, Object o, final boolean inPlace) {
+    throw new UnsupportedOperatorException(scope, BinaryOperator.IOR, this, ProgramManager.getTypeForValue(o));
+  }
+
+  /**
+   * Method that performs the reverse "bit-wise or" operation.
+   *
+   * @param scope Scope the operation is performed from.
+   * @param self  Instance of this type to apply the operator to.
+   * @param o     The second object.
+   * @return The result of the operator.
+   */
+  protected Object __rior__(Scope scope, T self, Object o) {
+    throw new UnsupportedOperatorException(scope, BinaryOperator.IOR, this, ProgramManager.getTypeForValue(o));
+  }
+
+  /**
+   * Method that performs the "bit-wise exclusive-or" operation.
+   *
+   * @param scope   Scope the operation is performed from.
+   * @param self    Instance of this type to apply the operator to.
+   * @param o       The second object.
+   * @param inPlace Whether this operation should modify the instance instead of creating a new one.
+   * @return The result of the operator.
+   */
+  protected Object __ixor__(Scope scope, T self, Object o, final boolean inPlace) {
+    throw new UnsupportedOperatorException(scope, BinaryOperator.IXOR, this, ProgramManager.getTypeForValue(o));
+  }
+
+  /**
+   * Method that performs the reverse "bit-wise exclusive-or" operation.
+   *
+   * @param scope Scope the operation is performed from.
+   * @param self  Instance of this type to apply the operator to.
+   * @param o     The second object.
+   * @return The result of the operator.
+   */
+  protected Object __rixor__(Scope scope, T self, Object o) {
+    throw new UnsupportedOperatorException(scope, BinaryOperator.IXOR, this, ProgramManager.getTypeForValue(o));
+  }
+
+  /**
+   * Method that performs the "leftwards bit shift" operation.
+   *
+   * @param scope   Scope the operation is performed from.
+   * @param self    Instance of this type to apply the operator to.
+   * @param o       The second object.
+   * @param inPlace Whether this operation should modify the instance instead of creating a new one.
+   * @return The result of the operator.
+   */
+  protected Object __shiftl__(Scope scope, T self, Object o, final boolean inPlace) {
+    throw new UnsupportedOperatorException(scope, BinaryOperator.SHIFTL, this, ProgramManager.getTypeForValue(o));
+  }
+
+  /**
+   * Method that performs the reverse "leftwards bit shift" operation.
+   *
+   * @param scope Scope the operation is performed from.
+   * @param self  Instance of this type to apply the operator to.
+   * @param o     The second object.
+   * @return The result of the operator.
+   */
+  protected Object __rshiftl__(Scope scope, T self, Object o) {
+    throw new UnsupportedOperatorException(scope, BinaryOperator.SHIFTL, this, ProgramManager.getTypeForValue(o));
+  }
+
+  /**
+   * Method that performs the "rightwards bit shift" operation.
+   *
+   * @param scope   Scope the operation is performed from.
+   * @param self    Instance of this type to apply the operator to.
+   * @param o       The second object.
+   * @param inPlace Whether this operation should modify the instance instead of creating a new one.
+   * @return The result of the operator.
+   */
+  protected Object __shiftr__(Scope scope, T self, Object o, final boolean inPlace) {
+    throw new UnsupportedOperatorException(scope, BinaryOperator.SHIFTR, this, ProgramManager.getTypeForValue(o));
+  }
+
+  /**
+   * Method that performs the reverse "rightwards bit shift" operation.
+   *
+   * @param scope Scope the operation is performed from.
+   * @param self  Instance of this type to apply the operator to.
+   * @param o     The second object.
+   * @return The result of the operator.
+   */
+  protected Object __rshiftr__(Scope scope, T self, Object o) {
+    throw new UnsupportedOperatorException(scope, BinaryOperator.SHIFTR, this, ProgramManager.getTypeForValue(o));
+  }
+
+  /**
+   * Method that performs the "unsigned rightwards bit shift" operation.
+   *
+   * @param scope   Scope the operation is performed from.
+   * @param self    Instance of this type to apply the operator to.
+   * @param o       The second object.
+   * @param inPlace Whether this operation should modify the instance instead of creating a new one.
+   * @return The result of the operator.
+   */
+  protected Object __shiftru__(Scope scope, T self, Object o, final boolean inPlace) {
+    throw new UnsupportedOperatorException(scope, BinaryOperator.SHIFTRU, this, ProgramManager.getTypeForValue(o));
+  }
+
+  /**
+   * Method that performs the reverse "unsigned rightwards bit shift" operation.
+   *
+   * @param scope Scope the operation is performed from.
+   * @param self  Instance of this type to apply the operator to.
+   * @param o     The second object.
+   * @return The result of the operator.
+   */
+  protected Object __rshiftru__(Scope scope, T self, Object o) {
+    throw new UnsupportedOperatorException(scope, BinaryOperator.SHIFTRU, this, ProgramManager.getTypeForValue(o));
   }
 
   /**

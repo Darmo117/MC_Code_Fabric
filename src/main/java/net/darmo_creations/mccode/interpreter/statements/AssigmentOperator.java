@@ -17,6 +17,14 @@ public enum AssigmentOperator {
   INT_DIV("//=", BinaryOperator.INT_DIV),
   MOD("%=", BinaryOperator.MOD),
   POW("^=", BinaryOperator.POW),
+
+  // Bit-wise
+  IAND("&=", BinaryOperator.IAND),
+  IOR("|=", BinaryOperator.IOR),
+  IXOR("@=", BinaryOperator.IXOR),
+  SHIFTL("<<=", BinaryOperator.SHIFTL),
+  SHIFTR(">>=", BinaryOperator.SHIFTR),
+  SHIFTRU(">>>=", BinaryOperator.SHIFTRU),
   ;
 
   private final String symbol;

@@ -23,6 +23,12 @@ DIVA  : '/=';
 INTDIVA: '//=';
 MODA  : '%=';
 POWERA: '^=';
+IANDA : '&=';
+IORA  : '|=';
+IXORA : '@=';
+SHIFTLA: '<<=';
+SHIFTRA: '>>=';
+SHIFTRUA: '>>>=';
 
 PLUS  : '+';
 MINUS : '-';
@@ -31,6 +37,13 @@ DIV   : '/';
 INTDIV: '//';
 MOD   : '%';
 POWER : '^';
+NEG  : '~';
+IAND  : '&';
+IOR   : '|';
+IXOR  : '@';
+SHIFTL: '<<';
+SHIFTR: '>>';
+SHIFTRU: '>>>';
 
 EQUAL : '==';
 NEQUAL: '!=';
@@ -107,9 +120,9 @@ statement:
   | BREAK SEMIC     # BreakStatement // ID: 60 Raises an error if outside of a loop
   | CONTINUE SEMIC  # ContinueStatement // ID: 61 Raises an error if outside of a loop
   | RETURN (returned=expr)? SEMIC # ReturnStatement // ID: 62 Raises an error if outside of a function
-  | name=IDENT operator=(ASSIGN | PLUSA | MINUSA | MULA | DIVA | INTDIVA | MODA | POWERA) value=expr SEMIC                         # VariableAssignmentStatement // ID: 12
-  | target=expr LBRACK key=expr RBRACK operator=(ASSIGN | PLUSA | MINUSA | MULA | DIVA | INTDIVA | MODA | POWERA) value=expr SEMIC # SetItemStatement // ID: 13
-  | target=expr DOT name=IDENT operator=(ASSIGN | PLUSA | MINUSA | MULA | DIVA | INTDIVA | MODA | POWERA) value=expr SEMIC         # SetPropertyStatement // ID: 14
+  | name=IDENT operator=(ASSIGN | PLUSA | MINUSA | MULA | DIVA | INTDIVA | MODA | POWERA | IANDA | IORA | IXORA | SHIFTLA | SHIFTRA | SHIFTRUA) value=expr SEMIC                         # VariableAssignmentStatement // ID: 12
+  | target=expr LBRACK key=expr RBRACK operator=(ASSIGN | PLUSA | MINUSA | MULA | DIVA | INTDIVA | MODA | POWERA | IANDA | IORA | IXORA | SHIFTLA | SHIFTRA | SHIFTRUA) value=expr SEMIC # SetItemStatement // ID: 13
+  | target=expr DOT name=IDENT operator=(ASSIGN | PLUSA | MINUSA | MULA | DIVA | INTDIVA | MODA | POWERA | IANDA | IORA | IXORA | SHIFTLA | SHIFTRA | SHIFTRUA) value=expr SEMIC         # SetPropertyStatement // ID: 14
   | expr SEMIC # ExpressionStatement // ID: 30
 ;
 
@@ -134,13 +147,16 @@ expr:
   | object=expr DOT property=IDENT LPAREN (expr (COMMA expr)* COMMA?)? RPAREN # MethodCall // ID: 102
   | object=expr DOT property=IDENT                  # GetProperty // ID: 101
   | expr LPAREN (expr (COMMA expr)* COMMA?)? RPAREN # FunctionCall // ID: 103
-  | operator=(MINUS | NOT) operand=expr             # UnaryOperator // IDs: 200
+  | operator=(MINUS | NEG | NOT) operand=expr      # UnaryOperator // IDs: 200
   | start_=expr COLON end_=expr COLON step=expr # RangeLiteral // ID: 8
   | start_=expr COLON end_=expr                 # RangeLiteral // ID: 8
   | source=expr LBRACK key=expr RBRACK              # GetItem // ID: 201
   | left=expr operator=POWER right=expr             # BinaryOperator // ID: 201
   | left=expr operator=(MUL | DIV | INTDIV | MOD) right=expr # BinaryOperator // ID: 201
   | left=expr operator=(PLUS | MINUS) right=expr    # BinaryOperator // ID: 201
+  | left=expr operator=IAND right=expr              # BinaryOperator // ID: 201
+  | left=expr operator=(IOR | IXOR) right=expr      # BinaryOperator // ID: 201
+  | left=expr operator=(SHIFTL | SHIFTR | SHIFTRU) right=expr # BinaryOperator // ID: 201
   | left=expr NOT? IN right=expr                    # BinaryOperator // ID: 201
   | left=expr operator=(EQUAL | NEQUAL | GT | GE | LT | LE) right=expr # BinaryOperator // ID: 201
   | left=expr operator=AND right=expr               # BinaryOperator // ID: 201

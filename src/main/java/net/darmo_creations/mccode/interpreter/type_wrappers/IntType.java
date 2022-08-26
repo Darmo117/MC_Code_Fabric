@@ -28,6 +28,11 @@ public class IntType extends TypeBase<Long> {
     return -self;
   }
 
+  @Override
+  protected Object __neg__(final Scope scope, final Long self) {
+    return ~self;
+  }
+
   /**
    * Checks whether an object can be converted to a float.
    */
@@ -143,6 +148,87 @@ public class IntType extends TypeBase<Long> {
       return Math.pow(ProgramManager.getTypeForValue(o).toFloat(o), self);
     }
     return Math.pow(ProgramManager.getTypeForValue(o).toInt(o), self);
+  }
+
+  @Override
+  protected Object __iand__(final Scope scope, final Long self, final Object o, final boolean inPlace) {
+    if (isFloat(o)) {
+      return super.__iand__(scope, self, o, inPlace);
+    }
+    return self & ProgramManager.getTypeForValue(o).toInt(o);
+  }
+
+  @Override
+  protected Object __riand__(final Scope scope, final Long self, final Object o) {
+    if (isFloat(o)) {
+      return super.__iand__(scope, self, o, false);
+    }
+    return ProgramManager.getTypeForValue(o).toInt(o) & self;
+  }
+
+  @Override
+  protected Object __ior__(final Scope scope, final Long self, final Object o, final boolean inPlace) {
+    if (isFloat(o)) {
+      return super.__ior__(scope, self, o, inPlace);
+    }
+    return self | ProgramManager.getTypeForValue(o).toInt(o);
+  }
+
+  @Override
+  protected Object __rior__(final Scope scope, final Long self, final Object o) {
+    return this.__ior__(scope, self, o, false);
+  }
+
+  @Override
+  protected Object __ixor__(final Scope scope, final Long self, final Object o, final boolean inPlace) {
+    if (isFloat(o)) {
+      return super.__ixor__(scope, self, o, inPlace);
+    }
+    return self ^ ProgramManager.getTypeForValue(o).toInt(o);
+  }
+
+  @Override
+  protected Object __rixor__(final Scope scope, final Long self, final Object o) {
+    return this.__ixor__(scope, self, o, false);
+  }
+
+  @Override
+  protected Object __shiftl__(final Scope scope, final Long self, final Object o, final boolean inPlace) {
+    if (isFloat(o)) {
+      return super.__shiftl__(scope, self, o, inPlace);
+    }
+    return self << ProgramManager.getTypeForValue(o).toInt(o);
+  }
+
+  @Override
+  protected Object __rshiftl__(final Scope scope, final Long self, final Object o) {
+    return ProgramManager.getTypeForValue(o).toInt(o) << self;
+  }
+
+  @Override
+  protected Object __shiftr__(final Scope scope, final Long self, final Object o, final boolean inPlace) {
+    if (isFloat(o)) {
+      return super.__shiftr__(scope, self, o, inPlace);
+    }
+    return self >> ProgramManager.getTypeForValue(o).toInt(o);
+  }
+
+  @Override
+  protected Object __rshiftr__(final Scope scope, final Long self, final Object o) {
+    return ProgramManager.getTypeForValue(o).toInt(o) >> self;
+  }
+
+  @Override
+  protected Object __shiftru__(final Scope scope, final Long self, final Object o, final boolean inPlace) {
+    if (isFloat(o)) {
+      return super.__shiftru__(scope, self, o, inPlace);
+    }
+    return self >>> ProgramManager.getTypeForValue(o).toInt(o);
+  }
+
+  @Override
+  protected Object __rshiftru__(final Scope scope, final Long self, final Object o) {
+    return ProgramManager.getTypeForValue(o).toInt(o) >>> self;
   }
 
   @Override
