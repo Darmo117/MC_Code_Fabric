@@ -26,6 +26,11 @@ public class BooleanType extends TypeBase<Boolean> {
   }
 
   @Override
+  protected Object __neg__(final Scope scope, final Boolean self) {
+    return ~this.toInt(self);
+  }
+
+  @Override
   protected Object __add__(final Scope scope, final Boolean self, final Object o, final boolean inPlace) {
     if (o instanceof Boolean b) {
       return this.toInt(self) + this.toInt(b);
@@ -88,6 +93,54 @@ public class BooleanType extends TypeBase<Boolean> {
       return this.toInt(self || !b);
     }
     return super.__pow__(scope, self, o, inPlace);
+  }
+
+  @Override
+  protected Object __iand__(final Scope scope, final Boolean self, final Object o, final boolean inPlace) {
+    if (o instanceof Boolean b) {
+      return this.toInt(self) & this.toInt(b);
+    }
+    return super.__iand__(scope, self, o, inPlace);
+  }
+
+  @Override
+  protected Object __ior__(final Scope scope, final Boolean self, final Object o, final boolean inPlace) {
+    if (o instanceof Boolean b) {
+      return this.toInt(self) | this.toInt(b);
+    }
+    return super.__ior__(scope, self, o, inPlace);
+  }
+
+  @Override
+  protected Object __ixor__(final Scope scope, final Boolean self, final Object o, final boolean inPlace) {
+    if (o instanceof Boolean b) {
+      return this.toInt(self) ^ this.toInt(b);
+    }
+    return super.__ixor__(scope, self, o, inPlace);
+  }
+
+  @Override
+  protected Object __shiftl__(final Scope scope, final Boolean self, final Object o, final boolean inPlace) {
+    if (o instanceof Boolean b) {
+      return this.toInt(self) << this.toInt(b);
+    }
+    return super.__shiftl__(scope, self, o, inPlace);
+  }
+
+  @Override
+  protected Object __shiftr__(final Scope scope, final Boolean self, final Object o, final boolean inPlace) {
+    if (o instanceof Boolean b) {
+      return this.toInt(self) >> this.toInt(b);
+    }
+    return super.__shiftr__(scope, self, o, inPlace);
+  }
+
+  @Override
+  protected Object __shiftru__(final Scope scope, final Boolean self, final Object o, final boolean inPlace) {
+    if (o instanceof Boolean b) {
+      return this.toInt(self) >>> this.toInt(b);
+    }
+    return super.__shiftru__(scope, self, o, inPlace);
   }
 
   @Override
