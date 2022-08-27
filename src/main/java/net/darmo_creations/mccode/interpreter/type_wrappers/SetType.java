@@ -56,9 +56,9 @@ public class SetType extends TypeBase<MCSet> {
 
   @Method(name = "is_disjoint",
       parametersMetadata = {
-          @ParameterMeta(name = "s", doc = "A `set.")
+          @ParameterMeta(name = "other", doc = "A `set.")
       },
-      returnTypeMetadata = @ReturnMeta(doc = "#True if both sets share no elements, false if they have at least one in common."),
+      returnTypeMetadata = @ReturnMeta(doc = "#True if both sets share no elements, #false if they have at least one in common."),
       doc = "Checks whether this `set and the provided one have no elements in common.")
   public Boolean isDisjoint(final Scope scope, final MCSet self, final MCSet other) {
     return self.parallelStream().noneMatch(other::contains);
@@ -66,11 +66,12 @@ public class SetType extends TypeBase<MCSet> {
 
   @Method(name = "union",
       parametersMetadata = {
-          @ParameterMeta(name = "s", doc = "The `set perform the union with.")
+          @ParameterMeta(name = "other", doc = "The `set perform the union with.")
       },
-      doc = "Performs the union of values of two `set objects, i.e. adds all values of the provided `set into this one." +
-          " This is strictly equivalent to 'this |= s;'." +
-          " All elements of the provided `set will be copied before being inserted.")
+      doc = """
+          Performs the union of values of two `set objects, i.e. adds all values of the provided `set into this one.
+          This is strictly equivalent to 'this |= other;'.
+          All elements of the provided `set will be copied before being inserted.""")
   public Void union(final Scope scope, final MCSet self, final MCSet other) {
     this.__ior__(scope, self, other, false);
     return null;
@@ -78,11 +79,11 @@ public class SetType extends TypeBase<MCSet> {
 
   @Method(name = "intersection",
       parametersMetadata = {
-          @ParameterMeta(name = "s", doc = "The `set to perform the intersection with.")
+          @ParameterMeta(name = "other", doc = "The `set to perform the intersection with.")
       },
       doc = "Performs the intersection of values of two `set objects," +
-          " This is strictly equivalent to 'this &= s;'." +
-          " i.e. removes all values from this `set that are not contained in the provided `set.")
+          " i.e. removes all values from this `set that are not contained in the provided `set.\n" +
+          "This is strictly equivalent to 'this &= other;'.")
   public Void intersection(final Scope scope, final MCSet self, final MCSet other) {
     this.__iand__(scope, self, other, true);
     return null;
@@ -90,11 +91,11 @@ public class SetType extends TypeBase<MCSet> {
 
   @Method(name = "difference",
       parametersMetadata = {
-          @ParameterMeta(name = "s", doc = "The `set to perform the difference with.")
+          @ParameterMeta(name = "other", doc = "The `set to perform the difference with.")
       },
       doc = "Performs the difference of values of two `set objects," +
-          " This is strictly equivalent to 'this -= s;'." +
-          " i.e. removes all values from this `set that are contained in the provided `set.")
+          " i.e. removes all values from this `set that are contained in the provided `set.\n" +
+          "This is strictly equivalent to 'this -= other;'.")
   public Void difference(final Scope scope, final MCSet self, final MCSet other) {
     this.__sub__(scope, self, other, true);
     return null;
@@ -102,13 +103,14 @@ public class SetType extends TypeBase<MCSet> {
 
   @Method(name = "symmetric_difference",
       parametersMetadata = {
-          @ParameterMeta(name = "s", doc = "The `set to perform the symetric difference with.")
+          @ParameterMeta(name = "other", doc = "The `set to perform the symmetric difference with.")
       },
-      doc = "Performs the symetric difference of values of two `set objects," +
-          " i.e. retains all values that are contained in both this `set and the provided one." +
-          " This is strictly equivalent to 'this ^= s;' or 'this := (this | s) - (this & s);'" +
-          " (note: the latter may be less memory efficient as intermediate copies of this set may be made)." +
-          " All elements of the provided `set will be copied before being inserted.")
+      doc = """
+          Performs the symetric difference of values of two `set objects, \
+          i.e. retains all values that are contained in both this `set and the provided one.
+          This is strictly equivalent to 'this ^= other;' or 'this := (this | other) - (this & other);' \
+          (note: the latter may be less memory efficient as intermediate copies of this set may be made).
+          All elements of the provided `set will be copied before being inserted.""")
   public Void symmetricDifference(final Scope scope, final MCSet self, final MCSet other) {
     this.__ixor__(scope, self, other, true);
     return null;
