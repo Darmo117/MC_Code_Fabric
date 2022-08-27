@@ -54,52 +54,64 @@ public class SetType extends TypeBase<MCSet> {
     return null;
   }
 
+  @Method(name = "is_disjoint",
+      parametersMetadata = {
+          @ParameterMeta(name = "s", doc = "A `set.")
+      },
+      returnTypeMetadata = @ReturnMeta(doc = "#True if both sets share no elements, false if they have at least one in common."),
+      doc = "Checks whether this `set and the provided one have no elements in common.")
+  public Boolean isDisjoint(final Scope scope, final MCSet self, final MCSet other) {
+    return self.parallelStream().noneMatch(other::contains);
+  }
+
   @Method(name = "union",
       parametersMetadata = {
           @ParameterMeta(name = "s", doc = "The `set perform the union with.")
       },
-      returnTypeMetadata = @ReturnMeta(doc = "A new `set containing the values of both `set objects."),
-      doc = "Returns the union of values of two `set objects. Alias of '+' operator. " +
-          "Does not modify the `set objects it is applied to.")
-  public MCSet union(final Scope scope, final MCSet self, final MCSet other) {
-    return (MCSet) this.__add__(scope, self, other, false);
+      doc = "Performs the union of values of two `set objects, i.e. adds all values of the provided `set into this one." +
+          " This is strictly equivalent to 'this |= s;'." +
+          " All elements of the provided `set will be copied before being inserted.")
+  public Void union(final Scope scope, final MCSet self, final MCSet other) {
+    this.__ior__(scope, self, other, false);
+    return null;
   }
 
   @Method(name = "intersection",
       parametersMetadata = {
           @ParameterMeta(name = "s", doc = "The `set to perform the intersection with.")
       },
-      returnTypeMetadata = @ReturnMeta(doc = "A new `set containing only the values present in both `set objects."),
-      doc = "Returns the intersection of values of two `set objects. Does not modify the `set objects it is applied to.")
-  public MCSet intersection(final Scope scope, final MCSet self, final MCSet other) {
-    MCSet set = this.__copy__(scope, self);
-    set.retainAll(other);
-    return set;
+      doc = "Performs the intersection of values of two `set objects," +
+          " This is strictly equivalent to 'this &= s;'." +
+          " i.e. removes all values from this `set that are not contained in the provided `set.")
+  public Void intersection(final Scope scope, final MCSet self, final MCSet other) {
+    this.__iand__(scope, self, other, true);
+    return null;
   }
 
-  /**
-   * Add all elements of o in self.
-   */
-  @Override
-  protected Object __add__(final Scope scope, MCSet self, final Object o, final boolean inPlace) {
-    if (o instanceof MCSet s) {
-      if (inPlace) {
-        return this.add(scope, self, s, true);
-      }
-      return this.add(scope, new MCSet(self), s, false);
-    }
-    return super.__add__(scope, self, o, inPlace);
+  @Method(name = "difference",
+      parametersMetadata = {
+          @ParameterMeta(name = "s", doc = "The `set to perform the difference with.")
+      },
+      doc = "Performs the difference of values of two `set objects," +
+          " This is strictly equivalent to 'this -= s;'." +
+          " i.e. removes all values from this `set that are contained in the provided `set.")
+  public Void difference(final Scope scope, final MCSet self, final MCSet other) {
+    this.__sub__(scope, self, other, true);
+    return null;
   }
 
-  private MCSet add(final Scope scope, MCSet set1, final MCSet set2, final boolean inPlace) {
-    // Deep copy all elements to add
-    if (!inPlace) {
-      MCSet temp = this.__copy__(scope, set1);
-      set1.clear();
-      set1.addAll(temp);
-    }
-    set1.addAll(this.__copy__(scope, set2));
-    return set1;
+  @Method(name = "symmetric_difference",
+      parametersMetadata = {
+          @ParameterMeta(name = "s", doc = "The `set to perform the symetric difference with.")
+      },
+      doc = "Performs the symetric difference of values of two `set objects," +
+          " i.e. retains all values that are contained in both this `set and the provided one." +
+          " This is strictly equivalent to 'this ^= s;' or 'this := (this | s) - (this & s);'" +
+          " (note: the latter may be less memory efficient as intermediate copies of this set may be made)." +
+          " All elements of the provided `set will be copied before being inserted.")
+  public Void symmetricDifference(final Scope scope, final MCSet self, final MCSet other) {
+    this.__ixor__(scope, self, other, true);
+    return null;
   }
 
   /**
@@ -119,6 +131,71 @@ public class SetType extends TypeBase<MCSet> {
   private MCSet sub(MCSet set1, final MCSet set2) {
     set1.removeAll(set2);
     return set1;
+  }
+
+  /**
+   * Keep all elements present in both o and self.
+   */
+  @Override
+  protected Object __iand__(final Scope scope, MCSet self, final Object o, boolean inPlace) {
+    if (o instanceof MCSet s) {
+      if (inPlace) {
+        return this.iand(self, s);
+      }
+      return this.iand(new MCSet(self), s);
+    }
+    return super.__iand__(scope, self, o, inPlace);
+  }
+
+  private MCSet iand(MCSet set1, final MCSet set2) {
+    set1.retainAll(set2);
+    return set1;
+  }
+
+  /**
+   * Add all elements of o in self.
+   */
+  @Override
+  protected Object __ior__(final Scope scope, MCSet self, final Object o, boolean inPlace) {
+    if (o instanceof MCSet s) {
+      if (inPlace) {
+        return this.ior(scope, self, s, true);
+      }
+      return this.ior(scope, new MCSet(self), s, false);
+    }
+    return super.__ior__(scope, self, o, inPlace);
+  }
+
+  private MCSet ior(final Scope scope, MCSet set1, final MCSet set2, final boolean inPlace) {
+    // Deep copy all elements to add
+    if (!inPlace) {
+      MCSet temp = this.__copy__(scope, set1);
+      set1.clear();
+      set1.addAll(temp);
+    }
+    set1.addAll(this.__copy__(scope, set2));
+    return set1;
+  }
+
+  /**
+   * Keep all elements of o and self that are not in both sets.
+   */
+  @Override
+  protected Object __ixor__(final Scope scope, MCSet self, final Object o, boolean inPlace) {
+    if (o instanceof MCSet s) {
+      if (inPlace) {
+        return this.ixor(scope, self, s, true);
+      }
+      return this.ixor(scope, new MCSet(self), s, false);
+    }
+    return super.__ixor__(scope, self, o, inPlace);
+  }
+
+  private MCSet ixor(final Scope scope, MCSet set1, final MCSet set2, final boolean inPlace) {
+    // set1 ^ set2 == (set1 | set2) - (set1 & set2)
+    // Compute intersection before call to ior() as it may modify set1
+    MCSet intersection = this.iand(new MCSet(set1), set2);
+    return this.sub(this.ior(scope, set1, set2, inPlace), intersection);
   }
 
   @Override
