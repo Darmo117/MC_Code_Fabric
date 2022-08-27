@@ -58,7 +58,7 @@ public class ListType extends TypeBase<MCList> {
     return MCList.class;
   }
 
-  @Method(name = "clear", doc = "Removes all values from a `list. Modifies the `list.")
+  @Method(name = "clear", doc = "Removes all values from a `list.")
   public Void clear(final Scope scope, final MCList self) {
     self.clear();
     return null;
@@ -66,9 +66,9 @@ public class ListType extends TypeBase<MCList> {
 
   @Method(name = "add",
       parametersMetadata = {
-          @ParameterMeta(name = "value", mayBeNull = true, doc = "The value to add to the `list.")
+          @ParameterMeta(name = "value", mayBeNull = true, doc = "The value to add to this `list.")
       },
-      doc = "Adds a value at the end of a `list. Modifies the `list.")
+      doc = "Adds a value at the end of this `list.")
   public Void add(final Scope scope, final MCList self, final Object value) {
     self.add(ProgramManager.getTypeForValue(value).copy(scope, value));
     return null;
@@ -77,14 +77,24 @@ public class ListType extends TypeBase<MCList> {
   @Method(name = "insert",
       parametersMetadata = {
           @ParameterMeta(name = "index", doc = "Index at which to insert the value."),
-          @ParameterMeta(name = "value", mayBeNull = true, doc = "The value to insert into the `list.")
+          @ParameterMeta(name = "value", mayBeNull = true, doc = "The value to insert into this `list.")
       },
-      doc = "Adds a value at the specified index of a `list. Modifies the `list.")
+      doc = "Adds a value at the specified index of this `list.")
   public Void insert(final Scope scope, final MCList self, final Long index, final Object value) {
-    if (index < 0 || index > self.size()) {
-      throw new IndexOutOfBoundsException(scope, index.intValue());
-    }
-    self.add(index.intValue(), ProgramManager.getTypeForValue(value).copy(scope, value));
+    self.add(this.getIndex(scope, self, index), ProgramManager.getTypeForValue(value).copy(scope, value));
+    return null;
+  }
+
+  @Method(name = "extend",
+      parametersMetadata = {
+          @ParameterMeta(name = "other", mayBeNull = true, doc = "The `list to append.")
+      },
+      doc = """
+          Appends the values of the given `list to the end of this one. Modifies this `list.
+          This is strictly equivalent to 'this += other;'.
+          All elements of the provided `list will be copied before being inserted.""")
+  public Void extend(final Scope scope, MCList self, final MCList other) {
+    this.__add__(scope, self, other, true);
     return null;
   }
 
@@ -93,7 +103,7 @@ public class ListType extends TypeBase<MCList> {
           @ParameterMeta(name = "value", mayBeNull = true, doc = "The value to count the occurences of.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "The number of occurences of the value."),
-      doc = "Counts the number of times the given value occurs in a `list.")
+      doc = "Counts the number of times the given value occurs in this `list.")
   public Long count(final Scope scope, final MCList self, final Object value) {
     return self.stream().filter(e -> e.equals(value)).count();
   }
@@ -103,17 +113,17 @@ public class ListType extends TypeBase<MCList> {
           @ParameterMeta(name = "value", mayBeNull = true, doc = "The value to get the index of.")
       },
       returnTypeMetadata = @ReturnMeta(doc = "The index of the first occurence or -1 if the value was not found."),
-      doc = "Returns the index of the first occurence of the given value in a `list." +
-          " Returns -1 if the value is not present in the `list.")
+      doc = "Returns the index of the first occurence of the given value in this `list." +
+          " Returns -1 if the value is not present in this `list.")
   public Long indexOf(final Scope scope, final MCList self, final Object value) {
     return (long) self.indexOf(value);
   }
 
   @Method(name = "sort",
       parametersMetadata = {
-          @ParameterMeta(name = "reversed", doc = "If #true the `list will be sorted in reverse order.")
+          @ParameterMeta(name = "reversed", doc = "If #true this `list will be sorted in reverse order.")
       },
-      doc = "Sorts a `list using natural ordering of its elements. Modifies the `list.")
+      doc = "Sorts this `list using natural ordering of its elements.")
   public Void sort(final Scope scope, final MCList self, final boolean reversed) {
     self.sort(comparator(scope, reversed));
     return null;

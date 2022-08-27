@@ -3,6 +3,7 @@ package net.darmo_creations.mccode.interpreter.type_wrappers;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.annotations.Method;
+import net.darmo_creations.mccode.interpreter.annotations.ParameterMeta;
 import net.darmo_creations.mccode.interpreter.annotations.Property;
 import net.darmo_creations.mccode.interpreter.annotations.Type;
 import net.darmo_creations.mccode.interpreter.exceptions.CastException;
@@ -50,9 +51,24 @@ public class MapType extends TypeBase<MCMap> {
     return new MCList(self.values());
   }
 
-  @Method(name = "clear", doc = "Removes all entries from a `map. Modifies the `map.")
+  @Method(name = "clear", doc = "Removes all entries from this `map.")
   public Void clear(final Scope scope, final MCMap self) {
     self.clear();
+    return null;
+  }
+
+  @Method(name = "merge",
+      parametersMetadata = {
+          @ParameterMeta(name = "other", mayBeNull = true, doc = "The `map to merge with this one.")
+      },
+      doc = """
+          Adds all the entries of the given `map into this one. Modifies this `map.
+          If this `map already contains an entry for a key of the argument `map, \
+          its value will be replaced by the one from the latter.
+          This is strictly equivalent to 'this += other;'.
+          All values of the provided `map will be copied before being inserted.""")
+  public Void insert(final Scope scope, MCMap self, final MCList other) {
+    this.__add__(scope, self, other, true);
     return null;
   }
 

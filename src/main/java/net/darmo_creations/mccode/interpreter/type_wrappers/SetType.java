@@ -38,7 +38,7 @@ public class SetType extends TypeBase<MCSet> {
     return MCSet.class;
   }
 
-  @Method(name = "clear", doc = "Removes all values from a `set. Modifies the `set.")
+  @Method(name = "clear", doc = "Removes all values from this `set.")
   public Void clear(final Scope scope, final MCSet self) {
     self.clear();
     return null;
@@ -46,9 +46,9 @@ public class SetType extends TypeBase<MCSet> {
 
   @Method(name = "add",
       parametersMetadata = {
-          @ParameterMeta(name = "value", mayBeNull = true, doc = "The value to add to the `set.")
+          @ParameterMeta(name = "value", mayBeNull = true, doc = "The value to add to this `set.")
       },
-      doc = "Adds a value to a `set. Modifies the `set.")
+      doc = "Adds a value to this `set.")
   public Void add(final Scope scope, final MCSet self, final Object value) {
     self.add(ProgramManager.getTypeForValue(value).copy(scope, value));
     return null;
@@ -69,7 +69,8 @@ public class SetType extends TypeBase<MCSet> {
           @ParameterMeta(name = "other", doc = "The `set perform the union with.")
       },
       doc = """
-          Performs the union of values of two `set objects, i.e. adds all values of the provided `set into this one.
+          Performs the union of values of two `set objects, i.e. adds all values of the provided `set into this one. \
+          Modifies this set.
           This is strictly equivalent to 'this |= other;'.
           All elements of the provided `set will be copied before being inserted.""")
   public Void union(final Scope scope, final MCSet self, final MCSet other) {
@@ -82,7 +83,7 @@ public class SetType extends TypeBase<MCSet> {
           @ParameterMeta(name = "other", doc = "The `set to perform the intersection with.")
       },
       doc = "Performs the intersection of values of two `set objects," +
-          " i.e. removes all values from this `set that are not contained in the provided `set.\n" +
+          " i.e. removes all values from this `set that are not contained in the provided `set. Modifies this set.\n" +
           "This is strictly equivalent to 'this &= other;'.")
   public Void intersection(final Scope scope, final MCSet self, final MCSet other) {
     this.__iand__(scope, self, other, true);
@@ -94,7 +95,7 @@ public class SetType extends TypeBase<MCSet> {
           @ParameterMeta(name = "other", doc = "The `set to perform the difference with.")
       },
       doc = "Performs the difference of values of two `set objects," +
-          " i.e. removes all values from this `set that are contained in the provided `set.\n" +
+          " i.e. removes all values from this `set that are contained in the provided `set. Modifies this set.\n" +
           "This is strictly equivalent to 'this -= other;'.")
   public Void difference(final Scope scope, final MCSet self, final MCSet other) {
     this.__sub__(scope, self, other, true);
@@ -107,7 +108,7 @@ public class SetType extends TypeBase<MCSet> {
       },
       doc = """
           Performs the symetric difference of values of two `set objects, \
-          i.e. retains all values that are contained in both this `set and the provided one.
+          i.e. retains all values that are contained in both this `set and the provided one. Modifies this set.
           This is strictly equivalent to 'this ^= other;' or 'this := (this | other) - (this & other);' \
           (note: the latter may be less memory efficient as intermediate copies of this set may be made).
           All elements of the provided `set will be copied before being inserted.""")
