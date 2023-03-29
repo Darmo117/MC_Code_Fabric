@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.commands.argument_types;
 
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -11,7 +12,10 @@ import net.darmo_creations.mccode.commands.ProgramCommand;
 import net.darmo_creations.mccode.interpreter.Program;
 import net.darmo_creations.mccode.interpreter.Variable;
 import net.minecraft.client.network.ClientCommandSource;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.CommandSource;
+import net.minecraft.command.argument.serialize.ArgumentSerializer;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.Optional;
@@ -85,7 +89,48 @@ public class ProgramVariableNameArgumentType implements ArgumentType<String> {
     return Suggestions.empty();
   }
 
-  private enum VariableType {
+  public enum VariableType {
     ANY, EDITABLE, DELETABLE
+  }
+
+  public static final class Serializer implements ArgumentSerializer<ProgramVariableNameArgumentType, Serializer.Properties> {
+    @Override
+    public void writePacket(Properties properties, PacketByteBuf buf) {
+      buf.writeInt(properties.variableType.ordinal());
+    }
+
+    @Override
+    public Properties fromPacket(PacketByteBuf buf) {
+      VariableType[] values = VariableType.values();
+      return new Properties(values[buf.readInt() % values.length]);
+    }
+
+    @Override
+    public void writeJson(Properties properties, JsonObject json) {
+      json.addProperty("variable_type", properties.variableType.ordinal());
+    }
+
+    @Override
+    public Properties getArgumentTypeProperties(ProgramVariableNameArgumentType argumentType) {
+      return new Properties(argumentType.variableType);
+    }
+
+    public final class Properties implements ArgumentSerializer.ArgumentTypeProperties<ProgramVariableNameArgumentType> {
+      private final VariableType variableType;
+
+      Properties(VariableType variableType) {
+        this.variableType = variableType;
+      }
+
+      @Override
+      public ProgramVariableNameArgumentType createType(CommandRegistryAccess commandRegistryAccess) {
+        return new ProgramVariableNameArgumentType(this.variableType);
+      }
+
+      @Override
+      public ArgumentSerializer<ProgramVariableNameArgumentType, ?> getSerializer() {
+        return Serializer.this;
+      }
+    }
   }
 }

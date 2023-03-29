@@ -245,7 +245,7 @@ public final class Utils {
    * Returns null if the dimension type is not registered.
    */
   public static String getDimensionType(final ServerWorld world) {
-    return world.method_40134().getKey().map(key -> key.getValue().toString()).orElse(null);
+    return world.getDimensionKey().getValue().toString();
   }
 
   /**

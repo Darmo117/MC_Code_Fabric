@@ -5,6 +5,7 @@ import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.darmo_creations.mccode.MCCode;
@@ -32,6 +33,7 @@ import net.minecraft.command.argument.NbtPathArgumentType;
 import net.minecraft.command.argument.RegistryPredicateArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.*;
+import net.minecraft.network.message.SignedCommandArguments;
 import net.minecraft.predicate.NbtPredicate;
 import net.minecraft.resource.ResourcePackManager;
 import net.minecraft.scoreboard.ScoreboardObjective;
@@ -42,7 +44,8 @@ import net.minecraft.server.command.CommandOutput;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.LiteralTextContent;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -52,9 +55,10 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryEntryList;
+import net.minecraft.util.thread.FutureQueue;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.feature.ConfiguredStructureFeature;
+import net.minecraft.world.gen.structure.Structure;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -70,6 +74,11 @@ import java.util.stream.Collectors;
         "It is the object through which scripts can interact with blocks, entities, etc.")
 public class WorldType extends TypeBase<ServerWorld> {
   public static final String NAME = "world";
+
+  private static final DynamicCommandExceptionType STRUCTURE_INVALID_EXCEPTION =
+      new DynamicCommandExceptionType(id -> Text.translatable("commands.locate.structure.invalid", id));
+  private static final DynamicCommandExceptionType BIOME_INVALID_EXCEPTION =
+      new DynamicCommandExceptionType(id -> Text.translatable("commands.locate.biome.invalid", id));
 
   @Override
   public Class<ServerWorld> getWrappedType() {
@@ -577,35 +586,45 @@ public class WorldType extends TypeBase<ServerWorld> {
           @ParameterMeta(name = "structure_id", doc = "ID of the structure to find."),
           @ParameterMeta(name = "around", doc = "Position to look around of."),
           @ParameterMeta(name = "radius", doc = "Search radius around the position."),
-          @ParameterMeta(name = "skip_existing_chunks", doc = "Whether to skip existing chunks during the search.")
+          @ParameterMeta(name = "skip_already_discovered", doc = "Whether to skip structures that were previously discovered.")
       },
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The position of the nearest structure of desired type or #null if an error occured."),
       doc = "Returns the coordinates of the closest structure around the given point.")
   public Position locateStructure(final Scope scope, final ServerWorld self, final String structureID,
-                                  final Position around, final Long radius, final Boolean skipExistingChunks) {
-    String command = "locate " + structureID;
+                                  final Position around, final Long radius, final Boolean skipAlreadyDiscovered) {
+    String command = "locate structure " + structureID;
+    ServerCommandSource source = self.getServer().getCommandSource();
     ParseResults<ServerCommandSource> parseResults = self.getServer().getCommandManager().getDispatcher()
-        .parse(command, self.getServer().getCommandSource());
+        .parse(command, source);
     CommandContext<ServerCommandSource> context = parseResults.getContext().build(command);
-    RegistryPredicateArgumentType.RegistryPredicate<ConfiguredStructureFeature<?, ?>> p;
+    RegistryPredicateArgumentType.RegistryPredicate<Structure> p;
     try {
-      p = RegistryPredicateArgumentType.getConfiguredStructureFeaturePredicate(context, "structure");
+      p = RegistryPredicateArgumentType.getPredicate(
+          context,
+          "structure",
+          Registry.STRUCTURE_KEY,
+          STRUCTURE_INVALID_EXCEPTION
+      );
     } catch (CommandSyntaxException e) {
       return null;
     }
-    Registry<ConfiguredStructureFeature<?, ?>> registry = self.getRegistryManager().get(Registry.CONFIGURED_STRUCTURE_FEATURE_KEY);
-    RegistryEntryList<ConfiguredStructureFeature<?, ?>> registryEntryList =
-        p.getKey().map(key -> registry.getEntry(key).map(RegistryEntryList::of), registry::getEntryList).orElse(null);
-    if (registryEntryList == null) {
+    Registry<Structure> registry = source.getWorld().getRegistryManager().get(Registry.STRUCTURE_KEY);
+    RegistryEntryList<Structure> registryEntryList = getStructureListForPredicate(p, registry).orElseThrow(null);
+    if (registryEntryList.size() == 0) {
       return null;
     }
-    Pair<BlockPos, RegistryEntry<ConfiguredStructureFeature<?, ?>>> pair = self.getChunkManager().getChunkGenerator()
-        .locateStructure(self, registryEntryList, around.toBlockPos(), radius.intValue(), skipExistingChunks);
+    ServerWorld serverWorld = source.getWorld();
+    Pair<BlockPos, RegistryEntry<Structure>> pair = serverWorld.getChunkManager().getChunkGenerator()
+        .locateStructure(serverWorld, registryEntryList, around.toBlockPos(), radius.intValue(), skipAlreadyDiscovered);
     if (pair == null) {
       return null;
     }
     return new Position(pair.getFirst());
+  }
+
+  private static Optional<? extends RegistryEntryList.ListBacked<Structure>> getStructureListForPredicate(RegistryPredicateArgumentType.RegistryPredicate<Structure> predicate, Registry<Structure> structureRegistry) {
+    return predicate.getKey().map(key -> structureRegistry.getEntry(key).map(RegistryEntryList::of), structureRegistry::getEntryList);
   }
 
   @Method(name = "locate_biome",
@@ -619,17 +638,21 @@ public class WorldType extends TypeBase<ServerWorld> {
       doc = "Returns the coordinates of the closest biome around the given point.")
   public Position locateBiome(final Scope scope, final ServerWorld self, final String biomeID,
                               final Position around, final Long radius) {
-    String command = "locatebiome " + biomeID;
+    String command = "locate biome " + biomeID;
     ParseResults<ServerCommandSource> parseResults = self.getServer().getCommandManager().getDispatcher()
         .parse(command, self.getServer().getCommandSource());
     RegistryPredicateArgumentType.RegistryPredicate<Biome> p;
     try {
-      p = RegistryPredicateArgumentType
-          .getBiomePredicate(parseResults.getContext().build(command), "biome");
+      p = RegistryPredicateArgumentType.getPredicate(
+          parseResults.getContext().build(command),
+          "biome",
+          Registry.BIOME_KEY,
+          BIOME_INVALID_EXCEPTION
+      );
     } catch (CommandSyntaxException e) {
       return null;
     }
-    Pair<BlockPos, RegistryEntry<Biome>> entry = self.locateBiome(p, around.toBlockPos(), radius.intValue(), 8);
+    Pair<BlockPos, RegistryEntry<Biome>> entry = self.locateBiome(p, around.toBlockPos(), radius.intValue(), 8, 8);
     if (entry == null) {
       return null;
     }
@@ -670,7 +693,7 @@ public class WorldType extends TypeBase<ServerWorld> {
       command += " " + String.join(" ", args);
     }
     CommandSourceStackWrapper commandSourceStack = new CommandSourceStackWrapper(server, self);
-    long result = server.getCommandManager().execute(commandSourceStack, command);
+    long result = server.getCommandManager().executeWithPrefix(commandSourceStack, command);
     if (result == 0 && commandSourceStack.anyFailures) {
       String dimension = Utils.getDimensionType(scope.getProgram().getProgramManager().getWorld());
       final String cmd = command;
@@ -776,10 +799,22 @@ public class WorldType extends TypeBase<ServerWorld> {
      * prevent op commands from being executed from within scripts.
      */
     CommandSourceStackWrapper(CommandOutput source, ServerWorld world) {
-      super(source, Vec3d.ofBottomCenter(world.getSpawnPos()), Vec2f.ZERO, world, 2,
-          "Server", new LiteralText("Server"), world.getServer(), null,
-          true, (context, success, result) -> {
-          }, EntityAnchorArgumentType.EntityAnchor.FEET);
+      super(
+          source,
+          Vec3d.ofBottomCenter(world.getSpawnPos()),
+          Vec2f.ZERO,
+          world,
+          2,
+          "Server", MutableText.of(new LiteralTextContent("Server")),
+          world.getServer(),
+          null,
+          true,
+          (context, success, result) -> {
+          },
+          EntityAnchorArgumentType.EntityAnchor.FEET,
+          SignedCommandArguments.EMPTY,
+          FutureQueue.NOOP
+      );
       this.errors = new LinkedList<>();
       this.anyFailures = false;
     }

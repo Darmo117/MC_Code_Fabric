@@ -1,12 +1,13 @@
 package net.darmo_creations.mccode;
 
 import net.darmo_creations.mccode.commands.ProgramCommand;
+import net.darmo_creations.mccode.commands.argument_types.ModArgumentTypes;
 import net.darmo_creations.mccode.interpreter.CallStackElement;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.exceptions.ProgramErrorReport;
 import net.darmo_creations.mccode.interpreter.exceptions.ProgramErrorReportElement;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
@@ -16,7 +17,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Util;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import org.slf4j.Logger;
@@ -41,6 +41,7 @@ public class MCCode implements ModInitializer {
 
   @Override
   public void onInitialize() {
+    ModArgumentTypes.registerAll();
     LOGGER.info("[MC Code] Setting up…");
     LOGGER.info("[MC Code] Setting up program manager");
     ProgramManager.declareDefaultBuiltinTypes();
@@ -59,7 +60,8 @@ public class MCCode implements ModInitializer {
    * Registers all custom commands.
    */
   private void registerCommands() {
-    CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> ProgramCommand.register(dispatcher));
+    CommandRegistrationCallback.EVENT.register(
+        (dispatcher, registryAccess, environment) -> ProgramCommand.register(dispatcher));
   }
 
   private void onWorldLoad(MinecraftServer server, ServerWorld world) {
@@ -77,18 +79,21 @@ public class MCCode implements ModInitializer {
       MutableText message = null;
       // Add error elements
       for (ProgramErrorReportElement element : report.elements()) {
-        MutableText t = new LiteralText(element.exception().getClass().getSimpleName() + ": ")
-            .append(new TranslatableText(element.translationKey(), element.args()));
+        MutableText t = MutableText.of(new LiteralTextContent(element.exception().getClass().getSimpleName() + ": "))
+            .append(MutableText.of(new TranslatableTextContent(element.translationKey(), element.args())));
         if (message == null) {
           message = t;
         } else {
-          message.append(new LiteralText("\n")).append(t);
+          message.append(MutableText.of(new LiteralTextContent("\n"))).append(t);
         }
         // Add call stack trace
         for (CallStackElement traceElement : element.callStack()) {
           // There should always be at least one ProgramErrorReportElement instance
-          message.append(new LiteralText("\n  @ %s.%s [%d:%d]".formatted(
-              traceElement.moduleName(), traceElement.scopeName(), traceElement.line(), traceElement.column())));
+          message.append(MutableText.of(new LiteralTextContent(
+              "\n  @ %s.%s [%d:%d]"
+                  .formatted(traceElement.moduleName(), traceElement.scopeName(),
+                      traceElement.line(), traceElement.column())
+          )));
         }
       }
       if (message != null) {
@@ -100,7 +105,7 @@ public class MCCode implements ModInitializer {
         world.getPlayers(PlayerEntity::isCreativeLevelTwoOp)
             .forEach(player -> player.sendMessage(m, false));
       }
-      world.getServer().sendSystemMessage(message, Util.NIL_UUID);
+      world.getServer().sendMessage(message);
     }
   }
 }

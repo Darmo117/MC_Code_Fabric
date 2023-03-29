@@ -6,7 +6,7 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.darmo_creations.mccode.MCCode;
-import net.darmo_creations.mccode.commands.argument_types.EnumArgumentType;
+import net.darmo_creations.mccode.commands.argument_types.ProgramDocTypeTypeArgument;
 import net.darmo_creations.mccode.commands.argument_types.ProgramElementNameArgumentType;
 import net.darmo_creations.mccode.commands.argument_types.ProgramNameArgumentType;
 import net.darmo_creations.mccode.commands.argument_types.ProgramVariableNameArgumentType;
@@ -84,7 +84,7 @@ public class ProgramCommand {
         .executes(ProgramCommand::listPrograms);
 
     LiteralArgumentBuilder<ServerCommandSource> docOption = CommandManager.literal("doc")
-        .then(CommandManager.argument(DOC_TYPE_ARG, EnumArgumentType.of(DocType.class))
+        .then(CommandManager.argument(DOC_TYPE_ARG, ProgramDocTypeTypeArgument.create())
             .then(CommandManager.argument(ELEMENT_NAME_ARG, ProgramElementNameArgumentType.create())
                 .executes(ProgramCommand::showDoc)));
 
@@ -119,21 +119,21 @@ public class ProgramCommand {
     try {
       p = pm.loadProgram(programName, alias, false, args);
     } catch (SyntaxErrorException e) {
-      context.getSource().sendError(new LiteralText("[%s:%d:%d] ".formatted(programName, e.getLine(), e.getColumn()))
-          .append(new TranslatableText(e.getTranslationKey(), e.getArgs())));
+      context.getSource().sendError(MutableText.of(new LiteralTextContent("[%s:%d:%d] ".formatted(programName, e.getLine(), e.getColumn())))
+          .append(MutableText.of(new TranslatableTextContent(e.getTranslationKey(), e.getArgs()))));
       return 0;
     } catch (ProgramStatusException e) {
-      context.getSource().sendError(new TranslatableText(e.getTranslationKey(), e.getProgramName()));
+      context.getSource().sendError(MutableText.of(new TranslatableTextContent(e.getTranslationKey(), e.getProgramName())));
       return 0;
     }
     try {
       pm.runProgram(p.getName());
     } catch (ProgramStatusException e) {
-      context.getSource().sendError(new TranslatableText(e.getTranslationKey(), e.getProgramName()));
+      context.getSource().sendError(MutableText.of(new TranslatableTextContent(e.getTranslationKey(), e.getProgramName())));
       return 0;
     }
     context.getSource().sendFeedback(
-        new TranslatableText("commands.program.feedback.program_launched", programName), true);
+        MutableText.of(new TranslatableTextContent("commands.program.feedback.program_launched", programName)), true);
     return 1;
   }
 
@@ -143,11 +143,11 @@ public class ProgramCommand {
     try {
       pm.unloadProgram(programName);
     } catch (ProgramStatusException e) {
-      context.getSource().sendError(new TranslatableText(e.getTranslationKey(), e.getProgramName()));
+      context.getSource().sendError(MutableText.of(new TranslatableTextContent(e.getTranslationKey(), e.getProgramName())));
       return 0;
     }
     context.getSource().sendFeedback(
-        new TranslatableText("commands.program.feedback.program_stopped", programName), true);
+        MutableText.of(new TranslatableTextContent("commands.program.feedback.program_stopped", programName)), true);
     return 1;
   }
 
@@ -157,11 +157,11 @@ public class ProgramCommand {
     try {
       pm.resetProgram(programName);
     } catch (ProgramStatusException e) {
-      context.getSource().sendError(new TranslatableText(e.getTranslationKey(), e.getProgramName()));
+      context.getSource().sendError(MutableText.of(new TranslatableTextContent(e.getTranslationKey(), e.getProgramName())));
       return 0;
     }
     context.getSource().sendFeedback(
-        new TranslatableText("commands.program.feedback.program_reset", programName), true);
+        MutableText.of(new TranslatableTextContent("commands.program.feedback.program_reset", programName)), true);
     return 1;
   }
 
@@ -171,11 +171,11 @@ public class ProgramCommand {
     try {
       pm.pauseProgram(programName);
     } catch (ProgramStatusException e) {
-      context.getSource().sendError(new TranslatableText(e.getTranslationKey(), e.getProgramName()));
+      context.getSource().sendError(MutableText.of(new TranslatableTextContent(e.getTranslationKey(), e.getProgramName())));
       return 0;
     }
     context.getSource().sendFeedback(
-        new TranslatableText("commands.program.feedback.program_paused", programName), true);
+        MutableText.of(new TranslatableTextContent("commands.program.feedback.program_paused", programName)), true);
     return 1;
   }
 
@@ -183,12 +183,12 @@ public class ProgramCommand {
     ProgramManager pm = MCCode.INSTANCE.PROGRAM_MANAGERS.get(context.getSource().getWorld());
     List<String> loadedPrograms = pm.getLoadedPrograms();
     if (loadedPrograms.isEmpty()) {
-      context.getSource().sendError(new TranslatableText("commands.program.error.no_loaded_programs"));
+      context.getSource().sendError(MutableText.of(new TranslatableTextContent("commands.program.error.no_loaded_programs")));
       return 0;
     } else {
       context.getSource().sendFeedback(
-          new TranslatableText("commands.program.feedback.loaded_programs",
-              String.join(", ", loadedPrograms)), true);
+          MutableText.of(new TranslatableTextContent("commands.program.feedback.loaded_programs",
+              String.join(", ", loadedPrograms))), true);
       return loadedPrograms.size();
     }
   }
@@ -203,15 +203,15 @@ public class ProgramCommand {
       try {
         value = program.get().getScope().getVariable(variableName, true);
       } catch (EvaluationException e) {
-        context.getSource().sendError(new TranslatableText(e.getTranslationKey(), e.getArgs()));
+        context.getSource().sendError(MutableText.of(new TranslatableTextContent(e.getTranslationKey(), e.getArgs())));
         return 0;
       }
       context.getSource().sendFeedback(
-          new TranslatableText("commands.program.feedback.get_variable_value", variableName, value), true);
+          MutableText.of(new TranslatableTextContent("commands.program.feedback.get_variable_value", variableName, value)), true);
       return 1;
     } else {
       context.getSource().sendError(
-          new TranslatableText("mccode.interpreter.error.program_not_found", programName));
+          MutableText.of(new TranslatableTextContent("mccode.interpreter.error.program_not_found", programName)));
       return 0;
     }
   }
@@ -226,7 +226,7 @@ public class ProgramCommand {
       try {
         node = ExpressionParser.parse(StringArgumentType.getString(context, VARIABLE_VALUE_ARG));
       } catch (SyntaxErrorException e) {
-        context.getSource().sendError(new TranslatableText(e.getTranslationKey(), e.getArgs()));
+        context.getSource().sendError(MutableText.of(new TranslatableTextContent(e.getTranslationKey(), e.getArgs())));
         return 0;
       }
 
@@ -235,15 +235,15 @@ public class ProgramCommand {
         value = node.evaluate(program.get().getScope(), new CallStack());
         program.get().getScope().setVariable(variableName, value, true);
       } catch (EvaluationException e) {
-        context.getSource().sendError(new TranslatableText(e.getTranslationKey(), e.getArgs()));
+        context.getSource().sendError(MutableText.of(new TranslatableTextContent(e.getTranslationKey(), e.getArgs())));
         return 0;
       }
       context.getSource().sendFeedback(
-          new TranslatableText("commands.program.feedback.set_variable_value", variableName, node), true);
+          MutableText.of(new TranslatableTextContent("commands.program.feedback.set_variable_value", variableName, node)), true);
       return 1;
     } else {
       context.getSource().sendError(
-          new TranslatableText("mccode.interpreter.error.program_not_found", programName));
+          MutableText.of(new TranslatableTextContent("mccode.interpreter.error.program_not_found", programName)));
       return 0;
     }
   }
@@ -257,21 +257,27 @@ public class ProgramCommand {
       try {
         program.get().getScope().deleteVariable(variableName, true);
       } catch (EvaluationException e) {
-        context.getSource().sendError(new TranslatableText(e.getTranslationKey(), e.getArgs()));
+        context.getSource().sendError(MutableText.of(new TranslatableTextContent(e.getTranslationKey(), e.getArgs())));
         return 0;
       }
       context.getSource().sendFeedback(
-          new TranslatableText("commands.program.feedback.variable_delete", variableName), true);
+          MutableText.of(new TranslatableTextContent("commands.program.feedback.variable_delete", variableName)), true);
       return 1;
     } else {
       context.getSource().sendError(
-          new TranslatableText("mccode.interpreter.error.program_not_found", programName));
+          MutableText.of(new TranslatableTextContent("mccode.interpreter.error.program_not_found", programName)));
       return 0;
     }
   }
 
   private static int showDoc(CommandContext<ServerCommandSource> context) {
-    DocType docType = context.getArgument(DOC_TYPE_ARG, DocType.class);
+    Optional<ProgramDocTypeTypeArgument.DocType> opt = ProgramDocTypeTypeArgument.getDocType(context, DOC_TYPE_ARG);
+    if (opt.isEmpty()) {
+      context.getSource().sendError(
+          MutableText.of(new TranslatableTextContent("commands.program.error.invalid_doctype")));
+      return 0;
+    }
+    ProgramDocTypeTypeArgument.DocType docType = opt.get();
     String name = ProgramElementNameArgumentType.getName(context, ELEMENT_NAME_ARG);
 
     Optional<Pair<String, Object[]>> doc = switch (docType) {
@@ -281,16 +287,21 @@ public class ProgramCommand {
       case FUNCTION -> getFunctionDoc(context, name);
     };
 
-    if (doc.isPresent()) {
-      Pair<String, Object[]> d = doc.get();
-      context.getSource().sendFeedback(
-          new TranslatableText("commands.program.feedback.doc_" + docType, d.getRight())
-              .setStyle(Style.EMPTY.withColor(Formatting.GREEN)),
-          true);
-      context.getSource().sendFeedback(parseDoc(d.getLeft()), true);
-      return 1;
+    if (doc.isEmpty()) {
+      context.getSource().sendError(
+          MutableText.of(new TranslatableTextContent("commands.program.error.no_doc", name)));
+      return 0;
     }
-    return 0;
+
+    Pair<String, Object[]> d = doc.get();
+    context.getSource().sendFeedback(
+        MutableText.of(new TranslatableTextContent(
+                "commands.program.feedback.doc_" + docType.toString().toLowerCase(), d.getRight()))
+            .setStyle(Style.EMPTY.withColor(Formatting.GREEN)),
+        true);
+    context.getSource().sendFeedback(parseDoc(d.getLeft()), true);
+
+    return 1;
   }
 
   /**
@@ -300,7 +311,7 @@ public class ProgramCommand {
    * @return The resulting chat components.
    */
   private static Text parseDoc(final String rawDoc) {
-    MutableText component = new LiteralText("");
+    MutableText component = MutableText.of(new LiteralTextContent(""));
     StringBuilder sb = new StringBuilder();
     boolean escapeNext = false;
 
@@ -310,26 +321,28 @@ public class ProgramCommand {
         escapeNext = true;
       } else if (ProgramManager.DOC_PARAM_PREFIX.equals(c)) {
         i = consumePrefixedWord(rawDoc, component, sb, i,
-            param -> new LiteralText(param).setStyle(Style.EMPTY.withColor(Formatting.ITALIC)));
+            param -> MutableText.of(new LiteralTextContent(param)).setStyle(Style.EMPTY.withColor(Formatting.ITALIC)));
       } else if (ProgramManager.DOC_TYPE_PREFIX.equals(c)) {
         i = consumePrefixedWord(rawDoc, component, sb, i,
-            type -> new LiteralText(type).setStyle(Style.EMPTY
+            type -> MutableText.of(new LiteralTextContent(type)).setStyle(Style.EMPTY
                 .withColor(Formatting.AQUA)
                 .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/program doc type " + type.toLowerCase()))
-                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableText("chat.type_doc.tooltip", type.toLowerCase())))));
+                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, MutableText.of(new TranslatableTextContent(
+                    "chat.type_doc.tooltip", type.toLowerCase()))))));
       } else if (ProgramManager.DOC_TAG_PREFIX.equals(c)) {
         i = consumePrefixedWord(rawDoc, component, sb, i,
-            tag -> new LiteralText(tag).setStyle(Style.EMPTY.withUnderline(true)));
+            tag -> MutableText.of(new LiteralTextContent(tag)).setStyle(Style.EMPTY.withUnderline(true)));
       } else if (ProgramManager.DOC_FUNCTION_PREFIX.equals(c)) {
         i = consumePrefixedWord(rawDoc, component, sb, i,
-            function -> new LiteralText(function).setStyle(Style.EMPTY
+            function -> MutableText.of(new LiteralTextContent(function)).setStyle(Style.EMPTY
                 .withColor(Formatting.DARK_GREEN)
                 .withItalic(true)
                 .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/program doc function " + function.toLowerCase()))
-                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableText("chat.function_doc.tooltip", function.toLowerCase())))));
+                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, MutableText.of(new TranslatableTextContent(
+                    "chat.function_doc.tooltip", function.toLowerCase()))))));
       } else if (ProgramManager.DOC_LITERAL_PREFIX.equals(c)) {
         i = consumePrefixedWord(rawDoc, component, sb, i,
-            value -> new LiteralText(value).setStyle(Style.EMPTY.withColor(Formatting.DARK_PURPLE)));
+            value -> MutableText.of(new LiteralTextContent(value)).setStyle(Style.EMPTY.withColor(Formatting.DARK_PURPLE)));
       } else {
         sb.append(c);
       }
@@ -373,13 +386,13 @@ public class ProgramCommand {
     TypeBase<?> type = ProgramManager.getTypeForName(typeName);
     if (type == null) {
       context.getSource().sendError(
-          new TranslatableText("mccode.interpreter.error.no_type_for_name", typeName));
+          MutableText.of(new TranslatableTextContent("mccode.interpreter.error.no_type_for_name", typeName)));
       return Optional.empty();
     }
     Optional<String> d = type.getDoc();
     if (d.isEmpty()) {
       context.getSource().sendError(
-          new TranslatableText("commands.program.error.no_doc_for_type", typeName));
+          MutableText.of(new TranslatableTextContent("commands.program.error.no_doc_for_type", typeName)));
       return Optional.empty();
     }
     return Optional.of(new ImmutablePair<>(d.get(), new Object[]{typeName}));
@@ -388,7 +401,7 @@ public class ProgramCommand {
   private static Optional<Pair<String, Object[]>> getPropertyDoc(CommandContext<ServerCommandSource> context, final String prefixedPropertyName) {
     if (!prefixedPropertyName.contains(".")) {
       context.getSource().sendError(
-          new TranslatableText("commands.program.error.invalid_property_name", prefixedPropertyName));
+          MutableText.of(new TranslatableTextContent("commands.program.error.invalid_property_name", prefixedPropertyName)));
       return Optional.empty();
     }
 
@@ -401,21 +414,21 @@ public class ProgramCommand {
       Optional<String> d = property.getDoc();
       if (d.isEmpty()) {
         context.getSource().sendError(
-            new TranslatableText("commands.program.error.no_doc_for_property", typeName, propertyName));
+            MutableText.of(new TranslatableTextContent("commands.program.error.no_doc_for_property", typeName, propertyName)));
         return Optional.empty();
       }
       return Optional.of(new ImmutablePair<>(d.get(), new Object[]{typeName, propertyName}));
     }
 
     context.getSource().sendError(
-        new TranslatableText("commands.program.error.no_property_for_type", typeName, propertyName));
+        MutableText.of(new TranslatableTextContent("commands.program.error.no_property_for_type", typeName, propertyName)));
     return Optional.empty();
   }
 
   private static Optional<Pair<String, Object[]>> getMethodDoc(CommandContext<ServerCommandSource> context, final String prefixedMethodName) {
     if (!prefixedMethodName.contains(".")) {
       context.getSource().sendError(
-          new TranslatableText("commands.program.error.invalid_method_name", prefixedMethodName));
+          MutableText.of(new TranslatableTextContent("commands.program.error.invalid_method_name", prefixedMethodName)));
       return Optional.empty();
     }
 
@@ -428,14 +441,14 @@ public class ProgramCommand {
       Optional<String> d = method.getDoc();
       if (d.isEmpty()) {
         context.getSource().sendError(
-            new TranslatableText("commands.program.error.no_doc_for_method", typeName, methodName));
+            MutableText.of(new TranslatableTextContent("commands.program.error.no_doc_for_method", typeName, methodName)));
         return Optional.empty();
       }
       return Optional.of(new ImmutablePair<>(d.get(), new Object[]{typeName, methodName}));
     }
 
     context.getSource().sendError(
-        new TranslatableText("mccode.interpreter.error.no_method_for_type", typeName, methodName));
+        MutableText.of(new TranslatableTextContent("mccode.interpreter.error.no_method_for_type", typeName, methodName)));
     return Optional.empty();
   }
 
@@ -446,23 +459,14 @@ public class ProgramCommand {
       Optional<String> d = function.getDoc();
       if (d.isEmpty()) {
         context.getSource().sendError(
-            new TranslatableText("commands.program.error.no_doc_for_function", functionName));
+            MutableText.of(new TranslatableTextContent("commands.program.error.no_doc_for_function", functionName)));
         return Optional.empty();
       }
       return Optional.of(new ImmutablePair<>(d.get(), new Object[]{functionName}));
     }
 
     context.getSource().sendError(
-        new TranslatableText("commands.program.error.no_function", functionName));
+        MutableText.of(new TranslatableTextContent("commands.program.error.no_function", functionName)));
     return Optional.empty();
-  }
-
-  public enum DocType {
-    TYPE, PROPERTY, METHOD, FUNCTION;
-
-    @Override
-    public String toString() {
-      return this.name().toLowerCase();
-    }
   }
 }

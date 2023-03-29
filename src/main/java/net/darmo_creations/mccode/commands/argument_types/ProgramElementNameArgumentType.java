@@ -13,6 +13,7 @@ import net.minecraft.client.network.ClientCommandSource;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -39,41 +40,48 @@ public class ProgramElementNameArgumentType implements ArgumentType<String> {
   @Override
   public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
     S source = context.getSource();
-    if (source instanceof ServerCommandSource) {
-      ProgramCommand.DocType docType = context.getArgument(ProgramCommand.DOC_TYPE_ARG, ProgramCommand.DocType.class);
-      return switch (docType) {
-        case TYPE -> CommandSource.suggestMatching(
-            ProgramManager.getTypes().stream()
-                .map(TypeBase::getName)
-                .sorted()
-                .collect(Collectors.toList()),
-            builder
-        );
-        case PROPERTY -> CommandSource.suggestMatching(
-            ProgramManager.getTypes().stream()
-                .flatMap(type -> type.getProperties().keySet().stream().map(pName -> type.getName() + "." + pName))
-                .sorted()
-                .collect(Collectors.toList()),
-            builder
-        );
-        case METHOD -> CommandSource.suggestMatching(
-            ProgramManager.getTypes().stream()
-                .flatMap(type -> type.getMethods().keySet().stream().map(mName -> type.getName() + "." + mName))
-                .sorted()
-                .collect(Collectors.toList()),
-            builder
-        );
-        case FUNCTION -> CommandSource.suggestMatching(
-            ProgramManager.getBuiltinFunctions().stream()
-                .map(BuiltinFunction::getName)
-                .sorted()
-                .collect(Collectors.toList()),
-            builder
-        );
-      };
-    } else if (source instanceof ClientCommandSource s) {
-      return s.getCompletions(context);
+
+    if (!(source instanceof ServerCommandSource)) {
+      if (source instanceof ClientCommandSource s) {
+        return s.getCompletions(context);
+      }
+      return Suggestions.empty();
     }
-    return Suggestions.empty();
+
+    Optional<ProgramDocTypeTypeArgument.DocType> opt = ProgramDocTypeTypeArgument.getDocType(context, ProgramCommand.DOC_TYPE_ARG);
+    if (opt.isEmpty()) {
+      return Suggestions.empty();
+    }
+
+    return switch (opt.get()) {
+      case TYPE -> CommandSource.suggestMatching(
+          ProgramManager.getTypes().stream()
+              .map(TypeBase::getName)
+              .sorted()
+              .collect(Collectors.toList()),
+          builder
+      );
+      case PROPERTY -> CommandSource.suggestMatching(
+          ProgramManager.getTypes().stream()
+              .flatMap(type -> type.getProperties().keySet().stream().map(pName -> type.getName() + "." + pName))
+              .sorted()
+              .collect(Collectors.toList()),
+          builder
+      );
+      case METHOD -> CommandSource.suggestMatching(
+          ProgramManager.getTypes().stream()
+              .flatMap(type -> type.getMethods().keySet().stream().map(mName -> type.getName() + "." + mName))
+              .sorted()
+              .collect(Collectors.toList()),
+          builder
+      );
+      case FUNCTION -> CommandSource.suggestMatching(
+          ProgramManager.getBuiltinFunctions().stream()
+              .map(BuiltinFunction::getName)
+              .sorted()
+              .collect(Collectors.toList()),
+          builder
+      );
+    };
   }
 }
