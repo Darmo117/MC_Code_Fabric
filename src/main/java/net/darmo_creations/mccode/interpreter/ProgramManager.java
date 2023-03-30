@@ -846,6 +846,7 @@ public class ProgramManager extends PersistentState {
     declareBuiltinFunction(ToJSONStringFunction.class);
     declareBuiltinFunction(ToRadiansFunction.class);
     declareBuiltinFunction(ToRelativePosFunction.class);
+    declareBuiltinFunction(TypeOfFunction.class);
     declareBuiltinFunction(UnescapeFunction.class);
 
     // Generate cast operators for relevant types

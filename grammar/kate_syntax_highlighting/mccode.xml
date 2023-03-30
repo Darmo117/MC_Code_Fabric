@@ -112,6 +112,7 @@
       <item>tell</item>
       <item>console_log</item>
       <item>pos</item>
+      <item>type_of</item>
     </list>
     <list name="comment_tasks">
       <item>TODO</item>

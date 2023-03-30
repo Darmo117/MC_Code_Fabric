@@ -36,6 +36,6 @@ public class RandomIntFunction extends BuiltinFunction {
     if (a > b) {
       throw new EvaluationException(scope, "mccode.interpreter.error.random_invalid_bounds", a, b);
     }
-    return scope.getProgram().getRNG().nextInt(b - a) + a;
+    return (long) (scope.getProgram().getRNG().nextInt(b - a) + a);
   }
 }
