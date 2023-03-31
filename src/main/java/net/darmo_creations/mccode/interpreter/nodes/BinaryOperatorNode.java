@@ -50,8 +50,7 @@ public class BinaryOperatorNode extends OperatorNode {
     }
     // Special cases for AND and OR operators to implement lazy evaluation of second operand
     Object leftOperand = this.arguments.get(0).evaluate(scope, callStack);
-    TypeBase<?> leftType = ProgramManager.getTypeForValue(leftOperand);
-    boolean leftTrue = leftType.toBoolean(leftOperand);
+    boolean leftTrue = ProgramManager.getTypeForValue(leftOperand).toBoolean(leftOperand);
     if (this.operator == BinaryOperator.AND && !leftTrue || this.operator == BinaryOperator.OR && leftTrue) {
       return leftOperand;
     }

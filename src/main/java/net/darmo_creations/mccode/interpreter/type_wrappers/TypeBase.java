@@ -299,8 +299,8 @@ public abstract class TypeBase<T> {
       case SHIFTL -> this.__rshiftl__(scope, (T) self, o);
       case SHIFTR -> this.__rshiftr__(scope, (T) self, o);
       case SHIFTRU -> this.__rshiftru__(scope, (T) self, o);
-      case AND -> this.__rand__(scope, (T) self, o);
-      case OR -> this.__ror__(scope, (T) self, o);
+      case AND -> throw new IllegalArgumentException("cannot directly apply AND operator");
+      case OR -> throw new IllegalArgumentException("cannot directly apply OR operator");
       default -> throw new MCCodeException("invalid reverse operator: got %s".formatted(operator));
     };
   }
@@ -338,15 +338,6 @@ public abstract class TypeBase<T> {
         Object apply(Scope scope, V $self, Object o, boolean inPlace);
       }
     }
-    @FunctionalInterface
-    interface BinOperator<U> {
-      Object apply(final BinOp<U> op, final BinaryOperator operator);
-
-      @FunctionalInterface
-      interface BinOp<V> {
-        Object apply(Scope scope, V $self, Object o);
-      }
-    }
     InPlaceBinOperator<T> inPlaceBinOperator = (op, binaryOperator) -> {
       try {
         return op.apply(scope, $this, o1, inPlace);
@@ -361,31 +352,17 @@ public abstract class TypeBase<T> {
         throw e;
       }
     };
-    BinOperator<T> binOperator = (op, binaryOperator) -> {
-      try {
-        return op.apply(scope, $this, o1);
-      } catch (UnsupportedOperatorException | TypeException e) {
-        if (ProgramManager.getTypeForValue($this) != secondOperandType) {
-          try {
-            return secondOperandType.reverseOperator(binaryOperator, scope, o1, $this);
-          } catch (UnsupportedOperatorException | TypeException ignored) {
-            // Rethrow the original error below for coherence
-          }
-        }
-        throw e;
-      }
-    };
 
-    if (operator instanceof UnaryOperator) {
-      return switch ((UnaryOperator) operator) {
+    if (operator instanceof UnaryOperator op) {
+      return switch (op) {
         case MINUS -> this.__minus__(scope, $this);
         case NOT -> this.__not__(scope, $this);
         case NEG -> this.__neg__(scope, $this);
         case ITERATE -> this.__iter__(scope, $this);
         case LENGTH -> this.__len__(scope, $this);
       };
-    } else if (operator instanceof BinaryOperator) {
-      return switch ((BinaryOperator) operator) {
+    } else if (operator instanceof BinaryOperator op) {
+      return switch (op) {
         case PLUS -> inPlaceBinOperator.apply(this::__add__, BinaryOperator.PLUS);
         case SUB -> inPlaceBinOperator.apply(this::__sub__, BinaryOperator.SUB);
         case MUL -> inPlaceBinOperator.apply(this::__mul__, BinaryOperator.MUL);
@@ -410,17 +387,17 @@ public abstract class TypeBase<T> {
           Object res = this.__in__(scope, $this, o1);
           yield !ProgramManager.getTypeForValue(res).toBoolean(res);
         }
-        case AND -> binOperator.apply(this::__and__, BinaryOperator.AND);
-        case OR -> binOperator.apply(this::__or__, BinaryOperator.OR);
+        case AND -> throw new IllegalArgumentException("cannot directly apply AND operator");
+        case OR -> throw new IllegalArgumentException("cannot directly apply OR operator");
         case GET_ITEM -> this.__get_item__(scope, $this, o1);
         case DEL_ITEM -> {
           this.__del_item__(scope, $this, o1);
           yield null;
         }
       };
-    } else if (operator instanceof TernaryOperator) {
+    } else if (operator instanceof TernaryOperator op) {
       //noinspection ConstantConditions
-      return switch ((TernaryOperator) operator) {
+      return switch (op) {
         case SET_ITEM -> {
           this.__set_item__(scope, $this, o1, o2);
           yield null;
@@ -951,70 +928,6 @@ public abstract class TypeBase<T> {
    */
   protected long __len__(Scope scope, T self) {
     throw new UnsupportedOperatorException(scope, UnaryOperator.LENGTH, this);
-  }
-
-  /**
-   * Method that performs the "logical and" operation.
-   *
-   * @param scope Scope the operation is performed from.
-   * @param self  Instance of this type to apply the operator to.
-   * @param o     The second object.
-   * @return The result of the operator.
-   */
-  protected Object __and__(@SuppressWarnings("unused") Scope scope, T self, Object o) {
-    if (!this.toBoolean(self)) {
-      return self;
-    } else {
-      return o;
-    }
-  }
-
-  /**
-   * Method that performs the reverse "logical and" operation.
-   *
-   * @param scope Scope the operation is performed from.
-   * @param self  Instance of this type to apply the operator to.
-   * @param o     The second object.
-   * @return The result of the operator.
-   */
-  protected Object __rand__(@SuppressWarnings("unused") Scope scope, T self, Object o) {
-    if (!this.toBoolean(o)) {
-      return o;
-    } else {
-      return self;
-    }
-  }
-
-  /**
-   * Method that performs the "logical or" operation.
-   *
-   * @param scope Scope the operation is performed from.
-   * @param self  Instance of this type to apply the operator to.
-   * @param o     The second object.
-   * @return The result of the operator.
-   */
-  protected Object __or__(@SuppressWarnings("unused") Scope scope, T self, Object o) {
-    if (this.toBoolean(self)) {
-      return self;
-    } else {
-      return o;
-    }
-  }
-
-  /**
-   * Method that performs the reverse "logical or" operation.
-   *
-   * @param scope Scope the operation is performed from.
-   * @param self  Instance of this type to apply the operator to.
-   * @param o     The second object.
-   * @return The result of the operator.
-   */
-  protected Object __ror__(@SuppressWarnings("unused") Scope scope, T self, Object o) {
-    if (this.toBoolean(o)) {
-      return o;
-    } else {
-      return self;
-    }
   }
 
   /**
