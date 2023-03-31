@@ -1,5 +1,6 @@
 package net.darmo_creations.mccode.interpreter.nodes;
 
+import net.darmo_creations.mccode.interpreter.CallStack;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
@@ -40,6 +41,22 @@ public class BinaryOperatorNode extends OperatorNode {
   public BinaryOperatorNode(final CompoundTag tag) {
     super(tag);
     this.operator = BinaryOperator.fromString(this.getSymbol());
+  }
+
+  @Override
+  protected Object evaluateWrapped(Scope scope, CallStack callStack) {
+    if (this.operator != BinaryOperator.AND && this.operator != BinaryOperator.OR) {
+      return super.evaluateWrapped(scope, callStack);
+    }
+    // Special cases for AND and OR operators to implement lazy evaluation of second operand
+    Object leftOperand = this.arguments.get(0).evaluate(scope, callStack);
+    TypeBase<?> leftType = ProgramManager.getTypeForValue(leftOperand);
+    boolean leftTrue = leftType.toBoolean(leftOperand);
+    if (this.operator == BinaryOperator.AND && !leftTrue || this.operator == BinaryOperator.OR && leftTrue) {
+      return leftOperand;
+    }
+    // Right operand is only evaluated if the truthiness of the left operand is not enough to determine the result
+    return this.arguments.get(1).evaluate(scope, callStack);
   }
 
   @Override
