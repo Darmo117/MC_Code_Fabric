@@ -15,7 +15,9 @@ import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.*;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
@@ -79,21 +81,21 @@ public class MCCode implements ModInitializer {
       MutableText message = null;
       // Add error elements
       for (ProgramErrorReportElement element : report.elements()) {
-        MutableText t = MutableText.of(new LiteralTextContent(element.exception().getClass().getSimpleName() + ": "))
-            .append(MutableText.of(new TranslatableTextContent(element.translationKey(), element.args())));
+        MutableText t = Text.literal(element.exception().getClass().getSimpleName() + ": ")
+            .append(Text.translatable(element.translationKey(), element.args()));
         if (message == null) {
           message = t;
         } else {
-          message.append(MutableText.of(new LiteralTextContent("\n"))).append(t);
+          message.append(Text.literal("\n")).append(t);
         }
         // Add call stack trace
         for (CallStackElement traceElement : element.callStack()) {
           // There should always be at least one ProgramErrorReportElement instance
-          message.append(MutableText.of(new LiteralTextContent(
+          message.append(Text.literal(
               "\n  @ %s.%s [%d:%d]"
                   .formatted(traceElement.moduleName(), traceElement.scopeName(),
                       traceElement.line(), traceElement.column())
-          )));
+          ));
         }
       }
       if (message != null) {

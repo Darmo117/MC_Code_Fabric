@@ -8,8 +8,6 @@ import net.darmo_creations.mccode.interpreter.type_wrappers.NullType;
 import net.darmo_creations.mccode.interpreter.type_wrappers.StringType;
 import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralTextContent;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 
 import java.util.Arrays;
@@ -42,9 +40,9 @@ public class PrintFunction extends BuiltinFunction {
       throw new EvaluationException(scope, "mccode.interpreter.error.invalid_player_selector", selector);
     }
     Object[] message = this.getParameterValue(scope, 1);
-    Text text = MutableText.of(new LiteralTextContent(Arrays.stream(message)
+    Text text = Text.literal(Arrays.stream(message)
         .map(o -> ProgramManager.getTypeForValue(o).toString(o))
-        .collect(Collectors.joining(" "))));
+        .collect(Collectors.joining(" ")));
     players.forEach(player -> player.sendMessage(text, false));
     return null;
   }

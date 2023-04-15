@@ -6,8 +6,7 @@ import net.darmo_creations.mccode.interpreter.type_wrappers.AnyType;
 import net.darmo_creations.mccode.interpreter.type_wrappers.NullType;
 import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.text.LiteralTextContent;
-import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -31,9 +30,11 @@ public class ConsoleLogFunction extends BuiltinFunction {
     Program program = scope.getProgram();
     MinecraftServer server = program.getProgramManager().getWorld().getServer();
     Object[] message = this.getParameterValue(scope, 0);
-    String text = Arrays.stream(message).map(o -> ProgramManager.getTypeForValue(o).toString(o)).collect(Collectors.joining(" "));
+    String text = Arrays.stream(message)
+        .map(o -> ProgramManager.getTypeForValue(o).toString(o))
+        .collect(Collectors.joining(" "));
     String dimension = Utils.getDimension(scope.getProgram().getProgramManager().getWorld());
-    server.sendMessage(MutableText.of(new LiteralTextContent("[MCCode:%s][%s] %s".formatted(program.getName(), dimension, text))));
+    server.sendMessage(Text.literal("[MCCode:%s][%s] %s".formatted(program.getName(), dimension, text)));
     return null;
   }
 }
