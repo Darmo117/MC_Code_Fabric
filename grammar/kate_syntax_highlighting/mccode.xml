@@ -113,6 +113,8 @@
       <item>console_log</item>
       <item>pos</item>
       <item>type_of</item>
+      <item>all</item>
+      <item>any</item>
     </list>
     <list name="comment_tasks">
       <item>TODO</item>
