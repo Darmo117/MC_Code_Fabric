@@ -58,34 +58,56 @@ public class FunctionCallNode extends OperationNode {
           ProgramManager.getTypeForValue(o));
     }
 
+    List<Object> args = this.arguments.stream().map(node -> node.evaluate(scope, callStack)).collect(Collectors.toList());
+    return callFunction(function, args, scope, callStack, this.getLine(), this.getColumn());
+  }
+
+  /**
+   * Call a function object with the given arguments.
+   *
+   * @param function  Function to call.
+   * @param args      Arguments to pass to the function.
+   * @param scope     Function call’s scope.
+   * @param callStack Function call’s call stack
+   * @param line      Function call’s line.
+   * @param column    Function call’s column.
+   * @return The result of the function.
+   * @throws EvaluationException If the number of arguments is invalid.
+   */
+  public static Object callFunction(
+      final Function function, final List<Object> args,
+      final Scope scope, CallStack callStack,
+      int line, int column
+  ) {
     if (function.isVarArg()) {
-      if (this.arguments.size() < function.getParameters().size() - 1) {
+      if (args.size() < function.getParameters().size() - 1) {
         throw new EvaluationException(scope, "mccode.interpreter.error.invalid_vararg_function_arguments_number",
-            function.getName(), function.getParameters().size() - 1, this.arguments.size());
+            function.getName(), function.getParameters().size() - 1, args.size());
       }
-    } else if (this.arguments.size() != function.getParameters().size()) {
+    } else if (args.size() != function.getParameters().size()) {
       throw new EvaluationException(scope, "mccode.interpreter.error.invalid_function_arguments_number",
-          function.getName(), function.getParameters().size(), this.arguments.size());
+          function.getName(), function.getParameters().size(), args.size());
     }
 
+    // Put arguments into variables
     List<Variable> values = new LinkedList<>();
     for (int i = 0; i < function.getParameters().size(); i++) {
       Parameter parameter = function.getParameter(i);
       Object value;
       if (function.isVarArg() && i == function.getParameters().size() - 1) {
         // Pack all remaining values into array
-        List<Node> remaining = this.arguments.subList(i, this.arguments.size());
+        List<Object> remaining = args.subList(i, args.size());
         if (function instanceof UserFunction) {
-          value = new MCList(remaining.stream().map(node -> node.evaluate(scope, callStack)).toList());
+          value = new MCList(remaining);
         } else {
           Object[] array = (Object[]) Array.newInstance(parameter.getType().getWrappedType(), remaining.size());
           for (int j = 0; j < remaining.size(); j++) {
-            array[j] = parameter.getType().implicitCast(scope, remaining.get(j).evaluate(scope, callStack));
+            array[j] = parameter.getType().implicitCast(scope, remaining.get(j));
           }
           value = array;
         }
       } else {
-        value = this.arguments.get(i).evaluate(scope, callStack);
+        value = args.get(i);
       }
       values.add(new Variable(parameter.getName(), false, false, false, true, value));
     }
@@ -104,7 +126,7 @@ public class FunctionCallNode extends OperationNode {
     values.forEach(s::declareVariable);
 
     if (function instanceof UserFunction) {
-      callStack.push(new CallStackElement(scope.getProgram().getName(), scope.getTopName(), this.getLine(), this.getColumn()));
+      callStack.push(new CallStackElement(scope.getProgram().getName(), scope.getTopName(), line, column));
     }
     Object result = function.apply(s, callStack);
     if (function instanceof UserFunction) {

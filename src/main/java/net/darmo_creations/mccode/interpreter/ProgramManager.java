@@ -807,6 +807,8 @@ public class ProgramManager extends PersistentState {
     MCCode.LOGGER.info("[MC Code] Loading default builtin functions");
     declareBuiltinFunction(AbsFunction.class);
     declareBuiltinFunction(AcosFunction.class);
+    declareBuiltinFunction(AllFunction.class);
+    declareBuiltinFunction(AnyFunction.class);
     declareBuiltinFunction(AsinFunction.class);
     declareBuiltinFunction(AtanFunction.class);
     declareBuiltinFunction(Atan2Function.class);
