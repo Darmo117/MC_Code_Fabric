@@ -16,11 +16,11 @@ import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
 import java.util.Collections;
 
 /**
- * Function equivalent to Python’s any() function.
+ * Function similar to Python’s any() function.
  */
-@Function(parametersDoc = {"An iterable.", "A function that returns true or false for a given value."},
-    doc = "Returns true if the provided function returns a truthy value for any value of the given iterable;" +
-        " false otherwise or if the iterable is empty.")
+@Function(parametersDoc = {"An iterable.", "A predicate `function that returns #true or #false for a given value."},
+    doc = "Returns #true if the provided `function returns a truthy value for any value of the given iterable;" +
+        " #false otherwise or if the iterable is empty.")
 public class AnyFunction extends BuiltinFunction {
   /**
    * Create a function that returns true if the provided function
@@ -38,7 +38,7 @@ public class AnyFunction extends BuiltinFunction {
     net.darmo_creations.mccode.interpreter.types.Function f = this.getParameterValue(scope, 1);
     if (iterable instanceof Iterable<?> it) {
       return Streams.stream(it).anyMatch(v -> {
-        Object r = FunctionCallNode.callFunction(f, Collections.singletonList(v), scope, callStack, -1, -1);
+        Object r = FunctionCallNode.applyFunction(f, Collections.singletonList(v), scope, callStack, -1, -1);
         return ProgramManager.getTypeForValue(r).toBoolean(r);
       });
     }

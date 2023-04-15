@@ -115,6 +115,8 @@
       <item>type_of</item>
       <item>all</item>
       <item>any</item>
+      <item>map</item>
+      <item>reduce</item>
     </list>
     <list name="comment_tasks">
       <item>TODO</item>

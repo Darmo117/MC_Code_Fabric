@@ -828,6 +828,7 @@ public class ProgramManager extends PersistentState {
     declareBuiltinFunction(LenFunction.class);
     declareBuiltinFunction(Log10Function.class);
     declareBuiltinFunction(LogFunction.class);
+    declareBuiltinFunction(MapFunction.class);
     declareBuiltinFunction(MaxFunction.class);
     declareBuiltinFunction(MinFunction.class);
     declareBuiltinFunction(PosFunction.class);
@@ -835,6 +836,7 @@ public class ProgramManager extends PersistentState {
     declareBuiltinFunction(RandomFloatFunction.class);
     declareBuiltinFunction(RandomIntFunction.class);
     declareBuiltinFunction(RangeFunction.class);
+    declareBuiltinFunction(ReduceFunction.class);
     declareBuiltinFunction(ReversedFunction.class);
     declareBuiltinFunction(RoundFunction.class);
     declareBuiltinFunction(SayFunction.class);

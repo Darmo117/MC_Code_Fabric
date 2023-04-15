@@ -59,11 +59,11 @@ public class FunctionCallNode extends OperationNode {
     }
 
     List<Object> args = this.arguments.stream().map(node -> node.evaluate(scope, callStack)).collect(Collectors.toList());
-    return callFunction(function, args, scope, callStack, this.getLine(), this.getColumn());
+    return applyFunction(function, args, scope, callStack, this.getLine(), this.getColumn());
   }
 
   /**
-   * Call a function object with the given arguments.
+   * Apply a function object to the given arguments.
    *
    * @param function  Function to call.
    * @param args      Arguments to pass to the function.
@@ -74,7 +74,7 @@ public class FunctionCallNode extends OperationNode {
    * @return The result of the function.
    * @throws EvaluationException If the number of arguments is invalid.
    */
-  public static Object callFunction(
+  public static Object applyFunction(
       final Function function, final List<Object> args,
       final Scope scope, CallStack callStack,
       int line, int column
