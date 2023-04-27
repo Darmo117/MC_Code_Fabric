@@ -11,6 +11,9 @@ import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.tags.StringListTag;
 import net.darmo_creations.mccode.interpreter.tags.TagType;
 import net.darmo_creations.mccode.interpreter.types.MCList;
+import net.darmo_creations.mccode.interpreter.types.MCMap;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.World;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,7 +24,11 @@ import java.util.stream.Collectors;
  * The program’s state can be saved and restored and world loading and unloading.
  */
 public class Program {
-  public static final String WORLD_VAR_NAME = "WORLD";
+  public static final String THIS_DIMENSION_VAR_NAME = "DIM";
+  public static final String OVERWORLD_VAR_NAME = "OVERWORLD";
+  public static final String THE_NETHER_VAR_NAME = "THE_NETHER";
+  public static final String THE_END_VAR_NAME = "THE_END";
+  public static final String DIMENSIONS_VAR_NAME = "DIMS";
 
   public static final String NAME_KEY = "Name";
   public static final String STATEMENTS_KEY = "Statements";
@@ -142,8 +149,21 @@ public class Program {
    * Declare global variables.
    */
   private void setup() {
-    this.scope.declareVariableGlobally(new Variable(WORLD_VAR_NAME, false, false, true,
+    // Worlds variables
+    this.scope.declareVariableGlobally(new Variable(THIS_DIMENSION_VAR_NAME, false, false, true,
         false, this.programManager.getWorld()));
+    MinecraftServer server = this.programManager.getWorld().getServer();
+    this.scope.declareVariableGlobally(new Variable(OVERWORLD_VAR_NAME, false, false, true,
+        false, server.getWorld(World.OVERWORLD)));
+    this.scope.declareVariableGlobally(new Variable(THE_NETHER_VAR_NAME, false, false, true,
+        false, server.getWorld(World.NETHER)));
+    this.scope.declareVariableGlobally(new Variable(THE_END_VAR_NAME, false, false, true,
+        false, server.getWorld(World.END)));
+    MCMap dimensions = server.getWorldRegistryKeys().stream()
+        .collect(MCMap::new, (map, key) -> map.put(key.getValue().toString(), server.getWorld(key)), MCMap::putAll);
+    this.scope.declareVariableGlobally(new Variable(DIMENSIONS_VAR_NAME, false, false, true,
+        false, dimensions));
+    // Program arguments
     this.scope.declareVariableGlobally(new Variable("$$", false, false, true, false, (long) this.args.size()));
     this.scope.declareVariableGlobally(new Variable("$_", false, false, true, false, new MCList(this.args)));
     for (int i = 0; i < this.args.size(); i++) {

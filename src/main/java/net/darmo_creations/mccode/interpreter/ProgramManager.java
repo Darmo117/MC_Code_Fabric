@@ -482,7 +482,7 @@ public class ProgramManager extends PersistentState {
    * Declare all default builtin types.
    */
   public static void declareDefaultBuiltinTypes() {
-    MCCode.LOGGER.info("[MC Code] Loading default types");
+    MCCode.LOGGER.info("Loading default types");
     declareType(AnyType.class);
     declareType(NullType.class);
     declareType(BooleanType.class);
@@ -499,7 +499,7 @@ public class ProgramManager extends PersistentState {
     declareType(FunctionType.class);
     declareType(RangeType.class);
     declareType(ModuleType.class);
-    MCCode.LOGGER.info("[MC Code] Default types loaded");
+    MCCode.LOGGER.info("Default types loaded");
   }
 
   /**
@@ -511,7 +511,7 @@ public class ProgramManager extends PersistentState {
    */
   public static <T extends TypeBase<?>> void declareType(final Class<T> typeClass) throws TypeException {
     ensureNotInitialized();
-    MCCode.LOGGER.info("[MC Code] Found type wrapper %s class".formatted(typeClass.getSimpleName()));
+    MCCode.LOGGER.info("Found type wrapper %s class".formatted(typeClass.getSimpleName()));
 
     T type;
     try {
@@ -804,7 +804,7 @@ public class ProgramManager extends PersistentState {
    * Declare all default builtin functions.
    */
   public static void declareDefaultBuiltinFunctions() {
-    MCCode.LOGGER.info("[MC Code] Loading default builtin functions");
+    MCCode.LOGGER.info("Loading default builtin functions");
     declareBuiltinFunction(AbsFunction.class);
     declareBuiltinFunction(AcosFunction.class);
     declareBuiltinFunction(AllFunction.class);
@@ -877,7 +877,7 @@ public class ProgramManager extends PersistentState {
         FUNCTIONS.put(name, function);
       }
     }
-    MCCode.LOGGER.info("[MC Code] Default builtin functions loaded");
+    MCCode.LOGGER.info("Default builtin functions loaded");
   }
 
   /**
@@ -887,7 +887,7 @@ public class ProgramManager extends PersistentState {
    */
   public static void declareBuiltinFunction(final Class<? extends BuiltinFunction> functionClass) {
     ensureNotInitialized();
-    MCCode.LOGGER.info("[MC Code] Found builtin function %s class".formatted(functionClass.getSimpleName()));
+    MCCode.LOGGER.info("Found builtin function %s class".formatted(functionClass.getSimpleName()));
 
     Function functionAnnotation = functionClass.getAnnotation(Function.class);
     if (functionAnnotation == null) {

@@ -41,7 +41,12 @@
       <item>false</item>
     </list>
     <list name="builtin_constants">
-      <item>WORLD</item>
+      <item>DIMS</item>
+      <item>DIM</item>
+      <item>OVERWORLD</item>
+      <item>THE_NETHER</item>
+      <item>THE_END</item>
+
       <item>INF</item>
       <item>PI</item>
       <item>E</item>

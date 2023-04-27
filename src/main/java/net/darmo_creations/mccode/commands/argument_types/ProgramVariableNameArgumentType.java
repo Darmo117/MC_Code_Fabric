@@ -68,7 +68,7 @@ public class ProgramVariableNameArgumentType implements ArgumentType<String> {
     S source = context.getSource();
     if (source instanceof ServerCommandSource s) {
       String programName = StringArgumentType.getString(context, ProgramCommand.PROGRAM_NAME_ARG);
-      Optional<Program> program = MCCode.INSTANCE.getProgramManager(s.getWorld()).getProgram(programName);
+      Optional<Program> program = MCCode.instance().getProgramManager(s.getWorld()).getProgram(programName);
       if (program.isPresent()) {
         Predicate<Variable> filter = switch (this.variableType) {
           case ANY -> Variable::isPubliclyVisible;

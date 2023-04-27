@@ -34,7 +34,7 @@ public class ConsoleLogFunction extends BuiltinFunction {
         .map(o -> ProgramManager.getTypeForValue(o).toString(o))
         .collect(Collectors.joining(" "));
     String dimension = Utils.getDimension(scope.getProgram().getProgramManager().getWorld());
-    server.sendMessage(Text.literal("[MCCode:%s][%s] %s".formatted(program.getName(), dimension, text)));
+    server.sendMessage(Text.literal("[MCCode:Program %s in %s] %s".formatted(program.getName(), dimension, text)));
     return null;
   }
 }

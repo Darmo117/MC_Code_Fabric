@@ -58,7 +58,7 @@ public class ProgramNameArgumentType implements ArgumentType<String> {
   public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
     S source = context.getSource();
     if (source instanceof ServerCommandSource s) {
-      ProgramManager pm = MCCode.INSTANCE.getProgramManager(s.getWorld());
+      ProgramManager pm = MCCode.instance().getProgramManager(s.getWorld());
       if (!this.loadedOnly) {
         File dir = pm.getProgramsDirectory();
         if (!dir.isDirectory()) {

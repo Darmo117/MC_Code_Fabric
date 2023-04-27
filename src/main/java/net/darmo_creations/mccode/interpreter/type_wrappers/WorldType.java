@@ -9,7 +9,6 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.darmo_creations.mccode.MCCode;
-import net.darmo_creations.mccode.interpreter.Program;
 import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.Scope;
 import net.darmo_creations.mccode.interpreter.Utils;
@@ -55,6 +54,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryEntryList;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.thread.FutureQueue;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.biome.Biome;
@@ -74,6 +74,8 @@ import java.util.stream.Collectors;
         "It is the object through which scripts can interact with blocks, entities, etc.")
 public class WorldType extends TypeBase<ServerWorld> {
   public static final String NAME = "world";
+
+  private static final String DIMENSION_ID_KEY = "DimensionID";
 
   private static final DynamicCommandExceptionType STRUCTURE_INVALID_EXCEPTION =
       new DynamicCommandExceptionType(id -> Text.translatable("commands.locate.structure.invalid", id));
@@ -695,10 +697,10 @@ public class WorldType extends TypeBase<ServerWorld> {
     CommandSourceStackWrapper commandSourceStack = new CommandSourceStackWrapper(server, self);
     long result = server.getCommandManager().executeWithPrefix(commandSourceStack, command);
     if (result == 0 && commandSourceStack.anyFailures) {
-      String dimension = Utils.getDimensionType(scope.getProgram().getProgramManager().getWorld());
+      final String dimension = Utils.getDimension(scope.getProgram().getProgramManager().getWorld());
       final String cmd = command;
       commandSourceStack.errors.forEach(text -> {
-        String prefix = "[MCCode:%s][%s] world.execute(\"/%s\"): ".formatted(scope.getProgram().getName(), dimension, cmd);
+        String prefix = "[Program %s in %s] world.execute(\"/%s\"): ".formatted(scope.getProgram().getName(), dimension, cmd);
         MCCode.LOGGER.warn(prefix + text.getString());
       });
       return Optional.empty();
@@ -776,8 +778,16 @@ public class WorldType extends TypeBase<ServerWorld> {
   }
 
   @Override
+  protected CompoundTag _writeToTag(final ServerWorld self) {
+    CompoundTag tag = super._writeToTag(self);
+    tag.putString(DIMENSION_ID_KEY, Utils.getDimension(self));
+    return tag;
+  }
+
+  @Override
   public ServerWorld readFromTag(final Scope scope, final CompoundTag tag) {
-    return (ServerWorld) scope.getVariable(Program.WORLD_VAR_NAME, false);
+    MinecraftServer server = scope.getProgram().getProgramManager().getWorld().getServer();
+    return server.getWorld(RegistryKey.of(Registry.WORLD_KEY, new Identifier(tag.getString(DIMENSION_ID_KEY))));
   }
 
   /**
