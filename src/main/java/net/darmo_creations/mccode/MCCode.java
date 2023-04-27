@@ -37,9 +37,9 @@ public class MCCode implements ModInitializer {
   public static MCCode INSTANCE;
 
   /**
-   * Map associating worlds to their program managers.
+   * Map associating each world to their program managers.
    */
-  public final Map<World, ProgramManager> PROGRAM_MANAGERS = new HashMap<>();
+  private final Map<World, ProgramManager> programManagers = new HashMap<>();
 
   @Override
   public void onInitialize() {
@@ -59,6 +59,16 @@ public class MCCode implements ModInitializer {
   }
 
   /**
+   * Return the program manager for the given world.
+   *
+   * @param world A world object.
+   * @return The world’s program manager.
+   */
+  public ProgramManager getProgramManager(final World world) {
+    return this.programManagers.get(world);
+  }
+
+  /**
    * Registers all custom commands.
    */
   private void registerCommands() {
@@ -67,7 +77,7 @@ public class MCCode implements ModInitializer {
   }
 
   private void onWorldLoad(MinecraftServer server, ServerWorld world) {
-    this.PROGRAM_MANAGERS.put(world, world.getPersistentStateManager().getOrCreate(
+    this.programManagers.put(world, world.getPersistentStateManager().getOrCreate(
         compound -> new ProgramManager(world, compound),
         () -> new ProgramManager(world),
         "program_manager"
@@ -75,7 +85,7 @@ public class MCCode implements ModInitializer {
   }
 
   private void onWorldTickStart(ServerWorld world) {
-    ProgramManager programManager = this.PROGRAM_MANAGERS.get(world);
+    ProgramManager programManager = this.programManagers.get(world);
     // Log errors in chat and server console
     for (ProgramErrorReport report : programManager.executePrograms()) {
       MutableText message = null;

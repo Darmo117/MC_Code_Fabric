@@ -111,7 +111,7 @@ public class ProgramCommand {
   }
 
   private static int loadAndRunProgram(CommandContext<ServerCommandSource> context, final boolean hasAlias, final boolean hasArgs) {
-    ProgramManager pm = MCCode.INSTANCE.PROGRAM_MANAGERS.get(context.getSource().getWorld());
+    ProgramManager pm = MCCode.INSTANCE.getProgramManager(context.getSource().getWorld());
     String programName = ProgramNameArgumentType.getName(context, PROGRAM_NAME_ARG);
     String alias = hasAlias ? StringArgumentType.getString(context, PROGRAM_ALIAS_ARG) : null;
     String[] args = hasArgs ? StringArgumentType.getString(context, PROGRAM_ARGUMENTS_ARG).split(" ") : new String[0];
@@ -138,7 +138,7 @@ public class ProgramCommand {
   }
 
   private static int stopProgram(CommandContext<ServerCommandSource> context) {
-    ProgramManager pm = MCCode.INSTANCE.PROGRAM_MANAGERS.get(context.getSource().getWorld());
+    ProgramManager pm = MCCode.INSTANCE.getProgramManager(context.getSource().getWorld());
     String programName = ProgramNameArgumentType.getName(context, PROGRAM_NAME_ARG);
     try {
       pm.unloadProgram(programName);
@@ -152,7 +152,7 @@ public class ProgramCommand {
   }
 
   private static int resetProgram(CommandContext<ServerCommandSource> context) {
-    ProgramManager pm = MCCode.INSTANCE.PROGRAM_MANAGERS.get(context.getSource().getWorld());
+    ProgramManager pm = MCCode.INSTANCE.getProgramManager(context.getSource().getWorld());
     String programName = ProgramNameArgumentType.getName(context, PROGRAM_NAME_ARG);
     try {
       pm.resetProgram(programName);
@@ -166,7 +166,7 @@ public class ProgramCommand {
   }
 
   private static int pauseProgram(CommandContext<ServerCommandSource> context) {
-    ProgramManager pm = MCCode.INSTANCE.PROGRAM_MANAGERS.get(context.getSource().getWorld());
+    ProgramManager pm = MCCode.INSTANCE.getProgramManager(context.getSource().getWorld());
     String programName = ProgramNameArgumentType.getName(context, PROGRAM_NAME_ARG);
     try {
       pm.pauseProgram(programName);
@@ -180,7 +180,7 @@ public class ProgramCommand {
   }
 
   private static int listPrograms(CommandContext<ServerCommandSource> context) {
-    ProgramManager pm = MCCode.INSTANCE.PROGRAM_MANAGERS.get(context.getSource().getWorld());
+    ProgramManager pm = MCCode.INSTANCE.getProgramManager(context.getSource().getWorld());
     List<String> loadedPrograms = pm.getLoadedPrograms();
     if (loadedPrograms.isEmpty()) {
       context.getSource().sendError(Text.translatable("commands.program.error.no_loaded_programs"));
@@ -194,7 +194,7 @@ public class ProgramCommand {
   }
 
   private static int getVariableValue(CommandContext<ServerCommandSource> context) {
-    ProgramManager pm = MCCode.INSTANCE.PROGRAM_MANAGERS.get(context.getSource().getWorld());
+    ProgramManager pm = MCCode.INSTANCE.getProgramManager(context.getSource().getWorld());
     String programName = ProgramNameArgumentType.getName(context, PROGRAM_NAME_ARG);
     Optional<Program> program = pm.getProgram(programName);
     if (program.isPresent()) {
@@ -217,7 +217,7 @@ public class ProgramCommand {
   }
 
   private static int setVariableValue(CommandContext<ServerCommandSource> context) {
-    ProgramManager pm = MCCode.INSTANCE.PROGRAM_MANAGERS.get(context.getSource().getWorld());
+    ProgramManager pm = MCCode.INSTANCE.getProgramManager(context.getSource().getWorld());
     String programName = ProgramNameArgumentType.getName(context, PROGRAM_NAME_ARG);
     Optional<Program> program = pm.getProgram(programName);
     if (program.isPresent()) {
@@ -249,7 +249,7 @@ public class ProgramCommand {
   }
 
   private static int deleteVariable(CommandContext<ServerCommandSource> context) {
-    ProgramManager pm = MCCode.INSTANCE.PROGRAM_MANAGERS.get(context.getSource().getWorld());
+    ProgramManager pm = MCCode.INSTANCE.getProgramManager(context.getSource().getWorld());
     String programName = ProgramNameArgumentType.getName(context, PROGRAM_NAME_ARG);
     Optional<Program> program = pm.getProgram(programName);
     if (program.isPresent()) {
