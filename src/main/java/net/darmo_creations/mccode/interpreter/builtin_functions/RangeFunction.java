@@ -15,7 +15,7 @@ import net.darmo_creations.mccode.interpreter.types.Range;
  */
 @Function(parametersDoc = {
     "The first value (included).",
-    "The last value (execluded).",
+    "The last value (excluded).",
     "The increment step. May be negative."
 },
     returnDoc = "A `range object for the given arguments.",
