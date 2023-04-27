@@ -14,8 +14,8 @@ import net.darmo_creations.mccode.interpreter.types.Range;
  * A function that returns a {@link Range} object.
  */
 @Function(parametersDoc = {
-    "The first value.",
-    "The last value.",
+    "The first value (included).",
+    "The last value (execluded).",
     "The increment step. May be negative."
 },
     returnDoc = "A `range object for the given arguments.",
