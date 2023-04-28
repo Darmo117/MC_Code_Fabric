@@ -277,8 +277,7 @@ public abstract class TypeBase<T> {
    * @return A deep copy of the argument.
    */
   public T copy(final Scope scope, final Object self) {
-    this.ensureType(self, String.format("attempt to clone object of type \"%s\" from type \"%s\"",
-        ProgramManager.getTypeForValue(self), this));
+    this.ensureType(self, "attempt to clone object of type \"%s\" from type \"%s\"");
     //noinspection unchecked
     return this.__copy__(scope, (T) self);
   }
@@ -1001,8 +1000,7 @@ public abstract class TypeBase<T> {
    * @return A tag.
    */
   public CompoundTag writeToTag(final Object self) {
-    this.ensureType(self, String.format("attempt to serialize object of type \"%s\" from type \"%s\"",
-        ProgramManager.getTypeForValue(self), this));
+    this.ensureType(self, "attempt to serialize object of type \"%s\" from type \"%s\"");
     //noinspection unchecked
     return this._writeToTag((T) self);
   }
@@ -1037,8 +1035,9 @@ public abstract class TypeBase<T> {
    * Raise an exception if the type of the given object does not match this type.
    */
   private void ensureType(final Object o, final String errorMessage) {
-    if (ProgramManager.getTypeForValue(o) != this) {
-      throw new TypeException(errorMessage);
+    TypeBase<?> actualType = ProgramManager.getTypeForValue(o);
+    if (actualType != this) {
+      throw new TypeException(errorMessage.formatted(actualType, this));
     }
   }
 }
