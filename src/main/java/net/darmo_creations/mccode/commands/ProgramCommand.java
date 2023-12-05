@@ -115,17 +115,25 @@ public class ProgramCommand {
     String programName = ProgramNameArgumentType.getName(context, PROGRAM_NAME_ARG);
     String alias = hasAlias ? StringArgumentType.getString(context, PROGRAM_ALIAS_ARG) : null;
     String[] args = hasArgs ? StringArgumentType.getString(context, PROGRAM_ARGUMENTS_ARG).split(" ") : new String[0];
+
+    String actualName = alias != null ? alias : programName;
+    Optional<Program> programOpt = pm.getProgram(actualName);
     Program p;
-    try {
-      p = pm.loadProgram(programName, alias, false, args);
-    } catch (SyntaxErrorException e) {
-      context.getSource().sendError(Text.literal("[%s:%d:%d] ".formatted(programName, e.getLine(), e.getColumn()))
-          .append(Text.translatable(e.getTranslationKey(), e.getArgs())));
-      return 0;
-    } catch (ProgramStatusException e) {
-      context.getSource().sendError(Text.translatable(e.getTranslationKey(), e.getProgramName()));
-      return 0;
+    if (programOpt.isPresent()) {
+      p = programOpt.get();
+    } else {
+      try {
+        p = pm.loadProgram(programName, alias, false, args);
+      } catch (SyntaxErrorException e) {
+        context.getSource().sendError(Text.literal("[%s:%d:%d] ".formatted(programName, e.getLine(), e.getColumn()))
+            .append(Text.translatable(e.getTranslationKey(), e.getArgs())));
+        return 0;
+      } catch (ProgramStatusException e) {
+        context.getSource().sendError(Text.translatable(e.getTranslationKey(), e.getProgramName()));
+        return 0;
+      }
     }
+
     try {
       pm.runProgram(p.getName());
     } catch (ProgramStatusException e) {
@@ -392,7 +400,7 @@ public class ProgramCommand {
           Text.translatable("commands.program.error.no_doc_for_type", typeName));
       return Optional.empty();
     }
-    return Optional.of(new ImmutablePair<>(d.get(), new Object[]{typeName}));
+    return Optional.of(new ImmutablePair<>(d.get(), new Object[] {typeName}));
   }
 
   private static Optional<Pair<String, Object[]>> getPropertyDoc(CommandContext<ServerCommandSource> context, final String prefixedPropertyName) {
@@ -414,7 +422,7 @@ public class ProgramCommand {
             Text.translatable("commands.program.error.no_doc_for_property", typeName, propertyName));
         return Optional.empty();
       }
-      return Optional.of(new ImmutablePair<>(d.get(), new Object[]{typeName, propertyName}));
+      return Optional.of(new ImmutablePair<>(d.get(), new Object[] {typeName, propertyName}));
     }
 
     context.getSource().sendError(
@@ -441,7 +449,7 @@ public class ProgramCommand {
             Text.translatable("commands.program.error.no_doc_for_method", typeName, methodName));
         return Optional.empty();
       }
-      return Optional.of(new ImmutablePair<>(d.get(), new Object[]{typeName, methodName}));
+      return Optional.of(new ImmutablePair<>(d.get(), new Object[] {typeName, methodName}));
     }
 
     context.getSource().sendError(
@@ -459,7 +467,7 @@ public class ProgramCommand {
             Text.translatable("commands.program.error.no_doc_for_function", functionName));
         return Optional.empty();
       }
-      return Optional.of(new ImmutablePair<>(d.get(), new Object[]{functionName}));
+      return Optional.of(new ImmutablePair<>(d.get(), new Object[] {functionName}));
     }
 
     context.getSource().sendError(
