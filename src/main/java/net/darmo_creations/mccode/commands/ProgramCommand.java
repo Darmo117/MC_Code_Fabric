@@ -22,6 +22,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -123,7 +124,9 @@ public class ProgramCommand {
       p = programOpt.get();
     } else {
       try {
-        p = pm.loadProgram(programName, alias, false, args);
+        Vec3d execPos = context.getSource().getPosition();
+        Vec2f execRot = context.getSource().getRotation();
+        p = pm.loadProgram(programName, alias, false, execPos, execRot, args);
       } catch (SyntaxErrorException e) {
         context.getSource().sendError(Text.literal("[%s:%d:%d] ".formatted(programName, e.getLine(), e.getColumn()))
             .append(Text.translatable(e.getTranslationKey(), e.getArgs())));
@@ -321,7 +324,7 @@ public class ProgramCommand {
     boolean escapeNext = false;
 
     for (int i = 0; i < rawDoc.length(); i++) {
-      String c = rawDoc.charAt(i) + "";
+      String c = String.valueOf(rawDoc.charAt(i));
       if ("\\".equals(c) && !escapeNext) {
         escapeNext = true;
       } else if (ProgramManager.DOC_PARAM_PREFIX.equals(c)) {
@@ -368,7 +371,7 @@ public class ProgramCommand {
 
     for (int i = start + 1; i < rawDoc.length(); i++) {
       char c = rawDoc.charAt(i);
-      if (WORD_PATTERN.asPredicate().test("" + c)) {
+      if (WORD_PATTERN.asPredicate().test(String.valueOf(c))) {
         word.append(c);
       } else {
         break;

@@ -5,6 +5,7 @@ import net.darmo_creations.mccode.interpreter.exceptions.*;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
 import net.darmo_creations.mccode.interpreter.tags.StringListTag;
 import net.darmo_creations.mccode.interpreter.tags.TagType;
+import net.minecraft.util.math.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,14 +52,17 @@ public class ImportStatement extends Statement {
   protected StatementAction executeWrapped(Scope scope, CallStack callStack) {
     String name = this.getModulePath();
     Program module;
+    Program program = scope.getProgram();
     try {
-      module = scope.getProgram().getProgramManager().loadProgram(name, null, true);
+      Vec3d execPos = program.getExecutorPosition();
+      Vec2f execRot = program.getExecutorRotation();
+      module = program.getProgramManager().loadProgram(name, null, true, execPos, execRot);
     } catch (SyntaxErrorException e) {
       CallStack c = new CallStack();
       c.push(new CallStackElement(name, scope.getTopName(), e.getLine(), e.getColumn()));
       throw new ImportException(scope, name, c, e);
     } catch (ProgramStatusException e) {
-      callStack.push(new CallStackElement(scope.getProgram().getName(), scope.getTopName(), this.getLine(), this.getColumn()));
+      callStack.push(new CallStackElement(program.getName(), scope.getTopName(), this.getLine(), this.getColumn()));
       throw new MCCodeRuntimeException(scope, null, this.getLine(), this.getColumn(), e.getTranslationKey(), e.getProgramName());
     }
     try {

@@ -1,34 +1,29 @@
 package net.darmo_creations.mccode.interpreter;
 
-import net.darmo_creations.mccode.MCCode;
+import net.darmo_creations.mccode.*;
+import net.darmo_creations.mccode.interpreter.annotations.Function;
+import net.darmo_creations.mccode.interpreter.annotations.Type;
 import net.darmo_creations.mccode.interpreter.annotations.*;
 import net.darmo_creations.mccode.interpreter.builtin_functions.*;
 import net.darmo_creations.mccode.interpreter.exceptions.*;
-import net.darmo_creations.mccode.interpreter.parser.ProgramParser;
-import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
-import net.darmo_creations.mccode.interpreter.tags.CompoundTagListTag;
-import net.darmo_creations.mccode.interpreter.tags.TagType;
+import net.darmo_creations.mccode.interpreter.parser.*;
+import net.darmo_creations.mccode.interpreter.tags.*;
 import net.darmo_creations.mccode.interpreter.type_wrappers.*;
-import net.darmo_creations.mccode.interpreter.types.BuiltinFunction;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.WorldSavePath;
-import net.minecraft.world.PersistentState;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
+import net.darmo_creations.mccode.interpreter.types.*;
+import net.minecraft.nbt.*;
+import net.minecraft.server.world.*;
+import net.minecraft.util.*;
+import net.minecraft.util.math.*;
+import net.minecraft.world.*;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
+import org.apache.commons.lang3.tuple.*;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.io.*;
 import java.lang.reflect.Method;
-import java.nio.file.Paths;
+import java.lang.reflect.*;
+import java.nio.file.*;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.*;
 
 /**
  * A class that lets users load/unload programs.
@@ -42,6 +37,13 @@ public class ProgramManager extends PersistentState {
   private static boolean initialized;
 
   public static final String PROGRAMS_KEY = "Programs";
+  public static final String EXEC_POS_KEY = "ExecPos";
+  public static final String EXEC_POS_X_KEY = "X";
+  public static final String EXEC_POS_Y_KEY = "Y";
+  public static final String EXEC_POS_Z_KEY = "Z";
+  public static final String EXEC_ROT_KEY = "ExecRot";
+  public static final String EXEC_ROT_A_KEY = "A";
+  public static final String EXEC_ROT_B_KEY = "B";
   public static final String PROGRAM_KEY = "Program";
   public static final String SCHEDULE_KEY = "ScheduleDelay";
   public static final String REPEAT_AMOUNT_KEY = "RepeatAmount";
@@ -196,12 +198,15 @@ public class ProgramManager extends PersistentState {
    * @param alias    An optional alias to use in registries instead of first argument.
    *                 Useful when loading same program multiple times.
    * @param asModule If true, the program instance is returned instead of being loaded in this manager.
+   * @param execPos  Position of program’s executor.
+   * @param execRot  Rotation of program’s executor.
    * @param args     Optional command arguments for the program. Ignored if the program is loaded as a module.
    * @return The program.
    * @throws SyntaxErrorException         If a syntax error is present in the program’s source file.
    * @throws ProgramFileNotFoundException If no .mccode file was found for the given name.
    */
-  public Program loadProgram(final String name, final String alias, final boolean asModule, final String... args)
+  public Program loadProgram(final String name, final String alias, final boolean asModule, Vec3d execPos, Vec2f execRot,
+                             final String... args)
       throws SyntaxErrorException, ProgramFileNotFoundException, ProgramPathException {
     String actualName = alias != null ? alias : name;
     if (!asModule && this.programs.containsKey(actualName)) {
@@ -226,7 +231,7 @@ public class ProgramManager extends PersistentState {
       throw new ProgramFileNotFoundException(name + ".mccode");
     }
 
-    Program program = ProgramParser.parse(this, actualName, code.toString(), asModule, args);
+    Program program = ProgramParser.parse(this, actualName, execPos, execRot, code.toString(), asModule, args);
     if (!asModule) {
       this.loadProgram(program);
     }
@@ -353,6 +358,15 @@ public class ProgramManager extends PersistentState {
     for (Program p : this.programs.values()) {
       CompoundTag programTag = new CompoundTag();
       programTag.putTag(PROGRAM_KEY, p.writeToTag());
+      CompoundTag execPosTag = new CompoundTag();
+      execPosTag.putDouble(EXEC_POS_X_KEY, p.getExecutorPosition().getX());
+      execPosTag.putDouble(EXEC_POS_Y_KEY, p.getExecutorPosition().getY());
+      execPosTag.putDouble(EXEC_POS_Z_KEY, p.getExecutorPosition().getZ());
+      programTag.putTag(EXEC_POS_KEY, execPosTag);
+      CompoundTag execRotTag = new CompoundTag();
+      execRotTag.putDouble(EXEC_ROT_A_KEY, p.getExecutorRotation().x);
+      execRotTag.putDouble(EXEC_ROT_B_KEY, p.getExecutorRotation().y);
+      programTag.putTag(EXEC_ROT_KEY, execRotTag);
       String programName = p.getName();
       if (this.programsSchedules.containsKey(programName)) {
         programTag.putLong(SCHEDULE_KEY, this.programsSchedules.get(programName));
@@ -372,8 +386,19 @@ public class ProgramManager extends PersistentState {
     this.programsRepeats.clear();
     this.runningPrograms.clear();
     for (CompoundTag programTag : list) {
+      CompoundTag execPosTag = programTag.getCompound(EXEC_POS_KEY);
+      CompoundTag execRotTag = programTag.getCompound(EXEC_ROT_KEY);
+      Vec3d execPos = new Vec3d(
+          execPosTag.getDouble(EXEC_POS_X_KEY),
+          execPosTag.getDouble(EXEC_POS_Y_KEY),
+          execPosTag.getDouble(EXEC_POS_Z_KEY)
+      );
+      Vec2f execRot = new Vec2f(
+          execRotTag.getFloat(EXEC_ROT_A_KEY),
+          execRotTag.getFloat(EXEC_ROT_B_KEY)
+      );
       try {
-        Program program = new Program(programTag.getCompound(PROGRAM_KEY), this);
+        Program program = new Program(programTag.getCompound(PROGRAM_KEY), this, execPos, execRot);
         this.programs.put(program.getName(), program);
         if (programTag.contains(SCHEDULE_KEY, TagType.LONG_TAG_TYPE)) {
           this.programsSchedules.put(program.getName(), programTag.getLong(SCHEDULE_KEY));

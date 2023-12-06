@@ -9,9 +9,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.darmo_creations.mccode.MCCode;
-import net.darmo_creations.mccode.interpreter.ProgramManager;
-import net.darmo_creations.mccode.interpreter.Scope;
-import net.darmo_creations.mccode.interpreter.Utils;
+import net.darmo_creations.mccode.interpreter.*;
 import net.darmo_creations.mccode.interpreter.annotations.*;
 import net.darmo_creations.mccode.interpreter.exceptions.MCCodeRuntimeException;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
@@ -517,7 +515,7 @@ public class WorldType extends TypeBase<ServerWorld> {
     }
     MCMap tags = new MCMap();
     for (Entity entity : entities) {
-      tags.put(entity.getId() + "", new MCSet(entity.getScoreboardTags()));
+      tags.put(String.valueOf(entity.getId()), new MCSet(entity.getScoreboardTags()));
     }
     return tags;
   }
@@ -694,13 +692,16 @@ public class WorldType extends TypeBase<ServerWorld> {
     if (args.length != 0) {
       command += " " + String.join(" ", args);
     }
-    CommandSourceStackWrapper commandSourceStack = new CommandSourceStackWrapper(server, self);
+    Program program = scope.getProgram();
+    Vec3d execPos = program.getExecutorPosition();
+    Vec2f execRot = program.getExecutorRotation();
+    CommandSourceStackWrapper commandSourceStack = new CommandSourceStackWrapper(server, self, execPos, execRot);
     long result = server.getCommandManager().executeWithPrefix(commandSourceStack, command);
     if (result == 0 && commandSourceStack.anyFailures) {
-      final String dimension = Utils.getDimension(scope.getProgram().getProgramManager().getWorld());
+      final String dimension = Utils.getDimension(program.getProgramManager().getWorld());
       final String cmd = command;
       commandSourceStack.errors.forEach(text -> {
-        String prefix = "[Program %s in %s] world.execute(\"/%s\"): ".formatted(scope.getProgram().getName(), dimension, cmd);
+        String prefix = "[Program %s in %s] world.execute(\"/%s\"): ".formatted(program.getName(), dimension, cmd);
         MCCode.LOGGER.warn(prefix + text.getString());
       });
       return Optional.empty();
@@ -808,11 +809,11 @@ public class WorldType extends TypeBase<ServerWorld> {
      * The new instance has a permission level of 2 in order to
      * prevent op commands from being executed from within scripts.
      */
-    CommandSourceStackWrapper(CommandOutput source, ServerWorld world) {
+    CommandSourceStackWrapper(CommandOutput source, ServerWorld world, Vec3d executorPosition, Vec2f executorRotation) {
       super(
           source,
-          Vec3d.ofBottomCenter(world.getSpawnPos()),
-          Vec2f.ZERO,
+          executorPosition,
+          executorRotation,
           world,
           2,
           "Server", MutableText.of(new LiteralTextContent("Server")),

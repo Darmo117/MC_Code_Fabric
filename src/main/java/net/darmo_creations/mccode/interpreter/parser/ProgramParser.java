@@ -5,6 +5,7 @@ import net.darmo_creations.mccode.interpreter.ProgramManager;
 import net.darmo_creations.mccode.interpreter.exceptions.SyntaxErrorException;
 import net.darmo_creations.mccode.interpreter.parser.antlr4.MCCodeLexer;
 import net.darmo_creations.mccode.interpreter.parser.antlr4.MCCodeParser;
+import net.minecraft.util.math.*;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -26,19 +27,22 @@ public final class ProgramParser {
    *
    * @param programManager The manager that requests the program.
    * @param programName    Name of the program.
+   * @param execPos        Position of program’s executor.
+   * @param execRot        Rotation of program’s executor.
    * @param script         Code of the program.
    * @param asModule       Whether the program should be parsed as a module.
    * @param args           Optional command arguments for the program.
    * @return The program instance.
    * @throws SyntaxErrorException If a syntax error is encountered.
    */
-  public static Program parse(final ProgramManager programManager, final String programName, final String script, boolean asModule, final String... args)
+  public static Program parse(final ProgramManager programManager, final String programName, Vec3d execPos, Vec2f execRot,
+                              final String script, boolean asModule, final String... args)
       throws SyntaxErrorException {
     MCCodeLexer lexer = new MCCodeLexer(CharStreams.fromString(script));
     MCCodeParser parser = new MCCodeParser(new CommonTokenStream(lexer));
     ErrorListener errorListener = new ErrorListener();
     parser.addErrorListener(errorListener);
-    return new ProgramVisitor(programManager, programName, asModule, args).visit(parser.module());
+    return new ProgramVisitor(programManager, programName, asModule, execPos, execRot, args).visit(parser.module());
   }
 
   /**

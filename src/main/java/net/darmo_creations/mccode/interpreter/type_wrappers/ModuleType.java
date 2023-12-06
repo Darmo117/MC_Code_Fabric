@@ -7,6 +7,7 @@ import net.darmo_creations.mccode.interpreter.Variable;
 import net.darmo_creations.mccode.interpreter.annotations.Type;
 import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
 import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
+import net.minecraft.util.math.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -63,6 +64,8 @@ public class ModuleType extends TypeBase<Program> {
 
   @Override
   public Program readFromTag(final Scope scope, final CompoundTag tag) {
-    return new Program(tag.getCompound(MODULE_KEY), scope.getProgram().getProgramManager());
+    Vec3d execPos = scope.getProgram().getExecutorPosition();
+    Vec2f execRot = scope.getProgram().getExecutorRotation();
+    return new Program(tag.getCompound(MODULE_KEY), scope.getProgram().getProgramManager(), execPos, execRot);
   }
 }

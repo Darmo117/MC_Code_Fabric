@@ -7,6 +7,7 @@ import net.darmo_creations.mccode.interpreter.parser.antlr4.MCCodeBaseVisitor;
 import net.darmo_creations.mccode.interpreter.parser.antlr4.MCCodeParser;
 import net.darmo_creations.mccode.interpreter.statements.ImportStatement;
 import net.darmo_creations.mccode.interpreter.statements.Statement;
+import net.minecraft.util.math.*;
 
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +22,8 @@ public class ProgramVisitor extends MCCodeBaseVisitor<Program> {
   private final String programName;
   private final String[] args;
   private final boolean asModule;
+  private final Vec3d execPos;
+  private final Vec2f execRot;
 
   /**
    * Create a visitor for the given program name.
@@ -28,12 +31,17 @@ public class ProgramVisitor extends MCCodeBaseVisitor<Program> {
    * @param programManager Program manager that requests the program instance.
    * @param programName    Program’s name.
    * @param asModule       Whether the program should be parsed as a module.
+   * @param execPos        Position of program’s executor.
+   * @param execRot        Rotation of program’s executor.
    * @param args           Optional command arguments for the program.
    */
-  public ProgramVisitor(final ProgramManager programManager, final String programName, boolean asModule, final String... args) {
+  public ProgramVisitor(final ProgramManager programManager, final String programName, boolean asModule,
+                        Vec3d execPos, Vec2f execRot, final String... args) {
     this.programManager = programManager;
     this.asModule = asModule;
     this.programName = programName;
+    this.execPos = execPos;
+    this.execRot = execRot;
     this.args = args;
   }
 
@@ -75,9 +83,10 @@ public class ProgramVisitor extends MCCodeBaseVisitor<Program> {
 
     Program program;
     if (!this.asModule) {
-      program = new Program(this.programName, statements, scheduleDelay, repeatAmount, this.programManager, this.args);
+      program = new Program(this.programName, statements, scheduleDelay, repeatAmount, this.programManager,
+          this.execPos, this.execRot, this.args);
     } else {
-      program = new Program(this.programName, statements, this.programManager);
+      program = new Program(this.programName, statements, this.programManager, this.execPos, this.execRot);
     }
     return program;
   }

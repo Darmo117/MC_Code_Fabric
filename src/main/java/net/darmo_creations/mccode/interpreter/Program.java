@@ -1,22 +1,15 @@
 package net.darmo_creations.mccode.interpreter;
 
-import net.darmo_creations.mccode.interpreter.exceptions.EvaluationException;
-import net.darmo_creations.mccode.interpreter.exceptions.MCCodeRuntimeException;
-import net.darmo_creations.mccode.interpreter.exceptions.SyntaxErrorException;
-import net.darmo_creations.mccode.interpreter.statements.Statement;
-import net.darmo_creations.mccode.interpreter.statements.StatementAction;
-import net.darmo_creations.mccode.interpreter.statements.StatementTagHelper;
-import net.darmo_creations.mccode.interpreter.statements.WaitStatement;
-import net.darmo_creations.mccode.interpreter.tags.CompoundTag;
-import net.darmo_creations.mccode.interpreter.tags.StringListTag;
-import net.darmo_creations.mccode.interpreter.tags.TagType;
-import net.darmo_creations.mccode.interpreter.types.MCList;
-import net.darmo_creations.mccode.interpreter.types.MCMap;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.World;
+import net.darmo_creations.mccode.interpreter.exceptions.*;
+import net.darmo_creations.mccode.interpreter.statements.*;
+import net.darmo_creations.mccode.interpreter.tags.*;
+import net.darmo_creations.mccode.interpreter.types.*;
+import net.minecraft.server.*;
+import net.minecraft.util.math.*;
+import net.minecraft.world.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.*;
 
 /**
  * A program is composed of a list of statements that can be executed.
@@ -45,6 +38,8 @@ public class Program {
   private final List<Statement> statements;
   private final ProgramManager programManager;
   private final boolean isModule;
+  private final Vec3d executorPosition;
+  private final Vec2f executorRotation;
   private final Scope scope;
   private final CallStack callStack;
   private final Long scheduleDelay;
@@ -61,19 +56,24 @@ public class Program {
   /**
    * Create a new program.
    *
-   * @param name           Program’s name.
-   * @param statements     Program’s statements.
-   * @param scheduleDelay  Program’s schedule delay. May be null.
-   * @param repeatAmount   Program’s repeat amount. May be null.
-   * @param programManager Program’s manager.
-   * @param args           Optional command arguments for the program.
+   * @param name             Program’s name.
+   * @param statements       Program’s statements.
+   * @param scheduleDelay    Program’s schedule delay. May be null.
+   * @param repeatAmount     Program’s repeat amount. May be null.
+   * @param programManager   Program’s manager.
+   * @param executorPosition Position of program’s executor.
+   * @param executorRotation Rotation of program’s executor.
+   * @param args             Optional command arguments for the program.
    * @throws MCCodeRuntimeException If the schedule delay or repeat amount is negative or 0,
    *                                or a repeat amount is defined without a schedule delay.
    */
-  public Program(final String name, final List<Statement> statements, final Long scheduleDelay, final Long repeatAmount, ProgramManager programManager, String... args) {
+  public Program(final String name, final List<Statement> statements, final Long scheduleDelay, final Long repeatAmount,
+                 ProgramManager programManager, Vec3d executorPosition, Vec2f executorRotation, String... args) {
     this.programManager = Objects.requireNonNull(programManager);
     this.name = Objects.requireNonNull(name);
     this.statements = Objects.requireNonNull(statements);
+    this.executorPosition = executorPosition;
+    this.executorRotation = executorRotation;
     this.scope = new Scope(this);
     if (scheduleDelay != null && scheduleDelay <= 0) {
       throw new MCCodeRuntimeException(this.scope, null, "mccode.interpreter.error.invalid_schedule_delay", scheduleDelay);
@@ -98,14 +98,19 @@ public class Program {
    * Create a program as a sub-module.
    * Wait statements are not allowed in sub-modules.
    *
-   * @param name           Module’s name.
-   * @param statements     Module’s statements.
-   * @param programManager Module’s manager.
+   * @param name             Module’s name.
+   * @param statements       Module’s statements.
+   * @param programManager   Module’s manager.
+   * @param executorPosition Position of program’s executor.
+   * @param executorRotation Rotation of program’s executor.
    */
-  public Program(final String name, final List<Statement> statements, ProgramManager programManager) {
+  public Program(final String name, final List<Statement> statements, ProgramManager programManager,
+                 Vec3d executorPosition, Vec2f executorRotation) {
     this.programManager = Objects.requireNonNull(programManager);
     this.name = Objects.requireNonNull(name);
     this.statements = Objects.requireNonNull(statements);
+    this.executorPosition = executorPosition;
+    this.executorRotation = executorRotation;
     this.scope = new Scope(this);
     this.callStack = new CallStack();
     this.scheduleDelay = null;
@@ -120,14 +125,19 @@ public class Program {
   /**
    * Create a program from the given tag.
    *
-   * @param tag            Tag to deserialize.
-   * @param programManager Program’s manager.
+   * @param tag              Tag to deserialize.
+   * @param programManager   Program’s manager.
+   * @param executorPosition Position of program’s executor.
+   * @param executorRotation Rotation of program’s executor.
    */
-  public Program(final CompoundTag tag, ProgramManager programManager) {
+  public Program(final CompoundTag tag, ProgramManager programManager,
+                 Vec3d executorPosition, Vec2f executorRotation) {
     this.programManager = Objects.requireNonNull(programManager);
     this.name = tag.getString(NAME_KEY);
     this.statements = StatementTagHelper.deserializeStatementsList(tag, STATEMENTS_KEY);
     this.scope = new Scope(this, tag.getCompound(SCOPE_KEY));
+    this.executorPosition = executorPosition;
+    this.executorRotation = executorRotation;
     this.callStack = new CallStack();
     this.callStack.readFromTag(tag.getCompound(CALL_STACK_KEY));
     this.isModule = tag.getBoolean(IS_MODULE_KEY);
@@ -200,6 +210,20 @@ public class Program {
    */
   public Optional<Long> getRepeatAmount() {
     return Optional.ofNullable(this.repeatAmount);
+  }
+
+  /**
+   * Return the in-world position of the program’s executor (player or command block).
+   */
+  public Vec3d getExecutorPosition() {
+    return this.executorPosition;
+  }
+
+  /**
+   * Return the in-world rotation of the program’s executor (player or command block).
+   */
+  public Vec2f getExecutorRotation() {
+    return this.executorRotation;
   }
 
   /**
