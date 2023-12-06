@@ -38,6 +38,11 @@ public class MCCode implements ModInitializer {
       GameRules.Category.MISC,
       GameRuleFactory.createBooleanRule(true)
   );
+  public static final GameRules.Key<GameRules.BooleanRule> GR_SHOW_WARNING_MESSAGES = GameRuleRegistry.register(
+      "show_mccode_warning_messages",
+      GameRules.Category.MISC,
+      GameRuleFactory.createBooleanRule(false)
+  );
 
   private static MCCode instance;
 
@@ -156,9 +161,9 @@ public class MCCode implements ModInitializer {
       if (message != null) {
         message.setStyle(Style.EMPTY.withColor(Formatting.RED));
       }
-      // Only show error messages to players that can use the /program command
       if (world.getGameRules().getBoolean(GR_SHOW_ERROR_MESSAGES)) {
         final Text m = message;
+        // Only show error messages to players that can use the /program command
         world.getPlayers(PlayerEntity::isCreativeLevelTwoOp)
             .forEach(player -> player.sendMessage(m, false));
       }

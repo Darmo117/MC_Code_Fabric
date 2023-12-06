@@ -29,6 +29,7 @@ import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.NbtPathArgumentType;
 import net.minecraft.command.argument.RegistryPredicateArgumentType;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.*;
 import net.minecraft.nbt.*;
 import net.minecraft.network.message.SignedCommandArguments;
 import net.minecraft.predicate.NbtPredicate;
@@ -41,10 +42,8 @@ import net.minecraft.server.command.CommandOutput;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.LiteralTextContent;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.text.*;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec2f;
@@ -698,15 +697,25 @@ public class WorldType extends TypeBase<ServerWorld> {
     CommandSourceStackWrapper commandSourceStack = new CommandSourceStackWrapper(server, self, execPos, execRot);
     long result = server.getCommandManager().executeWithPrefix(commandSourceStack, command);
     if (result == 0 && commandSourceStack.anyFailures) {
-      final String dimension = Utils.getDimension(program.getProgramManager().getWorld());
-      final String cmd = command;
-      commandSourceStack.errors.forEach(text -> {
-        String prefix = "[Program %s in %s] world.execute(\"/%s\"): ".formatted(program.getName(), dimension, cmd);
-        MCCode.LOGGER.warn(prefix + text.getString());
-      });
+      String dimension = Utils.getDimension(program.getProgramManager().getWorld());
+      String prefix = "[Program %s in %s] ".formatted(program.getName(), dimension);
+      printWarning(self, prefix + "Command error: " + command);
+      commandSourceStack.errors.forEach(text -> printWarning(self, prefix + text.getString()));
       return Optional.empty();
     }
     return Optional.of(result);
+  }
+
+  private static void printWarning(ServerWorld self, String message) {
+    MCCode.LOGGER.warn(message);
+    if (self.getGameRules().getBoolean(MCCode.GR_SHOW_WARNING_MESSAGES)) {
+      // Only show warning messages to players that can use the /program command
+      self.getPlayers(PlayerEntity::isCreativeLevelTwoOp).forEach(player -> {
+        Text m = Text.literal(message)
+            .setStyle(Style.EMPTY.withColor(Formatting.GOLD));
+        player.sendMessage(m, false);
+      });
+    }
   }
 
   /**

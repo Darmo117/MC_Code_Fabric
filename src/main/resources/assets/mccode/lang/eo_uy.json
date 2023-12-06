@@ -3,6 +3,7 @@
   "chat.function_doc.tooltip": "Alklaku por montri la dok. por la funkcio %s.",
 
   "gamerule.show_mccode_error_messages": "Montri la erarmensaĝojn de MC Code",
+  "gamerule.show_mccode_warning_messages": "Montri la avertmensaĝojn de MC Code",
 
   "commands.program.feedback.program_launched": "Programo “%s” lanĉita.",
   "commands.program.feedback.program_stopped": "Programo “%s” haltita kaj malŝarĝita.",
