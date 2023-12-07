@@ -669,14 +669,25 @@ public class WorldType extends TypeBase<ServerWorld> {
       },
       returnTypeMetadata = @ReturnMeta(mayBeNull = true,
           doc = "The result of the command or #null if an error occured."),
-      doc = "Executes a command. See the Minecraft Wiki for more information. The /trigger command is not accepted and will raise an error ")
+      doc = "Executes a command." +
+          " Prefix the command name with @ to print warnings to the server console and chat when any occur, they will be hidden otherwise." +
+          " See the Minecraft Wiki for more information on commands." +
+          " The /trigger command is not accepted and will raise an error.")
   public Long executeCommand(final Scope scope, ServerWorld self, final String name, final Object... args) {
-    if ("trigger".equals(name)) {
-      throw new MCCodeRuntimeException(scope, name, "mccode.interpreter.error.illegal_command", name);
+    String cmdName;
+    boolean showWarnings = name.startsWith("@");
+    if (showWarnings) {
+      cmdName = name.substring(1);
+    } else {
+      cmdName = name;
+    }
+    if ("trigger".equals(cmdName.trim())) {
+      throw new MCCodeRuntimeException(scope, cmdName, "mccode.interpreter.error.illegal_command", cmdName);
     }
     return executeCommand(
         scope, self,
-        name,
+        cmdName,
+        showWarnings,
         Arrays.stream(args).map(o -> ProgramManager.getTypeForValue(o).toString(o)).toArray(String[]::new)
     ).orElse(null);
   }
@@ -685,7 +696,8 @@ public class WorldType extends TypeBase<ServerWorld> {
    * Utility methods
    */
 
-  private static Optional<Long> executeCommand(final Scope scope, ServerWorld self, final String commandName, final String... args) {
+  private static Optional<Long> executeCommand(final Scope scope, ServerWorld self, final String commandName,
+                                               boolean showWarnings, final String... args) {
     MinecraftServer server = self.getServer();
     String command = commandName;
     if (args.length != 0) {
@@ -696,11 +708,13 @@ public class WorldType extends TypeBase<ServerWorld> {
     Vec2f execRot = program.getExecutorRotation();
     CommandSourceStackWrapper commandSourceStack = new CommandSourceStackWrapper(server, self, execPos, execRot);
     long result = server.getCommandManager().executeWithPrefix(commandSourceStack, command);
-    if (result == 0 && commandSourceStack.anyFailures) {
-      String dimension = Utils.getDimension(program.getProgramManager().getWorld());
-      String prefix = "[Program %s in %s] ".formatted(program.getName(), dimension);
-      printWarning(self, prefix + "Command error: " + command);
-      commandSourceStack.errors.forEach(text -> printWarning(self, prefix + text.getString()));
+    if (commandSourceStack.anyFailures) {
+      if (showWarnings) {
+        String dimension = Utils.getDimension(program.getProgramManager().getWorld());
+        String prefix = "[Program %s in %s] ".formatted(program.getName(), dimension);
+        printWarning(self, prefix + "Command error: " + command);
+        commandSourceStack.errors.forEach(text -> printWarning(self, prefix + text.getString()));
+      }
       return Optional.empty();
     }
     return Optional.of(result);
@@ -807,11 +821,11 @@ public class WorldType extends TypeBase<ServerWorld> {
     /**
      * The list of all errors.
      */
-    final List<Text> errors;
+    final List<Text> errors = new LinkedList<>();
     /**
      * Whether any failures occured while executing the last command.
      */
-    boolean anyFailures;
+    boolean anyFailures = false;
 
     /**
      * Create a wrapper for a command source and level.
@@ -835,8 +849,6 @@ public class WorldType extends TypeBase<ServerWorld> {
           SignedCommandArguments.EMPTY,
           FutureQueue.NOOP
       );
-      this.errors = new LinkedList<>();
-      this.anyFailures = false;
     }
 
     @Override
